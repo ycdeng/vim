@@ -1,13 +1,13 @@
 so ~/.vim/vim/asc.vim
 so ~/.vim/vim/skywind.vim
-
-
 let g:bundle_group = ['simple', 'basic', 'inter', 'opt', 'ale', 'echodoc', 'high']
 so ~/.vim/vim/bundle.vim
 
 set clipboard=unnamedplus
 set nu
 set signcolumn=yes
+map j gj
+map k gk
 
 Plug 'tomasiser/vim-code-dark'
 
@@ -18,8 +18,7 @@ if has("gui_running")
   colorscheme codedark
 endif
 set wrap linebreak nolist
-map j gj
-map k gk
+
 set statusline+=%{gutentags#statusline()}
 
 
