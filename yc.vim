@@ -1,11 +1,14 @@
 so ~/.vim/vim/asc.vim
 so ~/.vim/vim/skywind.vim
-let g:bundle_group = ['simple', 'basic', 'inter', 'opt', 'ale', 'echodoc', 'high']
+let g:bundle_group = ['simple', 'basic', 'inter', 'opt', 'ale', 'echodoc', 'high', 'lightline']
 so ~/.vim/vim/bundle.vim
 
 set clipboard=unnamedplus
 set nu
 set signcolumn=yes
+" for lightline
+set laststatus=2
+
 map j gj
 map k gk
 
@@ -21,9 +24,17 @@ set wrap linebreak nolist
 
 set statusline+=%{gutentags#statusline()}
 
+cabbrev q <c-r>=(getcmdtype()==':' && getcmdpos()==1 ? 'close' : 'q')<CR>
 
 nnoremap <silent> <F5> :AsyncRun -raw -cwd=$(VIM_FILEDIR) "$(VIM_FILEDIR)/$(VIM_FILENOEXT)" <cr>
 nnoremap <silent> <F6> :AsyncRun -cwd=<root> -raw make check <cr>
 nnoremap <silent> <F7> :AsyncRun -cwd=<root> make -j12 -s <cr>
 nnoremap <silent> <F8> :AsyncRun -cwd=<root> -raw make distclean && ./configure --enable-cassert --enable-debug CFLAGS="-ggdb -Og -g3 -fno-omit-frame-pointer" <cr>
 nnoremap <silent> <F9> :AsyncRun gcc -Wall -O2 "$(VIM_FILEPATH)" -o "$(VIM_FILEDIR)/$(VIM_FILENOEXT)" <cr>
+
+noremap <leader>]t :LeaderfTagCword<cr>
+nnoremap <C-]> g]
+
+set list
+set listchars=tab:-->
+hi SpecialKey ctermfg=239 guifg=#999999
