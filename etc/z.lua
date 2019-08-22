@@ -4,7 +4,7 @@
 -- z.lua - a cd command that learns, by skywind 2018, 2019
 -- Licensed under MIT license.
 --
--- Version 1.7.1, Last Modified: 2019/06/07 22:07
+-- Version 1.7.2, Last Modified: 2019/08/01 19:45
 --
 -- * 10x faster than fasd and autojump, 3x faster than z.sh
 -- * available for posix shells: bash, zsh, sh, ash, dash, busybox
@@ -2010,14 +2010,14 @@ alias ${_ZL_CMD:-z}='_zlua'
 local script_init_bash = [[
 case "$PROMPT_COMMAND" in
 	*_zlua?--add*) ;;
-	*) PROMPT_COMMAND="(_zlua --add \"\$(command pwd 2>/dev/null)\" &);$PROMPT_COMMAND" ;;
+	*) PROMPT_COMMAND="(_zlua --add \"\$(command pwd 2>/dev/null)\" &)${PROMPT_COMMAND:+;$PROMPT_COMMAND}" ;;
 esac
 ]]
 
 local script_init_bash_fast = [[
 case "$PROMPT_COMMAND" in
 	*_zlua?--add*) ;;
-	*) PROMPT_COMMAND="(_zlua --add \"\$PWD\" &);$PROMPT_COMMAND" ;;
+	*) PROMPT_COMMAND="(_zlua --add \"\$PWD\" &)${PROMPT_COMMAND:+;$PROMPT_COMMAND}" ;;
 esac
 ]]
 
@@ -2029,7 +2029,7 @@ _zlua_precmd() {
 }
 case "$PROMPT_COMMAND" in
 	*_zlua_precmd*) ;;
-	*) PROMPT_COMMAND="_zlua_precmd;$PROMPT_COMMAND" ;;
+	*) PROMPT_COMMAND="_zlua_precmd${PROMPT_COMMAND:+;$PROMPT_COMMAND}" ;;
 esac
 ]]
 
@@ -2056,7 +2056,7 @@ local script_init_zsh = [[
 _zlua_precmd() {
 	(_zlua --add "${PWD:a}" &)
 }
-typeset -gaU precmd_functions
+typeset -ga precmd_functions
 [ -n "${precmd_functions[(r)_zlua_precmd]}" ] || {
 	precmd_functions[$(($#precmd_functions+1))]=_zlua_precmd
 }
@@ -2066,7 +2066,7 @@ local script_init_zsh_once = [[
 _zlua_precmd() {
 	(_zlua --add "${PWD:a}" &)
 }
-typeset -gaU chpwd_functions
+typeset -ga chpwd_functions
 [ -n "${chpwd_functions[(r)_zlua_precmd]}" ] || {
 	chpwd_functions[$(($#chpwd_functions+1))]=_zlua_precmd
 }
