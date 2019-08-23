@@ -1,7 +1,7 @@
 so ~/.vim/vim/asc.vim
 so ~/.vim/vim/skywind.vim
-let g:bundle_group = ['simple', 'basic', 'inter', 'opt', 'ale', 'echodoc', 'high', 'lightline']
-so ~/.vim/vim/bundle.vim
+let g:bundle_group = ['simple', 'basic', 'inter', 'opt', 'ale', 'echodoc', 'high', 'lightline', 'deoplete']
+so ~/.vim/vim/ycbundle.vim
 
 set clipboard=unnamedplus
 set nu
@@ -38,3 +38,7 @@ nnoremap <C-]> g]
 set list
 set listchars=tab:-->
 hi SpecialKey ctermfg=239 guifg=#999999
+
+" ignore .gitignore files
+let g:gutentags_file_list_command = 'rg --files'
+let g:gutentags_ctags_exclude = ['*.pm']
