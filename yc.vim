@@ -24,8 +24,6 @@ set wrap linebreak nolist
 
 set statusline+=%{gutentags#statusline()}
 
-cabbrev q <c-r>=(getcmdtype()==':' && getcmdpos()==1 ? 'close' : 'q')<CR>
-
 nnoremap <silent> <F5> :AsyncRun -raw -cwd=$(VIM_FILEDIR) "$(VIM_FILEDIR)/$(VIM_FILENOEXT)" <cr>
 nnoremap <silent> <F6> :AsyncRun -cwd=<root> -raw make check <cr>
 nnoremap <silent> <F7> :AsyncRun -cwd=<root> make -j12 -s <cr>
@@ -33,7 +31,7 @@ nnoremap <silent> <F8> :AsyncRun -cwd=<root> -raw make distclean && ./configure 
 nnoremap <silent> <F9> :AsyncRun gcc -Wall -O2 "$(VIM_FILEPATH)" -o "$(VIM_FILEDIR)/$(VIM_FILENOEXT)" <cr>
 
 noremap <leader>]t :LeaderfTagCword<cr>
-nnoremap <C-]> g]
+nnoremap <C-]> g<C-]>
 
 set list
 set listchars=tab:-->
@@ -42,3 +40,15 @@ hi SpecialKey ctermfg=239 guifg=#999999
 " ignore .gitignore files
 let g:gutentags_file_list_command = 'rg --files'
 let g:gutentags_ctags_exclude = ['*.pm']
+
+set autoread
+au FocusLost * silent! wa
+
+" deoplete autocomplete
+inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
+
+cabbrev wq w
+noremap <silent>\gd :vertical Gstatus<cr>
+
+
+set diffopt+=vertical
