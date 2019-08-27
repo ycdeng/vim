@@ -268,6 +268,7 @@ if index(g:bundle_group, 'deoplete') >= 0
 	if has('nvim')
 		Plug 'Shougo/deoplete.nvim'
 	else
+		Plug 'Shougo/context_filetype.vim'
 		Plug 'Shougo/deoplete.nvim'
 		Plug 'roxma/nvim-yarp'
 		Plug 'roxma/vim-hug-neovim-rpc'
@@ -286,16 +287,8 @@ if index(g:bundle_group, 'deoplete') >= 0
 	inoremap <expr><BS> deoplete#smart_close_popup()."\<bs>"
 	inoremap <expr> <cr> pumvisible() ? "\<C-y>\<cr>" : "\<cr>"
 
-	if 0
-		let g:deoplete#sources = {}
-		let g:deoplete#sources._ = ['buffer', 'dictionary']
-		" let g:deoplete#sources.cpp = ['clang']
-		let g:deoplete#sources.python = ['jedi']
-		let g:deoplete#sources.cpp = ['omni']
-	endif
 
 	set shortmess+=c
-	let g:echodoc#enable_at_startup = 1
 
 	if exists('g:python_host_prog')
 		let g:deoplete#sources#jedi#python_path = g:python_host_prog
@@ -308,7 +301,7 @@ endif
 " echodoc
 if index(g:bundle_group, 'echodoc') >= 0
 	Plug 'Shougo/echodoc.vim'
-	set noshowmode
+	set cmdheight=2
 	let g:echodoc#enable_at_startup = 1
 endif
 
@@ -431,8 +424,8 @@ if index(g:bundle_group, 'lsp') >= 0
 	" let g:LanguageClient_loggingLevel = 'DEBUG'
 	if !exists('g:LanguageClient_serverCommands')
 		let g:LanguageClient_serverCommands = {}
-		let g:LanguageClient_serverCommands.c = ['cquery']
-		let g:LanguageClient_serverCommands.cpp = ['cquery']
+		let g:LanguageClient_serverCommands.c = ['clangd']
+		let g:LanguageClient_serverCommands.cpp = ['clangd']
 	endif
 	noremap <leader>rd :call LanguageClient#textDocument_definition({'gotoCmd':'FileSwitch tabe'})<cr>
 	noremap <leader>re :call LanguageClient#textDocument_definition({'gotoCmd':'PreviewFile'})<cr>
