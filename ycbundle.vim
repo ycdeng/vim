@@ -147,10 +147,10 @@ if index(g:bundle_group, 'inter') >= 0
 	Plug 'vim-scripts/L9'
 	" Plug 'wsdjeg/FlyGrep.vim'
 	Plug 'tpope/vim-abolish'
-	Plug 'honza/vim-snippets'
+	" Plug 'honza/vim-snippets'
 	Plug 'MarcWeber/vim-addon-mw-utils'
 	Plug 'tomtom/tlib_vim'
-	Plug 'garbas/vim-snipmate'
+	" Plug 'garbas/vim-snipmate'
 	Plug 'vim-scripts/FuzzyFinder'
 	Plug 'rust-lang/rust.vim', { 'for': 'rust' }
 	Plug 'xolox/vim-notes', { 'on': ['Note', 'SearchNotes', 'DeleteNotes', 'RecentNotes'] }
@@ -182,21 +182,6 @@ if index(g:bundle_group, 'inter') >= 0
 	noremap <silent><tab>= :FufFile<cr>
 	noremap <silent><tab>[ :FufBuffer<cr>
 	noremap <silent><tab>] :FufBufferTag<cr>
-
-	if 0
-		imap <expr> <m-e> pumvisible() ? '<c-g>u<Plug>snipMateTrigger' : '<Plug>snipMateTrigger'
-		imap <expr> <m-n> pumvisible() ? '<c-g>u<Plug>snipMateNextOrTrigger' : '<Plug>snipMateNextOrTrigger'
-		smap <m-n> <Plug>snipMateNextOrTrigger
-		imap <expr> <m-p> pumvisible() ? '<c-g>u<Plug>snipMateBack' : '<Plug>snipMateBack'
-		smap <m-p> <Plug>snipMateBack
-		imap <expr> <m-m> pumvisible() ? '<c-g>u<Plug>snipMateShow' : '<Plug>snipMateShow'
-	elseif 1
-		imap <expr> <m-e> pumvisible() ? '<c-g>u<Plug>snipMateNextOrTrigger' : '<Plug>snipMateNextOrTrigger'
-		smap <m-e> <Plug>snipMateNextOrTrigger
-		imap <expr> <m-E> pumvisible() ? '<c-g>u<Plug>snipMateBack' : '<Plug>snipMateBack'
-		smap <m-E> <Plug>snipMateBack
-		imap <expr> <m-m> pumvisible() ? '<c-g>u<Plug>snipMateShow' : '<Plug>snipMateShow'
-	endif
 endif
 
 
@@ -273,7 +258,9 @@ if index(g:bundle_group, 'deoplete') >= 0
 		Plug 'roxma/nvim-yarp'
 		Plug 'roxma/vim-hug-neovim-rpc'
 	endif
-
+	Plug 'Shougo/echodoc.vim'
+	Plug 'Shougo/neosnippet.vim'
+	Plug 'Shougo/neosnippet-snippets'
 	" Plug 'zchee/deoplete-clang'
 	Plug 'zchee/deoplete-jedi'
 
@@ -289,12 +276,17 @@ if index(g:bundle_group, 'deoplete') >= 0
 
 
 	set shortmess+=c
+	set noshowmode
 
 	if exists('g:python_host_prog')
 		let g:deoplete#sources#jedi#python_path = g:python_host_prog
 	endif
 
 	let g:deoplete#sources#jedi#enable_cache = 1
+	inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
+	imap <m-e>     <Plug>(neosnippet_expand_or_jump)
+	smap <m-e>     <Plug>(neosnippet_expand_or_jump)
+	xmap <m-e>     <Plug>(neosnippet_expand_target)
 
 endif
 
@@ -360,8 +352,8 @@ if index(g:bundle_group, 'ale') >= 0
 
 	let g:airline#extensions#ale#enabled = 1
 	let g:ale_linters = {
-				\ 'c': ['gcc', 'cppcheck'], 
-				\ 'cpp': ['gcc', 'cppcheck'], 
+				\ 'c': ['clang', 'clangd'], 
+				\ 'cpp': ['clang', 'clangd'], 
 				\ 'python': ['flake8', 'pylint'], 
 				\ 'lua': ['luac'], 
 				\ 'go': ['go build', 'gofmt'],
@@ -388,10 +380,10 @@ if index(g:bundle_group, 'ale') >= 0
 	" let g:ale_linters.text = ['textlint', 'write-good', 'languagetool']
 	" let g:ale_linters.lua += ['luacheck']
 	
-	if executable('gcc') == 0 && executable('clang')
-		let g:ale_linters.c += ['clang']
-		let g:ale_linters.cpp += ['clang']
-	endif
+	" if executable('gcc') == 0 && executable('clang')
+	" 	let g:ale_linters.c += ['clang', 'clangd']
+	" 	let g:ale_linters.cpp += ['clang', 'clangd']
+	" endif
 endif
 
 if index(g:bundle_group, 'neomake') >= 0

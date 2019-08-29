@@ -14,6 +14,8 @@ set statusline+=%{gutentags#statusline()}
 set diffopt+=vertical
 set list
 set listchars=tab:-->
+" disable bracket jump when complete
+set matchtime=0
 au FocusLost * silent! wa
 " colors for listchars
 hi SpecialKey ctermfg=239 guifg=#999999
@@ -33,15 +35,11 @@ let g:gutentags_file_list_command = 'rg --files'
 " ignore filetype
 let g:gutentags_ctags_exclude = ['*.pm']
 
-
-" deoplete autocomplete
-inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
-
 " keymaps
 noremap <silent>\gd :vertical Gstatus<cr>
 map j gj
 map k gk
-
+nnoremap ; :
 nnoremap <silent> <F5> :AsyncRun -raw -cwd=$(VIM_FILEDIR) "$(VIM_FILEDIR)/$(VIM_FILENOEXT)" <cr>
 nnoremap <silent> <F6> :AsyncRun -cwd=<root> -raw make check <cr>
 nnoremap <silent> <F7> :AsyncRun -cwd=<root> make -j12 -s <cr>
@@ -49,6 +47,7 @@ nnoremap <silent> <F8> :AsyncRun -cwd=<root> -raw make distclean && ./configure 
 nnoremap <silent> <F9> :AsyncRun gcc -Wall -O2 "$(VIM_FILEPATH)" -o "$(VIM_FILEDIR)/$(VIM_FILENOEXT)" <cr>
 nnoremap <C-]> g<C-]>
 cabbrev wq w
-
- call deoplete#custom#source('LanguageClient', 'sorters', [])
+call deoplete#custom#source('LanguageClient', 'rank', 500)
+call deoplete#custom#source('omni', 'rank', 200)
+call deoplete#custom#source('ale', 'rank', 200)
 
