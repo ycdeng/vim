@@ -50,4 +50,7 @@ cabbrev wq w
 call deoplete#custom#source('LanguageClient', 'rank', 500)
 call deoplete#custom#source('omni', 'rank', 200)
 call deoplete#custom#source('ale', 'rank', 200)
-
+" zeal
+nnoremap <leader>z :!zeal "<cword>"<CR><CR>
+" insert mode
+autocmd InsertEnter,InsertLeave * set cul!

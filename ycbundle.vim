@@ -268,11 +268,8 @@ if index(g:bundle_group, 'deoplete') >= 0
 	let g:deoplete#enable_smart_case = 1
 	let g:deoplete#enable_refresh_always = 1
 
-	inoremap <expr><TAB> pumvisible() ? "\<C-n>" : "\<tab>"
-	inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
-	inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
-	inoremap <expr><BS> deoplete#smart_close_popup()."\<bs>"
-	inoremap <expr> <cr> pumvisible() ? "\<C-y>\<cr>" : "\<cr>"
+	inoremap <expr> <TAB> pumvisible() ? deoplete#close_popup() : "\<Tab>"
+
 
 
 	set shortmess+=c
@@ -283,7 +280,6 @@ if index(g:bundle_group, 'deoplete') >= 0
 	endif
 
 	let g:deoplete#sources#jedi#enable_cache = 1
-	inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
 	imap <m-e>     <Plug>(neosnippet_expand_or_jump)
 	smap <m-e>     <Plug>(neosnippet_expand_or_jump)
 	xmap <m-e>     <Plug>(neosnippet_expand_target)
