@@ -87,7 +87,6 @@ endif
 "----------------------------------------------------------------------
 if index(g:bundle_group, 'basic') >= 0
 	Plug 'tpope/vim-fugitive'
-	Plug 'mhinz/vim-startify'
 	Plug 'flazz/vim-colorschemes'
 	Plug 'xolox/vim-misc'
 	Plug 'terryma/vim-expand-region'
@@ -111,9 +110,6 @@ if index(g:bundle_group, 'basic') >= 0
 	
 	let g:Lf_MruMaxFiles = 2048
 	let g:Lf_StlSeparator = { 'left': '', 'right': '', 'font': '' }
-
-	noremap <space>ht :Startify<cr>
-	noremap <space>hy :tabnew<cr>:Startify<cr> 
 
 	let g:cpp_class_scope_highlight = 1
 	let g:cpp_member_variable_highlight = 1
