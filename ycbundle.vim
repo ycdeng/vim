@@ -99,26 +99,18 @@ if index(g:bundle_group, 'basic') >= 0
 	Plug 'tpope/vim-eunuch'
 	Plug 'dag/vim-fish'
 	
-	if has('python') || has('python3')
-		Plug 'Yggdroot/LeaderF'
-		let g:Lf_ShortcutF = '<c-p>'
-		let g:Lf_ShortcutB = '<m-n>'
-		noremap <c-n> :cclose<cr>:Leaderf mru --regexMode<cr>
-		noremap <m-p> :cclose<cr>:LeaderfFunction!<cr>
-		noremap <m-P> :cclose<cr>:LeaderfBufTag!<cr>
-		noremap <m-n> :cclose<cr>:LeaderfBuffer<cr>
-		noremap <m-m> :cclose<cr>:LeaderfTag<cr>
-		let g:Lf_MruMaxFiles = 2048
-		let g:Lf_StlSeparator = { 'left': '', 'right': '', 'font': '' }
-	else
-		Plug 'ctrlpvim/ctrlp.vim'
-		Plug 'tacahiroy/ctrlp-funky'
-		let g:ctrlp_map = ''
-		noremap <c-p> :cclose<cr>:CtrlP<cr>
-		noremap <c-n> :cclose<cr>:CtrlPMRUFiles<cr>
-		noremap <m-p> :cclose<cr>:CtrlPFunky<cr>
-		noremap <m-n> :cclose<cr>:CtrlPBuffer<cr>
-	endif
+	Plug 'Yggdroot/LeaderF'
+	let g:Lf_ShortcutF = '<c-p>'
+	let g:Lf_ShortcutB = '<m-n>'
+	noremap <c-n> :cclose<cr>:Leaderf mru --regexMode<cr>
+	noremap <m-p> :cclose<cr>:LeaderfFunction!<cr>
+	noremap <m-P> :cclose<cr>:LeaderfBufTag!<cr>
+	noremap <m-n> :cclose<cr>:LeaderfBuffer<cr>
+	noremap <m-m> :cclose<cr>:LeaderfTag<cr>
+	noremap <m-f> :cclose<cr>:Leaderf line --nowrap --stayOpen<cr>
+	
+	let g:Lf_MruMaxFiles = 2048
+	let g:Lf_StlSeparator = { 'left': '', 'right': '', 'font': '' }
 
 	noremap <space>ht :Startify<cr>
 	noremap <space>hy :tabnew<cr>:Startify<cr> 

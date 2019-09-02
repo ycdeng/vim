@@ -101,10 +101,10 @@ inoremap <M-l> <c-right>
 inoremap <M-j> <c-\><c-o>gj
 inoremap <M-k> <c-\><c-o>gk
 inoremap <M-y> <c-\><c-o>d$
-cnoremap <M-h> <c-left>
-cnoremap <M-l> <c-right>
-cnoremap <M-b> <c-left>
-cnoremap <M-f> <c-right>
+" cnoremap <M-h> <c-left>
+" cnoremap <M-l> <c-right>
+" cnoremap <M-b> <c-left>
+" cnoremap <M-f> <c-right>
 
 
 "----------------------------------------------------------------------
