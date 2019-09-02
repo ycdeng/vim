@@ -2108,16 +2108,6 @@ fun! s:apply_syntax_highlightings()
   exec 'hi IndentGuidesOdd'  . s:bg_background
   exec 'hi IndentGuidesEven'  . s:bg_cursorline
 
-  " Plugin: Startify
-  exec 'hi StartifyFile' . s:fg_blue . s:ft_bold
-  exec 'hi StartifyNumber' . s:fg_orange
-  exec 'hi StartifyHeader' . s:fg_comment
-  exec 'hi StartifySection' . s:fg_pink
-  exec 'hi StartifyPath' . s:fg_foreground
-  exec 'hi StartifySlash' . s:fg_navy
-  exec 'hi StartifyBracket' . s:fg_aqua
-  exec 'hi StartifySpecial' . s:fg_aqua
-
   " Git commit message
   exec 'hi gitcommitSummary' . s:fg_blue
   exec 'hi gitcommitHeader' . s:fg_green . s:ft_bold
