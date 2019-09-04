@@ -90,13 +90,13 @@ if index(g:bundle_group, 'basic') >= 0
 	Plug 'flazz/vim-colorschemes'
 	Plug 'xolox/vim-misc'
 	Plug 'terryma/vim-expand-region'
-	Plug 'pprovost/vim-ps1', { 'for': 'ps1' }
-	Plug 'tbastos/vim-lua', { 'for': 'lua' }
+	" Plug 'pprovost/vim-ps1', { 'for': 'ps1' }
+	" Plug 'tbastos/vim-lua', { 'for': 'lua' }
 	Plug 'octol/vim-cpp-enhanced-highlight', { 'for': ['c', 'cpp'] }
 	Plug 'justinmk/vim-syntax-extra', { 'for': ['c', 'bison', 'flex', 'cpp'] }
 	Plug 'vim-python/python-syntax', { 'for': ['python'] }
 	Plug 'tpope/vim-eunuch'
-	Plug 'dag/vim-fish'
+	" Plug 'dag/vim-fish'
 	
 	Plug 'Yggdroot/LeaderF'
 	let g:Lf_ShortcutF = '<c-p>'
@@ -106,7 +106,7 @@ if index(g:bundle_group, 'basic') >= 0
 	noremap <m-P> :cclose<cr>:LeaderfBufTag!<cr>
 	noremap <m-n> :cclose<cr>:LeaderfBuffer<cr>
 	noremap <m-m> :cclose<cr>:LeaderfTag<cr>
-	noremap <m-f> :cclose<cr>:Leaderf line --nowrap --stayOpen<cr>
+	noremap <m-f> :cclose<cr>:Leaderf line --regexMode --nowrap --stayOpen<cr>
 	
 	let g:Lf_MruMaxFiles = 2048
 	let g:Lf_StlSeparator = { 'left': '', 'right': '', 'font': '' }
