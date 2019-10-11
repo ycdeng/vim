@@ -106,7 +106,7 @@ if index(g:bundle_group, 'basic') >= 0
 	noremap <m-P> :cclose<cr>:LeaderfBufTag!<cr>
 	noremap <m-n> :cclose<cr>:LeaderfBuffer<cr>
 	noremap <m-m> :cclose<cr>:LeaderfTag<cr>
-	noremap <m-f> :cclose<cr>:Leaderf line --regexMode --nowrap --stayOpen<cr>
+	noremap <m-f> :cclose<cr>:Leaderf line --regexMode --nowrap<cr>
 	
 	let g:Lf_MruMaxFiles = 2048
 	let g:Lf_StlSeparator = { 'left': '', 'right': '', 'font': '' }
