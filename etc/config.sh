@@ -46,7 +46,7 @@ fi
 
 # setup for cheat
 if [ -d "$HOME/.vim/vim/cheat" ]; then
-	export DEFAULT_CHEAT_DIR=~/.vim/vim/cheat
+	export CHEAT_USER_DIR=~/.vim/vim/cheat
 fi
 
 
@@ -73,9 +73,9 @@ fi
 
 export VIM_CONFIG
 
-[ -d "$VIM_CONFIG/cheat" ] && export DEFAULT_CHEAT_DIR="$VIM_CONFIG/cheat"
+[ -d "$VIM_CONFIG/cheat" ] && export CHEAT_PATH="$VIM_CONFIG/cheat"
 
-export CHEATCOLORS=true
+export CHEAT_COLORS=true
 
 if [ -f "$HOME/.local/lib/python/compinit.py" ]; then
 	export PYTHONSTARTUP="$HOME/.local/lib/python/compinit.py"
