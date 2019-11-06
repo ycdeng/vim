@@ -87,6 +87,7 @@ endif
 "----------------------------------------------------------------------
 if index(g:bundle_group, 'basic') >= 0
 	Plug 'tpope/vim-fugitive'
+	Plug 'airblade/vim-gitgutter'
 	Plug 'flazz/vim-colorschemes'
 	Plug 'xolox/vim-misc'
 	Plug 'terryma/vim-expand-region'
@@ -94,8 +95,9 @@ if index(g:bundle_group, 'basic') >= 0
 	" Plug 'tbastos/vim-lua', { 'for': 'lua' }
 	Plug 'octol/vim-cpp-enhanced-highlight', { 'for': ['c', 'cpp'] }
 	Plug 'justinmk/vim-syntax-extra', { 'for': ['c', 'bison', 'flex', 'cpp'] }
-	Plug 'vim-python/python-syntax', { 'for': ['python'] }
-	Plug 'tpope/vim-eunuch'
+	" Plug 'vim-python/python-syntax', { 'for': ['python'] }
+	" Plug 'tpope/vim-eunuch'
+	Plug 'tpope/vim-commentary'
 	" Plug 'dag/vim-fish'
 	
 	Plug 'Yggdroot/LeaderF'
@@ -107,7 +109,10 @@ if index(g:bundle_group, 'basic') >= 0
 	noremap <m-n> :cclose<cr>:LeaderfBuffer<cr>
 	noremap <m-m> :cclose<cr>:LeaderfTag<cr>
 	noremap <m-f> :cclose<cr>:Leaderf line --regexMode --nowrap<cr>
-	
+	noremap <leader>ff :<C-U><C-R>=printf("Leaderf! rg --stayOpen -e %s ", expand("<cword>"))<CR>
+	noremap <leader>fw :<C-U><C-R>=printf("Leaderf! rg --stayOpen -w -e %s ", expand("<cword>"))<CR>
+	noremap <leader>fsw :<C-U><C-R>=printf("Leaderf! rg --stayOpen -s -w -e %s ", expand("<cword>"))<CR>
+
 	let g:Lf_MruMaxFiles = 2048
 	let g:Lf_StlSeparator = { 'left': '', 'right': '', 'font': '' }
 
@@ -134,18 +139,18 @@ end
 if index(g:bundle_group, 'inter') >= 0
 	Plug 'vim-scripts/L9'
 	" Plug 'wsdjeg/FlyGrep.vim'
-	Plug 'tpope/vim-abolish'
+	" Plug 'tpope/vim-abolish'
 	" Plug 'honza/vim-snippets'
-	Plug 'MarcWeber/vim-addon-mw-utils'
+	" Plug 'MarcWeber/vim-addon-mw-utils'
 	Plug 'tomtom/tlib_vim'
 	" Plug 'garbas/vim-snipmate'
 	Plug 'vim-scripts/FuzzyFinder'
 	Plug 'rust-lang/rust.vim', { 'for': 'rust' }
-	Plug 'xolox/vim-notes', { 'on': ['Note', 'SearchNotes', 'DeleteNotes', 'RecentNotes'] }
+	" Plug 'xolox/vim-notes', { 'on': ['Note', 'SearchNotes', 'DeleteNotes', 'RecentNotes'] }
 	Plug 'skywind3000/vimoutliner', { 'for': 'votl' }
 	Plug 'mattn/webapi-vim'
-	Plug 'mattn/gist-vim'
-	Plug 'lambdalisue/vim-gista', { 'on': 'Gista' }
+	" Plug 'mattn/gist-vim'
+	" Plug 'lambdalisue/vim-gista', { 'on': 'Gista' }
 	" Plug 'Yggdroot/indentLine'
 
 	if has('python')

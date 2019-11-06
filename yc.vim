@@ -42,7 +42,7 @@ map k gk
 nnoremap ; :
 nnoremap <silent> <F5> :AsyncRun -raw -cwd=$(VIM_FILEDIR) "$(VIM_FILEDIR)/$(VIM_FILENOEXT)" <cr>
 nnoremap <silent> <F6> :AsyncRun -cwd=<root> -raw make check <cr>
-nnoremap <silent> <F7> :AsyncRun -cwd=<root> make -j12 -s <cr>
+nnoremap <silent> <F7> :AsyncRun -cwd=<root> -raw sudo make install<cr>
 nnoremap <silent> <F8> :AsyncRun -cwd=<root> -raw make distclean && ./configure --enable-cassert --enable-debug CFLAGS="-ggdb -Og -g3 -fno-omit-frame-pointer" <cr>
 nnoremap <silent> <F9> :AsyncRun gcc -Wall -O2 "$(VIM_FILEPATH)" -o "$(VIM_FILEDIR)/$(VIM_FILENOEXT)" <cr>
 nnoremap <C-]> g<C-]>
@@ -54,3 +54,10 @@ call deoplete#custom#source('ale', 'rank', 200)
 nnoremap <leader>z :!zeal "<cword>"<CR><CR>
 " insert mode
 autocmd InsertEnter,InsertLeave * set cul!
+nmap <silent> <leader>vs :exec '!code % &'
+" makecheck orafce
+nmap <silent> <leader>co :AsyncRun -mode=2 -cwd=<root>/contrib/orafce -raw make check <cr>
+" quick fix window startup size
+let g:asyncrun_open = 12
+
+set completeopt=menu,noinsert
