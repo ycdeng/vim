@@ -10,10 +10,11 @@ set signcolumn=yes
 set laststatus=2
 set wrap linebreak
 set autoread
+au CursorHold * checktime  
 set statusline+=%{gutentags#statusline()}
 set diffopt+=vertical
 set list
-set listchars=tab:-->
+set listchars=tab:--#
 " disable bracket jump when complete
 set matchtime=0
 au FocusLost * silent! wa
@@ -47,7 +48,7 @@ nnoremap <silent> <F8> :AsyncRun -cwd=<root> -raw make distclean && ./configure 
 nnoremap <silent> <F9> :AsyncRun gcc -Wall -O2 "$(VIM_FILEPATH)" -o "$(VIM_FILEDIR)/$(VIM_FILENOEXT)" <cr>
 nnoremap <C-]> g<C-]>
 cabbrev wq w
-call deoplete#custom#source('LanguageClient', 'rank', 500)
+call deoplete#custom#source('LanguageClient', 'rank', 100)
 call deoplete#custom#source('omni', 'rank', 200)
 call deoplete#custom#source('ale', 'rank', 200)
 " zeal
@@ -61,3 +62,12 @@ nmap <silent> <leader>co :AsyncRun -mode=2 -cwd=<root>/contrib/orafce -raw make 
 let g:asyncrun_open = 12
 
 set completeopt=menu,noinsert
+" turn off netrw banner
+let g:netrw_banner = 0
+" set termwinkey=<c-j>
+
+" if match(getcwd(), "/pgsql") >=0 ||  match(getcwd(), "/postgresql") >= 0 ||  match(getcwd(), "/atlasdb") >= 0
+"   set cinoptions=(0
+"   set tabstop=4
+"   set shiftwidth=4
+" endif

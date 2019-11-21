@@ -52,6 +52,7 @@ if index(g:bundle_group, 'simple') >= 0
 	Plug 'justinmk/vim-dirvish'
 	Plug 'justinmk/vim-sneak'
 	Plug 'tpope/vim-unimpaired'
+	Plug 'tpope/vim-vinegar'
 	Plug 'godlygeek/tabular', { 'on': 'Tabularize' }
 	Plug 'bootleq/vim-cycle'
 	Plug 'tpope/vim-surround'
@@ -171,10 +172,10 @@ if index(g:bundle_group, 'inter') >= 0
 		silent! call mkdir(expand('~/.vim/notes'), 'p')
 	endif
 
-	noremap <silent><tab>- :FufMruFile<cr>
-	noremap <silent><tab>= :FufFile<cr>
-	noremap <silent><tab>[ :FufBuffer<cr>
-	noremap <silent><tab>] :FufBufferTag<cr>
+	" noremap <silent><tab>- :FufMruFile<cr>
+	" noremap <silent><tab>= :FufFile<cr>
+	" noremap <silent><tab>[ :FufBuffer<cr>
+	" noremap <silent><tab>] :FufBufferTag<cr>
 endif
 
 
@@ -243,10 +244,11 @@ endif
 
 " deoplete
 if index(g:bundle_group, 'deoplete') >= 0
+	let g:python_host_prog = "/usr/bin/python2"
+	let g:python3_host_prog = "/usr/bin/python3"
 	if has('nvim')
-		Plug 'Shougo/deoplete.nvim'
+		Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 	else
-		Plug 'Shougo/context_filetype.vim'
 		Plug 'Shougo/deoplete.nvim'
 		Plug 'roxma/nvim-yarp'
 		Plug 'roxma/vim-hug-neovim-rpc'
@@ -255,35 +257,36 @@ if index(g:bundle_group, 'deoplete') >= 0
 	Plug 'Shougo/neosnippet.vim'
 	Plug 'Shougo/neosnippet-snippets'
 	" Plug 'zchee/deoplete-clang'
-	Plug 'zchee/deoplete-jedi'
+	" Plug 'zchee/deoplete-jedi'
 
 	let g:deoplete#enable_at_startup = 1
-	let g:deoplete#enable_smart_case = 1
-	let g:deoplete#enable_refresh_always = 1
+	" let g:deoplete#enable_smart_case = 1
+	" let g:deoplete#enable_refresh_always = 1
 
 	inoremap <expr> <TAB> pumvisible() ? deoplete#close_popup() : "\<Tab>"
 
-
+smap <expr><TAB> neosnippet#expandable_or_jumpable() ?
+\ "\<Plug>(neosnippet_expand_or_jump)" : "\<TAB>"
 
 	set shortmess+=c
 	set noshowmode
 
-	if exists('g:python_host_prog')
-		let g:deoplete#sources#jedi#python_path = g:python_host_prog
-	endif
-
+	" if exists('g:python_host_prog')
+	" 	let g:deoplete#sources#jedi#python_path = g:python_host_prog
+	" endif
 	let g:deoplete#sources#jedi#enable_cache = 1
-	imap <m-e>     <Plug>(neosnippet_expand_or_jump)
-	smap <m-e>     <Plug>(neosnippet_expand_or_jump)
-	xmap <m-e>     <Plug>(neosnippet_expand_target)
+	imap <m-r>     <Plug>(neosnippet_expand_or_jump)
+	smap <m-r>     <Plug>(neosnippet_expand_or_jump)
+	xmap <m-r>     <Plug>(neosnippet_expand_target)
 
 endif
 
 " echodoc
 if index(g:bundle_group, 'echodoc') >= 0
 	Plug 'Shougo/echodoc.vim'
-	set cmdheight=2
-	let g:echodoc#enable_at_startup = 1
+set cmdheight=2
+let g:echodoc#enable_at_startup = 1
+let g:echodoc#type = 'signature'
 endif
 
 " airline
@@ -380,18 +383,18 @@ if index(g:bundle_group, 'neomake') >= 0
 endif
 
 
-if index(g:bundle_group, 'neocomplete') >= 0
-	Plug 'Shougo/neocomplete.vim'
-	let g:neocomplete#enable_at_startup = 1
-	let g:neocomplete#sources#syntax#min_keyword_length = 2
-	inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
-	inoremap <expr><BS> neocomplete#smart_close_popup()."\<C-h>"
-	inoremap <expr><C-g><C-g> neocomplete#undo_completion()
-	inoremap <silent> <CR> <C-r>=<SID>my_cr_function()<CR>
-	function! s:my_cr_function()
-		return (pumvisible() ? "\<C-y>" : "" ) . "\<CR>"
-	endfunction
-endif
+" if index(g:bundle_group, 'neocomplete') >= 0
+" 	Plug 'Shougo/neocomplete.vim'
+" 	let g:neocomplete#enable_at_startup = 1
+" 	let g:neocomplete#sources#syntax#min_keyword_length = 2
+" 	inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
+" 	inoremap <expr><BS> neocomplete#smart_close_popup()."\<C-h>"
+" 	inoremap <expr><C-g><C-g> neocomplete#undo_completion()
+" 	inoremap <silent> <CR> <C-r>=<SID>my_cr_function()<CR>
+" 	function! s:my_cr_function()
+" 		return (pumvisible() ? "\<C-y>" : "" ) . "\<CR>"
+" 	endfunction
+" endif
 
 
 if index(g:bundle_group, 'lsp') >= 0
@@ -408,10 +411,18 @@ if index(g:bundle_group, 'lsp') >= 0
 		let g:LanguageClient_serverCommands.c = ['clangd']
 		let g:LanguageClient_serverCommands.cpp = ['clangd']
 	endif
-	noremap <leader>rd :call LanguageClient#textDocument_definition({'gotoCmd':'FileSwitch tabe'})<cr>
-	noremap <leader>re :call LanguageClient#textDocument_definition({'gotoCmd':'PreviewFile'})<cr>
-	noremap <leader>rr :call LanguageClient#textDocument_references()<cr>
-	noremap <leader>rv :call LanguageClient#textDocument_hover()<cr>
+
+	nnoremap <leader>ld :call LanguageClient#textDocument_definition()<CR>
+	nnoremap <leader>lr :call LanguageClient#textDocument_rename()<CR>
+	nnoremap <leader>lf :call LanguageClient#textDocument_formatting()<CR>
+	nnoremap <leader>lt :call LanguageClient#textDocument_typeDefinition()<CR>
+	nnoremap <leader>lx :call LanguageClient#textDocument_references()<CR>
+	nnoremap <leader>la :call LanguageClient_workspace_applyEdit()<CR>
+	nnoremap <leader>lc :call LanguageClient#textDocument_completion()<CR>
+	nnoremap <leader>lh :call LanguageClient#textDocument_hover()<CR>
+	nnoremap <leader>ls :call LanguageClient_textDocument_documentSymbol()<CR>
+	nnoremap <leader>lm :call LanguageClient_contextMenu()<CR>
+
 endif
 
 if index(g:bundle_group, 'keysound') >= 0
