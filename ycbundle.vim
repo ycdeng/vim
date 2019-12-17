@@ -101,7 +101,7 @@ if index(g:bundle_group, 'basic') >= 0
 	Plug 'tpope/vim-commentary'
 	" Plug 'dag/vim-fish'
 	
-	Plug 'Yggdroot/LeaderF'
+ 	Plug 'Yggdroot/LeaderF', { 'do': './install.sh' }
 	let g:Lf_ShortcutF = '<c-p>'
 	let g:Lf_ShortcutB = '<m-n>'
 	noremap <c-n> :cclose<cr>:Leaderf mru --regexMode<cr>
@@ -154,15 +154,15 @@ if index(g:bundle_group, 'inter') >= 0
 	" Plug 'lambdalisue/vim-gista', { 'on': 'Gista' }
 	" Plug 'Yggdroot/indentLine'
 
-	if has('python')
-		Plug 'skywind3000/vimpress', { 'on': ['BlogPreview', 'BlogSave', 'BlogNew', 'BlogList'] }
-		noremap <space>bp :BlogPreview local<cr>
-		noremap <space>bb :BlogPreview publish<cr>
-		noremap <space>bs :BlogSave<cr>
-		noremap <space>bd :BlogSave draft<cr>
-		noremap <space>bn :BlogNew post<cr>
-		noremap <space>bl :BlogList<cr>
-	endif
+	" if has('python')
+	" 	Plug 'skywind3000/vimpress', { 'on': ['BlogPreview', 'BlogSave', 'BlogNew', 'BlogList'] }
+	" 	noremap <space>bp :BlogPreview local<cr>
+	" 	noremap <space>bb :BlogPreview publish<cr>
+	" 	noremap <space>bs :BlogSave<cr>
+	" 	noremap <space>bd :BlogSave draft<cr>
+	" 	noremap <space>bn :BlogNew post<cr>
+	" 	noremap <space>bl :BlogList<cr>
+	" endif
 
 	if has('python') || has('python3')
 		" Plug 'SirVer/ultisnips'

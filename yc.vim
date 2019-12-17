@@ -1,6 +1,6 @@
 so ~/.vim/vim/asc.vim
 so ~/.vim/vim/skywind.vim
-let g:bundle_group = ['simple', 'basic', 'inter', 'opt', 'ale', 'high', 'lightline', 'deoplete', 'lsp' ,'echodoc']
+let g:bundle_group = ['simple', 'basic', 'inter', 'ale', 'high', 'lightline', 'deoplete', 'lsp' ,'echodoc']
 so ~/.vim/vim/ycbundle.vim
 
 set clipboard=unnamedplus
@@ -45,7 +45,7 @@ nnoremap <silent> <F5> :AsyncRun -raw -cwd=$(VIM_FILEDIR) "$(VIM_FILEDIR)/$(VIM_
 nnoremap <silent> <F6> :AsyncRun -cwd=<root> -raw make check <cr>
 nnoremap <silent> <F7> :AsyncRun -cwd=<root> -raw sudo make install<cr>
 nnoremap <silent> <F8> :AsyncRun -cwd=<root> -raw make distclean && ./configure --enable-cassert --enable-debug CFLAGS="-ggdb -Og -g3 -fno-omit-frame-pointer" <cr>
-nnoremap <silent> <F9> :AsyncRun gcc -Wall -O2 "$(VIM_FILEPATH)" -o "$(VIM_FILEDIR)/$(VIM_FILENOEXT)" <cr>
+nnoremap <silent> <F9> :AsyncRun gcc -Wall -O2 "$(VIM_FILEPATH)" -o "$(VIM_FILEDIR)/$(VIM_FILENOEXT)" <cr> q
 nnoremap <C-]> g<C-]>
 cabbrev wq w
 call deoplete#custom#source('LanguageClient', 'rank', 100)
