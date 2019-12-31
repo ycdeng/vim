@@ -30,9 +30,14 @@ endif
 highlight LineNr term=bold cterm=NONE ctermfg=DarkGrey ctermbg=NONE 
 	\ gui=NONE guifg=#585858 guibg=NONE
 
-" tune completion popup menu
-hi! Pmenu guibg=gray guifg=black ctermbg=gray ctermfg=black
-hi! PmenuSel guibg=gray guifg=brown ctermbg=brown ctermfg=gray
-
 hi! SignColumn guibg=NONE ctermbg=NONE
+
+if get(g:, 'quickui_color_pmenu', 0) == 0
+	if get(g:, 'quickui_color_theme', '') != 'vim'
+		" tune completion popup menu
+		hi! Pmenu guibg=gray guifg=black ctermbg=gray ctermfg=black
+		hi! PmenuSel guibg=gray guifg=brown ctermbg=brown ctermfg=gray
+	endif
+endif
+
 

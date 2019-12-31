@@ -160,6 +160,8 @@ if has('gui_running')
 	VimImport site/hexhigh.vim
 endif
 
+runtime! macros/matchit.vim
+
 
 "----------------------------------------------------------------------
 "- OmniCpp
@@ -177,8 +179,11 @@ let OmniCpp_DefaultNamespaces = ["std", "_GLIBCXX_STD"]
 "----------------------------------------------------------------------
 "- bufferhint
 "----------------------------------------------------------------------
-" nnoremap + :call bufferhint#Popup()<CR>
-" nnoremap <leader>p :call bufferhint#LoadPrevious()<CR>
+if has('patch-8.2.1')
+	nnoremap <silent>+ :call quickui#tools#list_buffer('FileSwitch tabe')<cr>
+else
+	nnoremap + :call bufferhint#Popup()<CR>
+endif
 
 " let g:bufferhint_CustomHighlight = 1
 " hi! default link KeyHint Statement

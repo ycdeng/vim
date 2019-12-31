@@ -147,12 +147,12 @@ end
 if index(g:bundle_group, 'inter') >= 0
 	Plug 'vim-scripts/L9'
 	" Plug 'wsdjeg/FlyGrep.vim'
-	Plug 'tpope/vim-abolish'
+	" Plug 'tpope/vim-abolish'
 	Plug 'honza/vim-snippets'
 	Plug 'MarcWeber/vim-addon-mw-utils'
 	Plug 'tomtom/tlib_vim'
 	Plug 'garbas/vim-snipmate'
-	Plug 'vim-scripts/FuzzyFinder'
+	" Plug 'vim-scripts/FuzzyFinder'
 	Plug 'rust-lang/rust.vim', { 'for': 'rust' }
 	Plug 'xolox/vim-notes', { 'on': ['Note', 'SearchNotes', 'DeleteNotes', 'RecentNotes'] }
 	Plug 'skywind3000/vimoutliner', { 'for': 'votl' }
