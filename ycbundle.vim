@@ -139,6 +139,7 @@ end
 "----------------------------------------------------------------------
 if index(g:bundle_group, 'inter') >= 0
 	Plug 'vim-scripts/L9'
+	Plug 'ludovicchabant/vim-gutentags'
 	" Plug 'wsdjeg/FlyGrep.vim'
 	" Plug 'tpope/vim-abolish'
 	" Plug 'honza/vim-snippets'
@@ -284,7 +285,6 @@ endif
 " echodoc
 if index(g:bundle_group, 'echodoc') >= 0
 	Plug 'Shougo/echodoc.vim'
-set cmdheight=2
 let g:echodoc#enable_at_startup = 1
 let g:echodoc#type = 'signature'
 endif
