@@ -398,7 +398,7 @@ endif
 
 
 if index(g:bundle_group, 'lsp') >= 0
-	Plug 'autozimu/LanguageClient-neovim', { 'branch': 'next' }
+	Plug 'autozimu/LanguageClient-neovim', { 'branch': 'next', 'do': 'bash install.sh' }
 	let g:LanguageClient_loadSettings = 1
 	let g:LanguageClient_diagnosticsEnable = 0
 	let g:LanguageClient_settingsPath = expand('~/.vim/languageclient.json')
