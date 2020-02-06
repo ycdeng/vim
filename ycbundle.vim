@@ -139,7 +139,7 @@ end
 "----------------------------------------------------------------------
 if index(g:bundle_group, 'inter') >= 0
 	Plug 'vim-scripts/L9'
-	Plug 'ludovicchabant/vim-gutentags'
+	" Plug 'ludovicchabant/vim-gutentags'
 	" Plug 'wsdjeg/FlyGrep.vim'
 	" Plug 'tpope/vim-abolish'
 	" Plug 'honza/vim-snippets'
@@ -230,7 +230,7 @@ if index(g:bundle_group, 'opt') >= 0
 	endif
 	if len(g:gutentags_modules) > 0
 		if s:uname != 'windows'
-			Plug 'ludovicchabant/vim-gutentags'
+			Plug 'ludovicchabant/vim-gutentags', {'commit': 'bec1e92'}
 		else
 			Plug 'ludovicchabant/vim-gutentags'
 			" Plug 'skywind3000/vim-gutentags'

@@ -1,6 +1,6 @@
 so ~/.vim/vim/asc.vim
 so ~/.vim/vim/skywind.vim
-let g:bundle_group = ['simple', 'basic', 'inter', 'ale', 'high', 'lightline', 'deoplete', 'lsp' ,'echodoc']
+let g:bundle_group = ['simple', 'basic', 'inter', 'ale', 'high', 'lightline', 'deoplete', 'lsp' ,'echodoc', 'opt']
 so ~/.vim/vim/ycbundle.vim
 
 set clipboard=unnamedplus
@@ -69,3 +69,5 @@ let g:netrw_banner = 0
 "   set tabstop=4
 "   set shiftwidth=4
 " endif
+
+let g:Lf_PopupColorscheme = 'dark'
