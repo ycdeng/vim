@@ -62,8 +62,8 @@ if index(g:bundle_group, 'simple') >= 0
 	vnoremap gb= :Tabularize /=<CR>
 	nnoremap gb/ :Tabularize /\/\//l4c1<CR>
 	vnoremap gb/ :Tabularize /\/\//l4c1<CR>
-	nnoremap gb, :Tabularize /,/l0r1<CR>
-	vnoremap gb, :Tabularize /,/l0r1<CR>
+	nnoremap gb, :Tabularize /,/r0l1<CR>
+	vnoremap gb, :Tabularize /,/r0l1<CR>
 	nnoremap gbl :Tabularize /\|<cr>
 	vnoremap gbl :Tabularize /\|<cr>
 	nnoremap gbc :Tabularize /#/l4c1<cr>
@@ -129,8 +129,8 @@ if index(g:bundle_group, 'basic') >= 0
 	let g:python_highlight_builtin_types = 1
 	let g:python_highlight_builtin_funcs = 1
 
-	map <m-=> <Plug>(expand_region_expand)
-	map <m--> <Plug>(expand_region_shrink)
+	map <m-+> <Plug>(expand_region_expand)
+	map <m-_> <Plug>(expand_region_shrink)
 end
 
 
@@ -154,16 +154,6 @@ if index(g:bundle_group, 'inter') >= 0
 	" Plug 'mattn/gist-vim'
 	" Plug 'lambdalisue/vim-gista', { 'on': 'Gista' }
 	" Plug 'Yggdroot/indentLine'
-
-	" if has('python')
-	" 	Plug 'skywind3000/vimpress', { 'on': ['BlogPreview', 'BlogSave', 'BlogNew', 'BlogList'] }
-	" 	noremap <space>bp :BlogPreview local<cr>
-	" 	noremap <space>bb :BlogPreview publish<cr>
-	" 	noremap <space>bs :BlogSave<cr>
-	" 	noremap <space>bd :BlogSave draft<cr>
-	" 	noremap <space>bn :BlogNew post<cr>
-	" 	noremap <space>bl :BlogList<cr>
-	" endif
 
 	if has('python') || has('python3')
 		" Plug 'SirVer/ultisnips'
@@ -230,7 +220,7 @@ if index(g:bundle_group, 'opt') >= 0
 	endif
 	if len(g:gutentags_modules) > 0
 		if s:uname != 'windows'
-			Plug 'ludovicchabant/vim-gutentags', {'commit': 'bec1e92'}
+			Plug 'ludovicchabant/vim-gutentags'
 		else
 			Plug 'ludovicchabant/vim-gutentags'
 			" Plug 'skywind3000/vim-gutentags'
@@ -435,8 +425,12 @@ endif
 "----------------------------------------------------------------------
 " packages end
 "----------------------------------------------------------------------
-if g:bundle_post != ''
-	exec g:bundle_post
+if exists('g:bundle_post')
+	if type(g:bundle_post) == v:t_string
+		exec g:bundle_post
+	elseif type(g:bundle_post) == v:t_list
+		exec join(g:bundle_post, "\n")
+	endif
 endif
 
 call plug#end()
