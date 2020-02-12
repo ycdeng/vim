@@ -12,7 +12,7 @@
 
 " require vim 8.2+
 if has('patch-8.2.1') == 0 || has('nvim')
-	finish
+	" finish
 endif
 
 
@@ -40,14 +40,14 @@ endfunc
 
 function! QuickThemeChange(theme)
 	if a:theme == '' || a:theme == 'borland' || a:theme == 'turboc' || a:theme == 'default'
-		hi! QuickDefaultBackground ctermfg=0 ctermbg=7 guifg=black guibg=gray
-		hi! QuickDefaultSel cterm=bold ctermfg=0 ctermbg=2 gui=bold guibg=brown guifg=gray
+		hi! QuickDefaultBackground ctermfg=0 ctermbg=7 guifg=black guibg=#c0c0c0
+		hi! QuickDefaultSel cterm=bold ctermfg=0 ctermbg=2 gui=bold guibg=brown guifg=#c0c0c0
 		hi! QuickDefaultKey term=bold ctermfg=9 gui=bold guifg=#f92772
 		hi! QuickDefaultDisable ctermfg=59 guifg=#75715e
 		hi! QuickDefaultHelp ctermfg=247 guifg=#959173
 	elseif a:theme == 'colorscheme' || a:theme == 'system' || a:theme == 'vim'
 		hi! link QuickDefaultBackground Pmenu
-		hi! link QuickDefaultKey PmenuSel
+		hi! link QuickDefaultSel PmenuSel
 		hi! link QuickDefaultKey Title
 		hi! link QuickDefaultDisable Comment
 		hi! link QuickDefaultHelp Conceal
@@ -74,7 +74,8 @@ function! QuickThemeChange(theme)
 		hi! QuickDefaultSel ctermfg=252 ctermbg=238 guifg=#d0d0d0 guibg=#444444
 		hi! QuickDefaultKey term=bold ctermfg=162 gui=bold guifg=#d70087
 		hi! QuickDefaultDisable  term=bold ctermfg=1 guifg=#878787
-		hi! QuickDefaultHelp ctermfg=7 ctermbg=8 guifg=#b2b2b2 guibg=#eeeeee
+		" hi! QuickDefaultHelp ctermfg=7 ctermbg=8 guifg=#b2b2b2 guibg=#eeeeee
+		hi! QuickDefaultHelp ctermfg=247 guifg=#959173
 	else
 		let s:fname = s:home . '/' . a:theme . '.vim'
 		if filereadable(s:fname)
@@ -96,5 +97,12 @@ call s:hilink('QuickKey', 'QuickDefaultKey')
 call s:hilink('QuickOff', 'QuickDefaultDisable')
 call s:hilink('QuickHelp', 'QuickDefaultHelp')
 
+if !hlexists('QuickPreview')
+	if &background == 'dark'
+		hi! QuickPreview ctermbg=237 guibg=#4c4846
+	else
+		hi! QuickPreview ctermbg=12 guibg=#dddddd
+	endif
+endif
 
 

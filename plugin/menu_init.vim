@@ -7,18 +7,44 @@
 "
 "======================================================================
 
-if has('patch-8.2.1') == 0 || has('nvim')
+if has('patch-8.1.2292') == 0 && exists('*nvim_open_win') == 0
 	finish
 endif
 
 call quickui#menu#reset()
 
 call quickui#menu#install("&File", [
+			\ [ "&Open\t(:w)", 'call feedkeys(":tabe ")'],
+			\ [ "&Save\t(:w)", 'write'],
+			\ [ "--", ],
 			\ [ "LeaderF &File", 'Leaderf file', 'Open file with leaderf'],
 			\ [ "LeaderF &Mru", 'Leaderf mru --regexMode', 'Open recently accessed files'],
 			\ [ "LeaderF &Buffer", 'Leaderf buffer', 'List current buffers in leaderf'],
+			\ ])
+
+if has('win32') || has('win64') || has('win16')
+	call quickui#menu#install('&File', [
+				\ [ "--", ],
+				\ [ "Start &Cmd", 'silent !start /b cmd /C c:\drivers\clink\clink.cmd' ],
+				\ [ "Start &PowerShell", 'silent !start powershell.exe' ],
+				\ [ "Open &Explore", 'call Show_Explore()' ],
+				\ ])
+endif
+
+call quickui#menu#install("&File", [
 			\ [ "--", ],
-			\ [ "&Save\t(:w)", 'write'],
+			\ [ "E&xit", 'qa' ],
+			\ ])
+
+call quickui#menu#install("&Edit", [
+			\ ['Copyright &Header', 'call feedkeys("\<esc> ec")', 'Insert copyright information at the beginning'],
+			\ ['&Trailing Space', 'call StripTrailingWhitespace()', ''],
+			\ ['Update &ModTime', 'call UpdateLastModified()', ''],
+			\ ['&Paste Mode Line', 'call PasteVimModeLine()', ''],
+			\ ['Format J&son', '%!python -m json.tool', ''],
+			\ ['--'],
+			\ ['&Align Table', 'Tabularize /|', ''],
+			\ ['Align &Cheatsheet', 'MyCheatSheetAlign', ''],
 			\ ])
 
 call quickui#menu#install("&Build", [
@@ -39,6 +65,7 @@ call quickui#menu#install('&Symbol', [
 			\ [ "Find &Symbol\t(GNU Global)", 'call MenuHelp_Gscope("s")', 'GNU Gloal search s'],
 			\ [ "Find &Called by\t(GNU Global)", 'call MenuHelp_Gscope("d")', 'GNU Global search d'],
 			\ [ "Find C&alling\t(GNU Global)", 'call MenuHelp_Gscope("c")', 'GNU Global search c'],
+			\ [ "Find &From Ctags\t(GNU Global)", 'call MenuHelp_Gscope("z")', 'GNU Global search c'],
 			\ [ "--", ],
 			\ [ "&Goto Definition\t(YCM)", 'YcmCompleter GoToDefinitionElseDeclaration'],
 			\ [ "Goto &References\t(YCM)", 'YcmCompleter GoToReferences'],
@@ -78,19 +105,21 @@ call quickui#menu#install('&Move', [
 			\ ])
 
 call quickui#menu#install('&Tools', [
-			\ ['Copyright &Header', 'call feedkeys("\<esc> ec")', 'Insert copyright information at the beginning'],
-			\ ['&Trailing Space', 'call StripTrailingWhitespace()', ''],
-			\ ['Update &ModTime', 'call UpdateLastModified()', ''],
-			\ ['&Paste Mode Line', 'call PasteVimModeLine()', ''],
-			\ ['Format J&son', '%!python -m json.tool', ''],
-			\ ['--',''],
-			\ ['Compare &File', 'call svnhelp#compare_ask_file()', ''],
+			\ ['Compare &History', 'call svnhelp#compare_ask_file()', ''],
 			\ ['&Compare Buffer', 'call svnhelp#compare_ask_buffer()', ''],
+			\ ['--',''],
+			\ ['List &Buffer', 'call quickui#tools#list_buffer("FileSwitch tabe")', ],
+			\ ['List &Function', 'call quickui#tools#list_function()', ],
+			\ ['Display &Messages', 'call quickui#tools#display_messages()', ],
 			\ ['--',''],
 			\ ["&DelimitMate %{get(b:, 'delimitMate_enabled', 0)? 'Disable':'Enable'}", 'DelimitMateSwitch'],
 			\ ['Read &URL', 'call menu#ReadUrl()', 'load content from url into current buffer'],
-			\ ['List &Buffer', 'call quickui#tools#list_buffer("FileSwitch tabe")', ],
-			\ ['S&pell %{&spell? "Disable":"Enable"}', 'set spell!', 'Toggle spell check %{&spell? "off" : "on"}'],
+			\ ['&Spell %{&spell? "Disable":"Enable"}', 'set spell!', 'Toggle spell check %{&spell? "off" : "on"}'],
+			\ ['&Profile Start', 'call MonitorInit()', ''],
+			\ ['Profile S&top', 'call MonitorExit()', ''],
+			\ ["Relati&ve number %{&relativenumber? 'OFF':'ON'}", 'set relativenumber!'],
+			\ ["Proxy &Enable", 'call MenuHelp_Proxy(1)', 'setup http_proxy/https_proxy/all_proxy'],
+			\ ["Proxy D&isable", 'call MenuHelp_Proxy(0)', 'clear http_proxy/https_proxy/all_proxy'],
 			\ ])
 
 call quickui#menu#install('&Plugin', [
@@ -103,14 +132,15 @@ call quickui#menu#install('&Plugin', [
 			\ ["&Gist", "Gist", "open gist with mattn/gist-vim"],
 			\ ["&Edit Note", "Note", "edit note with vim-notes"],
 			\ ["&Display Calendar", "Calendar", "display a calender"],
+			\ ['Toggle &Vista', 'Vista!!', ''],
 			\ ["-"],
 			\ ["Plugin &List", "PlugList", "Update list"],
 			\ ["Plugin &Update", "PlugUpdate", "Update plugin"],
 			\ ])
 
-call quickui#menu#install('H&elp', [
-			\ ["&Cheatsheet", 'tab help index', ''],
-			\ ['T&ips', 'tab help tips', ''],
+call quickui#menu#install('Help (&?)', [
+			\ ["&Index", 'tab help index', ''],
+			\ ['Ti&ps', 'tab help tips', ''],
 			\ ['--',''],
 			\ ["&Tutorial", 'tab help tutor', ''],
 			\ ['&Quick Reference', 'tab help quickref', ''],
@@ -118,6 +148,7 @@ call quickui#menu#install('H&elp', [
 			\ ['--',''],
 			\ ['&Vim Script', 'tab help eval', ''],
 			\ ['&Function List', 'tab help function-list', ''],
+			\ ['&Dash Help', 'call asclib#utils#dash_ft(&ft, expand("<cword>"))'],
 			\ ], 10000)
 
 let g:quickui_show_tip = 1
@@ -126,5 +157,6 @@ let g:quickui_show_tip = 1
 " hotkey
 "----------------------------------------------------------------------
 nnoremap <silent><space><space> :call quickui#menu#open()<cr>
+
 
 

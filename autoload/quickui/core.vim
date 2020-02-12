@@ -15,11 +15,103 @@
 "======================================================================
 
 "----------------------------------------------------------------------
+" global variables
+"----------------------------------------------------------------------
+let g:quickui#core#has_nvim = has('nvim')
+let g:quickui#core#has_popup = exists('*popup_create') && v:version >= 800
+let g:quickui#core#has_floating = has('nvim-0.4')
+
+
+"----------------------------------------------------------------------
+" internal variables
+"----------------------------------------------------------------------
+
+
+"----------------------------------------------------------------------
+" object pool acquire
+"----------------------------------------------------------------------
+function! quickui#core#object_acquire(name)
+	if !exists('g:quickui#core#__object_pool__')
+		let g:quickui#core#__object_pool__ = {}
+	endif
+	if !has_key(g:quickui#core#__object_pool__, a:name)
+		let g:quickui#core#__object_pool__[a:name] = []
+	endif
+	let array = g:quickui#core#__object_pool__[a:name]
+	if len(array) == 0
+		return v:null
+	endif
+	let obj = remove(array, -1)	
+	return obj
+endfunc
+
+
+"----------------------------------------------------------------------
+" object pool release
+"----------------------------------------------------------------------
+function! quickui#core#object_release(name, obj)
+	if !exists('g:quickui#core#__object_pool__')
+		let g:quickui#core#__object_pool__ = {}
+	endif
+	if !has_key(g:quickui#core#__object_pool__, a:name)
+		let g:quickui#core#__object_pool__[a:name] = []
+	endif
+	call add(g:quickui#core#__object_pool__[a:name], a:obj)
+endfunc
+
+
+"----------------------------------------------------------------------
 " replace string
 "----------------------------------------------------------------------
 function! quickui#core#string_replace(text, old, new)
 	let l:data = split(a:text, a:old, 1)
 	return join(l:data, a:new)
+endfunc
+
+
+"----------------------------------------------------------------------
+" compose two string
+"----------------------------------------------------------------------
+function! quickui#core#string_compose(target, pos, source)
+	if a:source == ''
+		return a:target
+	endif
+	let pos = a:pos
+	let source = a:source
+	if pos < 0
+		let source = strcharpart(a:source, -pos)
+		let pos = 0
+	endif
+	let target = strcharpart(a:target, 0, pos)
+	if strchars(target) < pos
+		let target .= repeat(' ', pos - strchars(target))
+	endif
+	let target .= source
+	let target .= strcharpart(a:target, pos + strchars(source))
+	return target
+endfunc
+
+
+"----------------------------------------------------------------------
+" fit size
+"----------------------------------------------------------------------
+function! quickui#core#string_fit(source, size)
+	let require = a:size
+	let source = a:source
+	let size = len(source)
+	if size <= require
+		return source
+	endif
+	if require <= 2
+		return repeat('.', (require < 0)? 0 : require)
+	endif	
+	let avail = require - 2
+	let left = avail / 2
+	let right = avail - left
+	let p1 = strpart(source, 0, left)
+	let p2 = strpart(source, size - right)
+	let text = p1 . '..' . p2
+	return text
 endfunc
 
 
@@ -121,7 +213,7 @@ endfunc
 
 
 "----------------------------------------------------------------------
-" object
+" tabpage instance
 "----------------------------------------------------------------------
 function! quickui#core#instance()
 	if exists('t:__quickui__')
@@ -129,6 +221,18 @@ function! quickui#core#instance()
 	endif
 	let t:__quickui__ = {}
 	return t:__quickui__
+endfunc
+
+
+"----------------------------------------------------------------------
+" buffer instance
+"----------------------------------------------------------------------
+function! quickui#core#object()
+	if exists('b:__quickui__')
+		return b:__quickui__
+	endif
+	let b:__quickui__ = {}
+	return b:__quickui__
 endfunc
 
 
@@ -203,6 +307,49 @@ endfunc
 
 
 "----------------------------------------------------------------------
+" vim/nvim compatible
+"----------------------------------------------------------------------
+function! quickui#core#win_execute(winid, command)
+	if g:quickui#core#has_popup != 0
+		if type(a:command) == v:t_string
+			keepalt call win_execute(a:winid, a:command)
+		elseif type(a:command) == v:t_list
+			keepalt call win_execute(a:winid, join(a:command, "\n"))
+		endif
+	else
+		let current = nvim_get_current_win()
+		keepalt call nvim_set_current_win(a:winid)
+		if type(a:command) == v:t_string
+			exec a:command
+		elseif type(a:command) == v:t_list
+			exec join(a:command, "\n")
+		endif
+		keepalt call nvim_set_current_win(current)
+	endif
+endfunc
+
+
+"----------------------------------------------------------------------
+" get a named buffer
+"----------------------------------------------------------------------
+function! quickui#core#neovim_buffer(name, textlist)
+	if !exists('s:buffer_cache')
+		let s:buffer_cache = {}
+	endif
+	let bid = get(s:buffer_cache, a:name, -1)
+	if bid < 0
+		let bid = nvim_create_buf(v:false, v:true)
+		let s:buffer_cache[a:name] = bid
+	endif
+	call nvim_buf_set_option(bid, 'modifiable', v:true)
+	call nvim_buf_set_lines(bid, 0, -1, v:true, a:textlist)
+	call setbufvar(bid, 'current_syntax', '')
+	call setbufvar(bid, '&filetype', '')
+	return bid
+endfunc
+
+
+"----------------------------------------------------------------------
 " dummy filter
 "----------------------------------------------------------------------
 function! quickui#core#mock_function(id, text)
@@ -249,6 +396,7 @@ let s:border_styles = {}
 let s:border_styles[1] = quickui#core#border_extract('+-+|-|+-+++')
 let s:border_styles[2] = quickui#core#border_extract('┌─┐│─│└─┘├┤')
 let s:border_styles[3] = quickui#core#border_extract('╔═╗║─║╚═╝╟╢')
+let s:border_styles[4] = quickui#core#border_extract('/-\|-|\-/++')
 
 let s:border_ascii = quickui#core#border_extract('+-+|-|+-+++')
 
@@ -332,10 +480,45 @@ function! quickui#core#around_cursor(width, height)
 			return [row, col]
 		endif
 	endif
-	let row = cursor_pos[0] + 1
-	let col = cursor_pos[1] + 1
-	return quickui#core#screen_fit(row, col, a:height, a:height)
+	if cursor_pos[0] + a:height + 2 < &line
+		let row = cursor_pos[0] + 1
+	else
+		let row = cursor_pos[0] - a:height
+	endif
+	if cursor_pos[1] + a:width + 2 < &columns
+		let col = cursor_pos[1] + 1
+	else
+		let col = cursor_pos[1] - a:width
+	endif
+	return quickui#core#screen_fit(row, col, a:width, a:height)
 endfunc
 
+
+"----------------------------------------------------------------------
+" safe input
+"----------------------------------------------------------------------
+function! quickui#core#input(prompt, text)
+	call inputsave()
+	try
+		let t = input(a:prompt, a:text)
+	catch /^Vim:Interrupt$/
+		let t = "\<c-c>"
+	endtry
+	call inputrestore()
+	return t
+endfunc
+
+
+"----------------------------------------------------------------------
+" safe change dir
+"----------------------------------------------------------------------
+function! quickui#core#chdir(path)
+	if has('nvim')
+		let cmd = haslocaldir()? 'lcd' : (haslocaldir(-1, 0)? 'tcd' : 'cd')
+	else
+		let cmd = haslocaldir()? ((haslocaldir() == 1)? 'lcd' : 'tcd') : 'cd'
+	endif
+	silent execute cmd . ' '. fnameescape(a:path)
+endfunc
 
 

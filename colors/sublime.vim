@@ -914,3 +914,10 @@ hi! link zshTypes    Keyword
 " * Semicolons in `if` blocks are `Keyword`ed in Sublime but not distinct in
 "     Vim
 " * Commands aren't distinct from builtins and keywords in Vim
+
+" lua
+hi! link luaStatement Keyword
+
+" man
+hi! link manSectionHeading Keyword
+

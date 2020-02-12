@@ -36,10 +36,6 @@ if !exists('g:bundle_group')
 	let g:bundle_group = []
 endif
 
-if !exists('g:bundle_post')
-	let g:bundle_post = ''
-endif
-
 call plug#begin(get(g:, 'bundle_home', '~/.vim/bundles'))
 
 
@@ -136,8 +132,8 @@ if index(g:bundle_group, 'basic') >= 0
 	let g:python_highlight_builtin_types = 1
 	let g:python_highlight_builtin_funcs = 1
 
-	map <m-=> <Plug>(expand_region_expand)
-	map <m--> <Plug>(expand_region_shrink)
+	map <m-+> <Plug>(expand_region_expand)
+	map <m-_> <Plug>(expand_region_shrink)
 end
 
 
@@ -161,28 +157,13 @@ if index(g:bundle_group, 'inter') >= 0
 	Plug 'lambdalisue/vim-gista', { 'on': 'Gista' }
 	" Plug 'Yggdroot/indentLine'
 
-	if has('python')
-		Plug 'skywind3000/vimpress', { 'on': ['BlogPreview', 'BlogSave', 'BlogNew', 'BlogList'] }
-		noremap <space>bp :BlogPreview local<cr>
-		noremap <space>bb :BlogPreview publish<cr>
-		noremap <space>bs :BlogSave<cr>
-		noremap <space>bd :BlogSave draft<cr>
-		noremap <space>bn :BlogNew post<cr>
-		noremap <space>bl :BlogList<cr>
-	endif
-
-	if has('python') || has('python3')
+	if has('python3') || has('python')
 		" Plug 'SirVer/ultisnips'
 	endif
 
 	if !isdirectory(expand('~/.vim/notes'))
 		silent! call mkdir(expand('~/.vim/notes'), 'p')
 	endif
-
-	noremap <silent><tab>- :FufMruFile<cr>
-	noremap <silent><tab>= :FufFile<cr>
-	noremap <silent><tab>[ :FufBuffer<cr>
-	noremap <silent><tab>] :FufBufferTag<cr>
 
 	if 0
 		imap <expr> <m-e> pumvisible() ? '<c-g>u<Plug>snipMateTrigger' : '<Plug>snipMateTrigger'
@@ -234,6 +215,7 @@ end
 "----------------------------------------------------------------------
 if index(g:bundle_group, 'opt') >= 0
 	Plug 'junegunn/fzf'
+	Plug 'junegunn/fzf.vim'
 	Plug 'mhartington/oceanic-next'
 	Plug 'asins/vim-dict'
 	Plug 'jceb/vim-orgmode', { 'for': 'org' }
@@ -241,6 +223,8 @@ if index(g:bundle_group, 'opt') >= 0
 	Plug 'dyng/ctrlsf.vim'
 	Plug 'itchyny/calendar.vim', { 'on': 'Calendar' }
 	Plug 'tpope/vim-speeddating'
+	Plug 'chiel92/vim-autoformat'
+	Plug 'voldikss/vim-translator'
 	" Plug 'itchyny/vim-cursorword'
 	let g:gutentags_modules = []
 	if executable('ctags')
@@ -256,6 +240,21 @@ if index(g:bundle_group, 'opt') >= 0
 			Plug 'ludovicchabant/vim-gutentags'
 			" Plug 'skywind3000/vim-gutentags'
 		endif
+	endif
+	if s:uname == 'windows' 
+		let g:python3_host_prog="python"
+	endif
+	if 1
+		" Echo translation in the cmdline
+		nmap <silent> <Leader>tt <Plug>Translate
+		vmap <silent> <Leader>tt <Plug>TranslateV
+		" Display translation in a window
+		nmap <silent> <Leader>tw <Plug>TranslateW
+		vmap <silent> <Leader>tw <Plug>TranslateWV
+		" Replace the text with translation
+		nmap <silent> <Leader>tr <Plug>TranslateR
+		vmap <silent> <Leader>tr <Plug>TranslateRV
+		let g:translator_window_enable_icon = v:true
 	endif
 endif
 
@@ -406,6 +405,24 @@ if index(g:bundle_group, 'neomake') >= 0
 	Plug 'neomake/neomake'
 endif
 
+if index(g:bundle_group, 'vista') >= 0
+	Plug 'liuchengxu/vista.vim'
+endif
+
+if index(g:bundle_group, 'neoformat') >= 0
+	Plug 'sbdchd/neoformat'
+    let g:neoformat_python_autopep8 = {
+            \ 'exe': 'autopep8',
+            \ 'args': ['-s 4', '-E'],
+            \ 'replace': 1, 
+            \ 'stdin': 0, 
+            \ 'valid_exit_codes': [0, 23],
+            \ 'no_append': 1,
+            \ }
+
+    let g:neoformat_enabled_python = ['autopep8']
+endif
+
 
 if index(g:bundle_group, 'neocomplete') >= 0
 	Plug 'Shougo/neocomplete.vim'
@@ -465,8 +482,12 @@ endif
 "----------------------------------------------------------------------
 " packages end
 "----------------------------------------------------------------------
-if g:bundle_post != ''
-	exec g:bundle_post
+if exists('g:bundle_post')
+	if type(g:bundle_post) == v:t_string
+		exec g:bundle_post
+	elseif type(g:bundle_post) == v:t_list
+		exec join(g:bundle_post, "\n")
+	endif
 endif
 
 call plug#end()

@@ -19,53 +19,6 @@ set wildmenu
 set wcm=<C-Z>
 "set splitbelow
 
-
-" retry saving on windows
-function! Tools_SaveRetry() 
-	let windows = has('win32') || has('win64') || has('win95') 
-	let windows = windows || has('win32unix') || has('win16')
-	let v:errmsg = ''
-	if bufname('%') == ''
-		echohl ErrorMsg
-		echom "E32: No file name"
-		echohl None
-		return
-	endif
-	if windows == 0 || &readonly != 0
-		try
-			exec 'w'
-		catch /.*/
-			echohl ErrorMsg
-			echom v:exception
-			echohl None
-		endtry
-		return
-	endif
-	let retry = 30
-	while retry > 0
-		let retry -= 1
-		try
-			silent exec 'w'
-			echom "'". bufname('%'). "' written"
-			break
-		catch /^Vim\%((\a\+)\)\=:E505/
-			sleep 25m
-			" echom "retry"
-		catch
-			echohl ErrorMsg
-			echom v:errmsg
-			echohl None
-			break
-		endtry
-	endwhile
-	if retry <= 0
-		silent exec "w!"
-	endif
-endfunc
-
-command! -nargs=0 WriteFileGuard call Tools_SaveRetry()
-
-
 " open quickfix
 function! Toggle_QuickFix(size)
 	function! s:WindowCheck(mode)
@@ -427,9 +380,10 @@ endfunc
 
 " quickfix
 let g:status_var = ""
+let g:asyncrun_status = ''
 augroup QuickfixStatus
-	au! BufWinEnter quickfix setlocal 
-		\ statusline=%t\ [%{g:vimmake_build_status}]\ [%{g:asyncrun_status}]\ %{exists('w:quickfix_title')?\ '\ '.w:quickfix_title\ :\ ''}\ %=%-15(%l,%c%V%)\ %P
+	" au! BufWinEnter quickfix setlocal 
+	" 	\ statusline=%t\ [%{g:asyncrun_status}]\ %{exists('w:quickfix_title')?\ '\ '.w:quickfix_title\ :\ ''}\ %=%-15(%l,%c%V%)\ %P
 augroup END
 
 
@@ -529,6 +483,7 @@ function! Tools_SwitchLayout()
 	set number
 	set showtabline=2
 	set laststatus=2
+	set signcolumn=yes
 	if !has('gui_running')
 		set t_Co=256
 	endif
@@ -738,12 +693,12 @@ function! s:edit_tool(bang, name)
 		let name = 'vimmake'
 	endif
 	if has('win32') || has('win64') || has('win16') || has('win95')
-		let name = vimmake#path_join(g:vimmake_path, name)
+		let name = asclib#path#join(g:vimmake_path, name)
 		if a:name != '' && a:name != '-' && a:name != '\-'
 			let name .= '.cmd'
 		endif
 	else
-		let name = vimmake#path_join(g:vimmake_path, name)
+		let name = asclib#path#join(g:vimmake_path, name)
 		if stridx(name, '~') >= 0
 			let name = expand(name)
 		endif
@@ -771,7 +726,7 @@ command! -bang -nargs=1 EditTool call s:edit_tool('<bang>', <f-args>)
 
 
 function! s:refresh_tool_mode(bang) abort
-	let name = vimmake#path_join(g:vimmake_path, 'vimmake')
+	let name = asclib#path#join(g:vimmake_path, 'vimmake')
 	let name = expand(name)
 	if !filereadable(name)
 		if a:bang != '!'
@@ -807,7 +762,7 @@ command! -bang -nargs=0 RefreshToolMode call s:refresh_tool_mode('<bang>')
 
 function! Tools_SwitchMakeFile()
 	let root = vimmake#get_root('%')
-	let name = vimmake#path_join(root, 'Makefile')
+	let name = asclib#path#join(root, 'Makefile')
 	exec 'FileSwitch tabe '. fnameescape(name)
 endfunc
 

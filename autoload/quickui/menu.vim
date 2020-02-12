@@ -58,6 +58,7 @@ function! quickui#menu#register(section, entry, command, help)
 			let index += 1
 		endfor
 		let current[a:section] = {'name':a:section, 'weight':0, 'items':[]}
+		let current[a:section].ft = ''
 		let current[a:section].weight = s:namespace[s:name].weight
 		let s:namespace[s:name].weight += 10
 	endif
@@ -138,7 +139,12 @@ function! quickui#menu#install(section, content, ...)
 		endfor
 	endif
 	if a:0 > 0 && has_key(current, a:section)
-		let current[a:section].weight = a:1
+		if type(a:1) == v:t_number
+			let current[a:section].weight = a:1
+		endif
+	endif
+	if a:0 > 1 && has_key(current, a:section)
+		let current[a:section].ft = a:2
 	endif
 endfunc
 
@@ -150,6 +156,17 @@ function! quickui#menu#change_weight(section, weight)
 	let current = s:namespace[s:name].config
 	if has_key(current, a:section)
 		let current[a:section].weight = a:weight
+	endif
+endfunc
+
+
+"----------------------------------------------------------------------
+" change file types
+"----------------------------------------------------------------------
+function! quickui#menu#change_ft(section, ft)
+	let current = s:namespace[s:name].config
+	if has_key(current, a:section)
+		let current[a:section].ft = a:ft
 	endif
 endfunc
 
@@ -198,8 +215,21 @@ endfunc
 function! quickui#menu#available(name)
 	let current = s:namespace[a:name].config
 	let menus = []
+	let callback = get(g:, 'quickui_menu_filter', '')
+	let F = (callback != '')? function(callback) : ''
 	for name in keys(current)
 		let menu = current[name]
+		if menu.ft != ''
+			let fts = split(menu.ft, ',')
+			if index(fts, &ft) < 0
+				continue
+			endif
+		endif
+		if callback != ''
+			if F(menu.name) == 0
+				continue
+			endif
+		endif
 		if len(menu.items) > 0
 			let menus += [[menu.weight, menu.name]]
 		endif
@@ -216,11 +246,11 @@ endfunc
 "----------------------------------------------------------------------
 " parse
 "----------------------------------------------------------------------
-function! s:parse_menu(name)
+function! s:parse_menu(name, padding)
 	let current = s:namespace[a:name].config
 	let inst = {'items':[], 'text':'', 'width':0, 'hotkey':{}}
 	let start = 0
-	let split = '  '
+	let split = repeat(' ', a:padding)
 	let names = quickui#menu#available(a:name)
 	let index = 0
 	let size = len(names)
@@ -236,13 +266,13 @@ function! s:parse_menu(name)
 		let start += item.w + strwidth(split)
 		let inst.items += [item]
 		let inst.text .= item.text . ((index + 1 < size)? split : '')
-		let inst.width += item.w
 		if item.key_pos >= 0
 			let key = tolower(item.key_char)
 			let inst.hotkey[key] = index
 		endif
 		let index += 1
 	endfor
+	let inst.width = strwidth(inst.text)
 	return inst
 endfunc
 
@@ -265,7 +295,13 @@ function! quickui#menu#create(opts)
 		return -1
 	endif
 	let current = s:namespace[name].config
-	let s:cmenu.inst = s:parse_menu(name)
+	let s:cmenu.inst = s:parse_menu(name, 2)
+	if s:cmenu.inst.width + 5 >= &columns
+		let s:cmenu.inst = s:parse_menu(name, 1)
+		if s:cmenu.inst.width + 5 >= &columns
+			let s:cmenu.inst = s:parse_menu(name, 0)
+		endif
+	endif
 	let s:cmenu.name = name
 	let s:cmenu.index = s:namespace[name].index
 	let s:cmenu.width = &columns
@@ -290,8 +326,6 @@ function! quickui#menu#create(opts)
 	if 1
 		let keymap = quickui#utils#keymap()
 		let s:cmenu.keymap = keymap
-		let keymap['H'] = 'LEFT'
-		let keymap['L'] = 'RIGHT'
 	endif
 	let s:cmenu.hotkey = s:cmenu.inst.hotkey
 	" echo "hotkey: ". string(s:cmenu.hotkey)
@@ -314,13 +348,13 @@ function! quickui#menu#update()
 		return -1
 	endif
 	let inst = s:cmenu.inst
-	call win_execute(winid, "syn clear")
+	let cmdlist = ['syn clear']
 	let index = 0
 	for item in inst.items
 		if item.key_pos >= 0
 			let x = item.key_pos + item.x + 1
 			let cmd = quickui#core#high_region('QuickKey', 1, x, 1, x + 1, 1)
-			call win_execute(winid, cmd)
+			let cmdlist += [cmd]
 		endif
 		let index += 1
 	endfor
@@ -329,8 +363,9 @@ function! quickui#menu#update()
 		let x = inst.items[index].x + 1
 		let e = x + inst.items[index].w
 		let cmd = quickui#core#high_region('QuickSel', 1, x, 1, e, 1)
-		call win_execute(winid, cmd)
+		let cmdlist += [cmd]
 	endif
+	call quickui#core#win_execute(winid, cmdlist)
 	return 0
 endfunc
 
@@ -360,6 +395,9 @@ function! quickui#menu#callback(winid, code)
 		call popup_close(s:cmenu.context, -3)
 		let s:cmenu.context = -1
 	endif
+	redraw
+	echo ""
+	redraw
 endfunc
 
 
@@ -396,7 +434,9 @@ endfunc
 "----------------------------------------------------------------------
 function! s:movement(key)
 	if a:key == 'ESC'
-		call popup_close(a:winid, -1)
+		if g:quickui#core#has_nvim == 0
+			call popup_close(a:winid, -1)
+		endif
 		return 1
 	elseif a:key == 'LEFT' || a:key == 'RIGHT'
 		let index = s:cmenu.index
@@ -412,8 +452,16 @@ function! s:movement(key)
 		let s:cmenu.index = (s:cmenu.size == 0)? 0 : index
 		call quickui#menu#update()
 		" echo "MOVE: " . index
+	elseif a:key == 'PAGEUP' || a:key == 'PAGEDOWN'
+		let index = (a:key == 'PAGEUP')? 0 : (s:cmenu.size - 1)
+		let s:cmenu.index = (s:cmenu.size == 0)? 0 : index
+		call quickui#menu#update()
 	elseif a:key == 'ENTER' || a:key == 'DOWN'
-		call s:context_dropdown()
+		if g:quickui#core#has_nvim == 0
+			call s:context_dropdown()
+		else
+			return s:neovim_dropdown()
+		endif
 	endif
 endfunc
 
@@ -467,6 +515,7 @@ function! s:context_dropdown()
 	let opts = {'col': item.x + 1, 'line': 2, 'horizon':1, 'zindex':31100}
 	let opts.callback = 'quickui#menu#context_exit'
 	let opts.reserve = 1
+	let opts.lazyredraw = 1
 	let cfg = s:cmenu.current[item.name]
 	let s:cmenu.dropdown = []
 	for item in cfg.items
@@ -475,7 +524,7 @@ function! s:context_dropdown()
 	let index = get(cfg, 'index', 0)
 	let opts.index = (index < 0 || index >= len(cfg.items))? 0 : index
 	let cfg.index = opts.index
-	let hwnd = quickui#context#create(s:cmenu.dropdown, opts)
+	let hwnd = quickui#context#open(s:cmenu.dropdown, opts)
 	let s:cmenu.context = hwnd.winid
 	let s:cmenu.state = 1
 endfunc
@@ -513,6 +562,9 @@ function! quickui#menu#context_exit(code)
 	elseif a:code == -1000 || a:code == -2000
 		call s:movement((a:code == -1000)? 'LEFT' : 'RIGHT')
 		call s:movement('DOWN')
+	elseif a:code == -1001 || a:code == -2001
+		call s:movement((a:code == -1001)? 'PAGEUP' : 'PAGEDOWN')
+		call s:movement('DOWN')
 	endif
 	return 0
 endfunc
@@ -526,7 +578,189 @@ function! quickui#menu#open(...)
 	if a:0 > 0
 		let opts.name = a:1
 	endif
-	call quickui#menu#create(opts)
+	if g:quickui#core#has_nvim == 0
+		call quickui#menu#create(opts)
+	else
+		call quickui#menu#nvim_open_menu(opts)
+	endif
+endfunc
+
+
+"----------------------------------------------------------------------
+" neovim dropdown context: returns non-zero for exit
+"----------------------------------------------------------------------
+function! s:neovim_dropdown()
+	let cursor = s:cmenu.index
+	if cursor < 0 || cursor >= s:cmenu.size || s:cmenu.state == 0
+		return 0
+	endif
+	if s:cmenu.state == 2
+		let s:cmenu.state = 1
+		let s:cmenu.context = -1
+		return 1
+	endif
+	let item = s:cmenu.inst.items[s:cmenu.index]
+	let opts = {'col': item.x + 1, 'line': 2, 'horizon':1, 'zindex':31100}
+	let opts.reserve = 1
+	let opts.lazyredraw = 1
+	let cfg = s:cmenu.current[item.name]
+	let s:cmenu.dropdown = []
+	for item in cfg.items
+		let s:cmenu.dropdown += [[item.name, '', item.help]]
+	endfor
+	let index = get(cfg, 'index', 0)
+	let opts.index = (index < 0 || index >= len(cfg.items))? 0 : index
+	let cfg.index = opts.index
+	let hr = quickui#context#open(s:cmenu.dropdown, opts)
+	let cfg.index = g:quickui#context#current.index
+	let s:cmenu.next = 0
+	if hr >= 0
+		if hr < len(cfg.items)
+			let s:cmenu.script = cfg.items[hr].cmd
+		endif
+		return 1
+	elseif hr == -1000
+		call s:movement('LEFT')
+		let s:cmenu.next = 1
+	elseif hr == -2000
+		call s:movement('RIGHT')
+		let s:cmenu.next = 1
+	elseif hr == -1001
+		call s:movement('PAGEUP')
+		let s:cmenu.next = 1
+	elseif hr == -2001
+		call s:movement('PAGEDOWN')
+		let s:cmenu.next = 1
+	elseif hr == -2
+		call s:neovim_click()
+	endif
+	return (s:cmenu.next == 0)? 1 : 0
+endfunc
+
+
+"----------------------------------------------------------------------
+" returns non-zero to quit
+"----------------------------------------------------------------------
+function! s:neovim_click()
+	if v:mouse_winid != s:cmenu.winid || v:mouse_lnum != 1
+		return 1
+	endif
+	let x = v:mouse_col - 1
+	let index = 0
+	let select = -1
+	for item in s:cmenu.inst.items
+		if x >= item.x && x < item.x + item.w
+			let select = index
+		endif
+		let index += 1
+	endfor
+	if select >= 0
+		let s:cmenu.index = select
+		let s:cmenu.next = 1
+	endif
+	return 0
+endfunc
+
+
+"----------------------------------------------------------------------
+" neovim open menu
+"----------------------------------------------------------------------
+function! quickui#menu#nvim_open_menu(opts)
+	if s:cmenu.state != 0
+		" return -1
+	endif
+	let name = get(a:opts, 'name', s:name)
+	if !has_key(s:namespace, name)
+		return -1
+	endif
+	let current = s:namespace[name].config
+	let s:cmenu.inst = s:parse_menu(name, 2)
+	if s:cmenu.inst.width + 5 >= &columns
+		let s:cmenu.inst = s:parse_menu(name, 1)
+		if s:cmenu.inst.width + 5 >= &columns
+			let s:cmenu.inst = s:parse_menu(name, 0)
+		endif
+	endif
+	let s:cmenu.name = name
+	let s:cmenu.index = s:namespace[name].index
+	let s:cmenu.width = &columns
+	let s:cmenu.size = len(s:cmenu.inst.items)
+	let s:cmenu.current = current
+	let bid = quickui#core#neovim_buffer('menu', [s:cmenu.inst.text])
+	let w = s:cmenu.width
+	let opts = {'width':w, 'height':1, 'focusable':1, 'style':'minimal'}
+	let opts.col = 0
+	let opts.row = 0
+	let opts.relative = 'editor'
+	let s:cmenu.bufnr = bid
+	let winid = nvim_open_win(bid, 0, opts)
+	let s:cmenu.winid = winid
+	let s:cmenu.cfg = deepcopy(a:opts)
+	let w = s:cmenu.width
+	let color = get(a:opts, 'color', 'QuickBG')
+    call nvim_win_set_option(winid, 'winhl', 'Normal:'. color)
+	let s:cmenu.hotkey = s:cmenu.inst.hotkey
+	let s:cmenu.state = 1
+	let s:cmenu.context = -1
+	let s:cmenu.next = 0
+	let keymap = quickui#utils#keymap()
+	let s:cmenu.keymap = keymap
+	let s:cmenu.script = ''
+	call quickui#menu#update()
+	while 1
+		noautocmd call quickui#menu#update()
+		if s:cmenu.next == 0
+			noautocmd redraw
+		elseif s:cmenu.next == 1
+			let s:cmenu.next = 0
+			call quickui#menu#update()
+			if s:neovim_dropdown() != 0
+				break
+			else
+				continue
+			endif
+		elseif s:cmenu.next == 2
+			let s:cmenu.next = 0
+			continue
+		endif
+		let s:cmenu.next = 0
+		try
+			let code = getchar()
+		catch /^Vim:Interrupt$/
+			let code = "\<C-C>"
+		endtry
+		let ch = (type(code) == v:t_number)? nr2char(code) : code
+		if ch == "\<ESC>" || ch == "\<c-c>"
+			break
+		elseif ch == "\<LeftMouse>"
+			if s:neovim_click() != 0
+				break
+			endif
+		elseif has_key(s:cmenu.hotkey, ch)
+			let index = s:cmenu.hotkey[ch]
+			let index = (index < 0)? (s:cmenu.size - 1) : index
+			let index = (index >= s:cmenu.size)? 0 : index
+			let s:cmenu.index = (s:cmenu.size == 0)? 0 : index
+			call quickui#menu#update()
+			if s:neovim_dropdown() != 0
+				break
+			endif
+		elseif has_key(keymap, ch)
+			let key = keymap[ch]
+			if s:movement(key) != 0
+				break
+			endif
+		endif
+	endwhile
+	call nvim_win_close(winid, 0)
+	redraw
+	echo ""
+	redraw
+	let s:namespace[name].index = s:cmenu.index
+	if s:cmenu.script != ''
+		let script = s:cmenu.script
+		exec script
+	endif
 endfunc
 
 

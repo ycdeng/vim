@@ -3,9 +3,30 @@
 "----------------------------------------------------------------------
 let s:home = fnamemodify(resolve(expand('<sfile>:p')), ':h:h')
 let s:windows = has('win32') || has('win64') || has('win95') || has('win16')
-
+let s:gui = has('gui_running')
 
 " echo s:path('tools/win32')
+if has('nvim')
+	if exists('g:GuiLoaded')
+		if g:GuiLoaded != 0
+			let s:gui = 1
+		endif
+	elseif exists('*nvim_list_uis') && len(nvim_list_uis()) > 0
+		let uis = nvim_list_uis()[0]
+		let s:gui = get(uis, 'ext_termcolors', 0)? 0 : 1
+	elseif exists("+termguicolors") && (&termguicolors) != 0
+		let s:gui = 1
+	endif
+endif
+
+
+"----------------------------------------------------------------------
+" asynctasks
+"----------------------------------------------------------------------
+let s:config = (s:windows)? 'tasks.win32.ini' : 'tasks.linux.ini'
+let g:asynctasks_extra_config = [s:home . '/'. s:config]
+let g:asynctasks_term_pos = (s:windows && s:gui)? 'external' : 'tab'
+" let g:asynctasks_rtp_config = 'etc/tasks.ini'
 
 
 "-----------------------------------------------------
@@ -89,6 +110,7 @@ function! s:setup_dirvish()
 	let name = '^' . escape(text, '.*[]~\') . '[/*|@=|\\*]\=\%($\|\s\+\)'
 	" let name = '\V\^'.escape(text, '\').'\$'
 	" echom "search: ".name
+	exec "normal gg"
 	call search(name, 'wc')
 	noremap <silent><buffer> ~ :Dirvish ~<cr>
 	noremap <buffer> % :e %
@@ -132,6 +154,7 @@ let g:ycm_min_num_identifier_candidate_chars = 2
 let g:ycm_collect_identifiers_from_comments_and_strings = 1
 let g:ycm_complete_in_strings=1
 let g:ycm_key_invoke_completion = '<c-z>'
+let g:ycm_disable_signature_help = 1
 set completeopt=menu,menuone
 
 if has('patch-8.0.1000')
@@ -226,7 +249,7 @@ let g:Lf_NormalMap = {
 		\ "Function": [["<ESC>", ':exec g:Lf_py "functionExplManager.quit()"<cr>']],
 		\ }
 
-if exists('*popup_create') && has('patch-8.1.2000')
+if (exists('*popup_create') && has('patch-8.1.2000')) || has('nvim-0.4')
 	let g:Lf_WindowPosition = 'popup'
 endif
 
@@ -356,6 +379,12 @@ let g:ale_c_parse_compile_commands = 1
 if s:windows == 0 && has('win32unix') == 0
 	let g:ale_command_wrapper = 'nice -n5'
 endif
+
+
+"----------------------------------------------------------------------
+" fzf 
+"----------------------------------------------------------------------
+let g:fzf_layout={'window': {'width':0.9, 'height':0.6}}
 
 
 "----------------------------------------------------------------------

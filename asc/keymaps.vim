@@ -95,7 +95,6 @@ noremap <M-h> b
 noremap <M-l> w
 noremap <M-j> gj
 noremap <M-k> gk
-noremap <M-y> d$
 inoremap <M-h> <c-left>
 inoremap <M-l> <c-right>
 inoremap <M-j> <c-\><c-o>gj
@@ -138,19 +137,17 @@ if has('gui_running') || (has('nvim') && (has('win32') || has('win64')))
 	inoremap <M-r> <ESC>:VimExecute run<cr>
 	noremap <M-b> :VimBuild emake<cr>
 	inoremap <M-b> <ESC>:VimBuild emake<cr>
-	noremap <m-_> :call Change_Transparency(-2)<cr>
-	noremap <m-+> :call Change_Transparency(+2)<cr>
 	if has('gui_macvim')
 		noremap <m-\|> :call Toggle_Transparency(9)<cr>
 	else
 		noremap <m-\|> :call Toggle_Transparency(15)<cr>
 	endif
 	if has('win32') || has('win64') || has('win16')
-		noremap <silent><m-f> :VimMake -mode=0 -cwd=<root> mingw32-make -f Makefile<cr>
-		noremap <silent><m-g> :VimMake -mode=4 -cwd=<root> mingw32-make -f Makefile test<cr>
+		noremap <silent><m-f> :AsyncRun -mode=0 -cwd=<root> mingw32-make -f Makefile<cr>
+		noremap <silent><m-g> :AsyncRun -mode=4 -cwd=<root> mingw32-make -f Makefile test<cr>
 	else
-		noremap <silent><m-f> :VimMake -mode=0 -cwd=<root> make -f Makefile<cr>
-		noremap <silent><m-g> :VimMake -mode=4 -cwd=<root> make -f Makefile test<cr>
+		noremap <silent><m-f> :AsyncRun -mode=0 -cwd=<root> make -f Makefile<cr>
+		noremap <silent><m-g> :AsyncRun -mode=4 -cwd=<root> make -f Makefile test<cr>
 	endif
 endif
 
@@ -162,16 +159,16 @@ nnoremap <m-Z> zA
 " terminal
 "----------------------------------------------------------------------
 if has('terminal')
-	tnoremap <m-=> <c-w>N
+	" tnoremap <m-=> <c-w>N
 endif
 
 
 "----------------------------------------------------------------------
 " space + s : svn
 "----------------------------------------------------------------------
-noremap <space>sc :VimMake svn co -m "update from vim"<cr>
-noremap <space>su :VimMake svn up<cr>
-noremap <space>st :VimMake svn st<cr>
+noremap <space>sc :AsyncRun svn co -m "update from vim"<cr>
+noremap <space>su :AsyncRun svn up<cr>
+noremap <space>st :AsyncRun svn st<cr>
 
 " editing commands
 noremap <space>aa ggVG
@@ -180,20 +177,20 @@ noremap <space>aa ggVG
 "----------------------------------------------------------------------
 " space + j : make
 "----------------------------------------------------------------------
-noremap <silent><space>jj  :VimMake -cwd=<root> make<cr>
-noremap <silent><space>jc  :VimMake -cwd=<root> make clean<cr>
-noremap <silent><space>jk  :VimMake -mode=4 -cwd=<root> make run<cr>
-noremap <silent><space>jl  :VimMake -mode=4 -cwd=<root> make test<cr>
-noremap <silent><space>j1  :VimMake -mode=4 -cwd=<root> make t1<cr>
-noremap <silent><space>j2  :VimMake -mode=4 -cwd=<root> make t2<cr>
-noremap <silent><space>j3  :VimMake -mode=4 -cwd=<root> make t3<cr>
-noremap <silent><space>j4  :VimMake -mode=4 -cwd=<root> make t4<cr>
-noremap <silent><space>j5  :VimMake -mode=4 -cwd=<root> make t5<cr>
-noremap <silent><space>k1  :VimMake -cwd=<root> make t1<cr>
-noremap <silent><space>k2  :VimMake -cwd=<root> make t2<cr>
-noremap <silent><space>k3  :VimMake -cwd=<root> make t3<cr>
-noremap <silent><space>k4  :VimMake -cwd=<root> make t4<cr>
-noremap <silent><space>k5  :VimMake -cwd=<root> make t5<cr>
+noremap <silent><space>jj  :AsyncRun -cwd=<root> make<cr>
+noremap <silent><space>jc  :AsyncRun -cwd=<root> make clean<cr>
+noremap <silent><space>jk  :AsyncRun -mode=4 -cwd=<root> make run<cr>
+noremap <silent><space>jl  :AsyncRun -mode=4 -cwd=<root> make test<cr>
+noremap <silent><space>j1  :AsyncRun -mode=4 -cwd=<root> make t1<cr>
+noremap <silent><space>j2  :AsyncRun -mode=4 -cwd=<root> make t2<cr>
+noremap <silent><space>j3  :AsyncRun -mode=4 -cwd=<root> make t3<cr>
+noremap <silent><space>j4  :AsyncRun -mode=4 -cwd=<root> make t4<cr>
+noremap <silent><space>j5  :AsyncRun -mode=4 -cwd=<root> make t5<cr>
+noremap <silent><space>k1  :AsyncRun -cwd=<root> make t1<cr>
+noremap <silent><space>k2  :AsyncRun -cwd=<root> make t2<cr>
+noremap <silent><space>k3  :AsyncRun -cwd=<root> make t3<cr>
+noremap <silent><space>k4  :AsyncRun -cwd=<root> make t4<cr>
+noremap <silent><space>k5  :AsyncRun -cwd=<root> make t5<cr>
 
 noremap <silent><space>jm :call Tools_SwitchMakeFile()<cr>
 
@@ -201,15 +198,11 @@ noremap <silent><space>jm :call Tools_SwitchMakeFile()<cr>
 "----------------------------------------------------------------------
 " space + t : toggle plugins
 "----------------------------------------------------------------------
-noremap <silent><space>tq :call Toggle_QuickFix(6)<cr>
-noremap <silent><space>tb :TagbarToggle<cr>
-noremap <silent><space>tf :FuzzyFileSearch<cr>
-
 "noremap <silent><C-F10> :call Toggle_Taglist()<cr>
 "inoremap <silent><C-F10> <c-\><c-o>:call Toggle_Taglist()<cr>
 noremap <silent><S-F10> :call quickmenu#toggle(0)<cr>
 inoremap <silent><S-F10> <ESC>:call quickmenu#toggle(0)<cr>
-noremap <silent><M-;> :PreviewTag<cr>
+noremap <silent><M-;> :call quickui#tools#preview_tag('')<cr>
 noremap <silent><M-:> :PreviewClose<cr>
 noremap <silent><tab>; :PreviewGoto edit<cr>
 noremap <silent><tab>: :PreviewGoto tabe<cr>
@@ -219,7 +212,7 @@ if has('autocmd')
 		if &buftype != 'quickfix'
 			return
 		endif
-		nnoremap <silent><buffer> p :PreviewQuickfix<cr>
+		nnoremap <silent><buffer> p :call quickui#tools#preview_quickfix()<cr>
 		nnoremap <silent><buffer> P :PreviewClose<cr>
 		nnoremap <silent><buffer> q :close<cr>
 		setlocal nonumber
@@ -239,11 +232,6 @@ endif
 
 nnoremap <silent><m-a> :PreviewSignature<cr>
 inoremap <silent><m-a> <c-\><c-o>:PreviewSignature<cr>
-
-if has('win32') || has('win64') || has('win95') || has('win32unix')
-	" noremap <silent><m-s> :WriteFileGuard<cr>
-	" inoremap <silent><m-s> <ESC>:WriteFileGuard<cr>
-endif
 
 
 "----------------------------------------------------------------------
@@ -334,35 +322,6 @@ endif
 exec 'nnoremap <space>hn :FileSwitch tabe '.fnameescape(s:nvimrc).'<cr>'
 
 
-"----------------------------------------------------------------------
-" space + g : misc
-"----------------------------------------------------------------------
-" nnoremap <space>gr :%s/\<<C-r><C-w>\>//gc<Left><Left><Left>
-" nnoremap <space>gq :AsyncStop<cr>
-" nnoremap <space>gQ :AsyncStop!<cr>
-" nnoremap <space>gj :%!python -m json.tool<cr>
-" nnoremap <space>gg :setlocal ts=8 sts=4 sw=4 et<cr>
-" nnoremap <space>gG :setlocal ts=4 sts=4 sw=4 noet<cr>
-" nnoremap <silent><space>gf :call Tools_QuickfixCursor(3)<cr>
-" nnoremap <silent><space>gb :call Tools_QuickfixCursor(2)<cr>
-
-" noremap <silent><space>g; :PreviewTag<cr>
-" noremap <silent><space>g: :PreviewClose<cr>
-" noremap <silent><space>g' :PreviewGoto edit<cr>
-" noremap <silent><space>g" :PreviewGoto tabe<cr>
-
-if has('win32') || has('win64')
-	" noremap <space>gc :silent !start cmd.exe<cr>
-	" noremap <space>gs :silent !start powershell.exe<cr>
-	" noremap <space>ge :silent !start /b cmd.exe /C start .<cr>
-else
-endif
-
-
-"----------------------------------------------------------------------
-" square brackets: g,h,j,k,r,v,w
-"----------------------------------------------------------------------
-
 
 
 "----------------------------------------------------------------------
@@ -389,21 +348,12 @@ noremap <silent><space>lt :call asclib#html_prettify()<cr>
 " more personal in gvim
 "----------------------------------------------------------------------
 if has('gui_running') && (has('win32') || has('win64'))
-	noremap <S-F11> :VimMake -mode=4 -cwd=$(VIM_FILEDIR) -save=1 d:\\software\\anaconda3\\python.exe "$(VIM_FILENAME)"<cr>
-	inoremap <S-F11> <ESC>:VimMake -mode=4 -cwd=$(VIM_FILEDIR) d:\\software\\anaconda3\\python.exe "$(VIM_FILENAME)"<cr>
-	noremap <S-F12> :VimMake -mode=4 -save=1 -cwd=$(VIM_FILEDIR) d:\\dev\\python64\\python.exe "$(VIM_FILENAME)"<cr>
+	noremap <S-F11> :AsyncRun -mode=4 -cwd=$(VIM_FILEDIR) -save=1 d:\\software\\anaconda3\\python.exe "$(VIM_FILENAME)"<cr>
+	inoremap <S-F11> <ESC>:AsyncRun -mode=4 -cwd=$(VIM_FILEDIR) d:\\software\\anaconda3\\python.exe "$(VIM_FILENAME)"<cr>
+	noremap <S-F12> :AsyncRun -mode=4 -save=1 -cwd=$(VIM_FILEDIR) d:\\dev\\python64\\python.exe "$(VIM_FILENAME)"<cr>
 endif
 
 noremap <C-F10> :VimBuild gcc -pg<cr>
-
-
-
-"----------------------------------------------------------------------
-" g command
-"----------------------------------------------------------------------
-nnoremap gyd :YcmCompleter GoToDefinitionElseDeclaration<cr>
-nnoremap gyr :YcmCompleter GoToReferences<cr>
-nnoremap gyh :YcmCompleter GetDoc<cr>
 
 
 "----------------------------------------------------------------------
@@ -421,10 +371,6 @@ inoremap <silent><c-f11> <ESC>:call quickmenu#toggle(2)<cr>
 noremap <silent><c-f12> :call asclib#utils#script_menu()<cr>
 inoremap <silent><c-f12> <ESC>:call asclib#utils#script_menu()<cr>
 
-nnoremap <silent>g1 :GrepCode <C-R>=expand("<cword>")<cr><cr>
-nnoremap <silent>g2 :GrepCode! <C-R>=expand("<cword>")<cr><cr>
-nnoremap <silent>g3 :VimScope g <C-R>=expand("<cword>")<cr><cr>
-nnoremap <silent>g4 :VimScope s <C-R>=expand("<cword>")<cr><cr>
 nnoremap <silent>g5 :PreviewTag<cr>
 nnoremap <silent>g6 :call vimmake#update_tags('!', 'cs', '.cscope')<cr>
 nnoremap <silent>g7 :call vimmake#update_tags('!', 'py', '.cscopy')<cr>
@@ -444,5 +390,8 @@ noremap <space>m3 :call quickmenu#toggle(3)<cr>
 nnoremap <silent><space>at :MyCheatSheetAlign<cr>
 vnoremap <silent><space>at :MyCheatSheetAlign<cr>
 
+noremap <m-i> :call quickui#tools#list_function()<cr>
+noremap <m-I> :call quickui#tools#list_function()<cr>
+noremap <m-y> :call quickui#tools#list_function()<cr>
 
 

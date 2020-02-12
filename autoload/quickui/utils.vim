@@ -149,14 +149,15 @@ let s:maps["\<c-j>"] = 'DOWN'
 let s:maps["\<c-k>"] = 'UP'
 let s:maps["\<c-h>"] = 'LEFT'
 let s:maps["\<c-l>"] = 'RIGHT'
-let s:maps["\<c-n>"] = 'DOWN'
-let s:maps["\<c-p>"] = 'UP'
+let s:maps["\<c-n>"] = 'NEXT'
+let s:maps["\<c-p>"] = 'PREV'
 let s:maps["\<c-b>"] = 'PAGEUP'
 let s:maps["\<c-f>"] = 'PAGEDOWN'
 let s:maps["\<c-u>"] = 'HALFUP'
 let s:maps["\<c-d>"] = 'HALFDOWN'
 let s:maps["\<PageUp>"] = 'PAGEUP'
 let s:maps["\<PageDown>"] = 'PAGEDOWN'
+let s:maps["\<c-g>"] = 'NOHL'
 let s:maps['j'] = 'DOWN'
 let s:maps['k'] = 'UP'
 let s:maps['h'] = 'LEFT'
@@ -168,10 +169,108 @@ let s:maps['L'] = 'PAGEDOWN'
 let s:maps["g"] = 'TOP'
 let s:maps["G"] = 'BOTTOM'
 let s:maps['q'] = 'ESC'
+let s:maps['n'] = 'NEXT'
+let s:maps['N'] = 'PREV'
 
 
 function! quickui#utils#keymap()
 	return deepcopy(s:maps)
+endfunc
+
+
+"----------------------------------------------------------------------
+" python simulate system() on window to prevent temporary window
+"----------------------------------------------------------------------
+function! s:python_system(cmd, version)
+	if has('nvim')
+		let hr = system(a:cmd)
+	elseif has('win32') || has('win64') || has('win95') || has('win16')
+		if a:version < 0 || (has('python3') == 0 && has('python2') == 0)
+			let hr = system(a:cmd)
+			let s:shell_error = v:shell_error
+			return hr
+		elseif a:version == 3
+			let pyx = 'py3 '
+			let python_eval = 'py3eval'
+		elseif a:version == 2
+			let pyx = 'py2 '
+			let python_eval = 'pyeval'
+		else
+			let pyx = 'pyx '
+			let python_eval = 'pyxeval'
+		endif
+		exec pyx . 'import subprocess, vim'
+		exec pyx . '__argv = {"args":vim.eval("a:cmd"), "shell":True}'
+		exec pyx . '__argv["stdout"] = subprocess.PIPE'
+		exec pyx . '__argv["stderr"] = subprocess.STDOUT'
+		exec pyx . '__pp = subprocess.Popen(**__argv)'
+		exec pyx . '__return_text = __pp.stdout.read()'
+		exec pyx . '__pp.stdout.close()'
+		exec pyx . '__return_code = __pp.wait()'
+		exec 'let l:hr = '. python_eval .'("__return_text")'
+		exec 'let l:pc = '. python_eval .'("__return_code")'
+		let s:shell_error = l:pc
+		return l:hr
+	else
+		let hr = system(a:cmd)
+	endif
+	let s:shell_error = v:shell_error
+	return hr
+endfunc
+
+
+"----------------------------------------------------------------------
+" execute external program and return its output
+"----------------------------------------------------------------------
+function! quickui#utils#system(cmd)
+	let hr = s:python_system(a:cmd, get(g:, 'quickui_python', 0))
+	let g:quickui#utils#shell_error = s:shell_error
+	return hr
+endfunc
+
+
+"----------------------------------------------------------------------
+" display a error msg
+"----------------------------------------------------------------------
+function! quickui#utils#errmsg(what)
+	redraw
+	echohl ErrorMsg
+	echom a:what
+	echohl None
+endfunc
+
+
+"----------------------------------------------------------------------
+" safe print
+"----------------------------------------------------------------------
+function! quickui#utils#print(content, highlight, ...)
+	let saveshow = &showmode
+	set noshowmode
+    let wincols = &columns
+    let statusline = (&laststatus==1 && winnr('$')>1) || (&laststatus==2)
+    let reqspaces_lastline = (statusline || !&ruler) ? 12 : 29
+    let width = len(a:content)
+    let limit = wincols - reqspaces_lastline
+	let l:content = a:content
+	if width + 1 > limit
+		let l:content = strpart(l:content, 0, limit - 1)
+		let width = len(l:content)
+	endif
+	" prevent scrolling caused by multiple echo
+	let needredraw = (a:0 >= 1)? a:1 : 1
+	if needredraw != 0
+		redraw 
+	endif
+	if a:highlight != 0
+		echohl Type
+		echo l:content
+		echohl NONE
+	else
+		echo l:content
+	endif
+	if saveshow != 0
+		set showmode
+	endif
 endfunc
 
 
@@ -187,11 +286,12 @@ endfunc
 " cursor movement
 "----------------------------------------------------------------------
 function! quickui#utils#movement(offset)
-	let height = winheight(0)	
+	let height = winheight(0)
 	let winline = winline()
 	let curline = line('.')
 	let topline = curline - winline + 1
-	let botline = curline + height - 1
+	let topline = (topline < 1)? 1 : topline
+	let botline = topline + height - 1
 	let offset = 0
 	if type(a:offset) == v:t_number
 		let offset = a:offset
@@ -208,13 +308,19 @@ function! quickui#utils#movement(offset)
 			let offset = -1
 		elseif a:offset == 'DOWN'
 			let offset = 1
+		elseif a:offset == 'TOP'
+			exec "noautocmd normal gg"
+			return
+		elseif a:offset == 'BOTTOM'
+			exec "noautocmd normal G"
+			return
 		endif
 	endif
-	echom "offset: ". offset
+	" echom "offset: ". offset
 	if offset > 0
-		exec "normal ". offset . "\<C-E>"
+		exec "noautocmd normal ". offset . "\<C-E>"
 	elseif offset < 0
-		exec "normal ". (-offset) . "\<C-Y>"
+		exec "noautocmd normal ". (-offset) . "\<C-Y>"
 	endif
 endfunc
 
@@ -224,9 +330,11 @@ endfunc
 "----------------------------------------------------------------------
 function! quickui#utils#scroll(winid, offset)
 	if type(a:offset) == v:t_number
-		call win_execute(a:winid, 'call quickui#utils#movement(' . a:offset .')')
+		let cmd = 'call quickui#utils#movement(' . a:offset . ')'
+		call quickui#core#win_execute(a:winid, cmd)
 	else
-		call win_execute(a:winid, 'call quickui#utils#movement("' . a:offset .'")')
+		let cmd = 'call quickui#utils#movement("' . a:offset . '")'
+		call quickui#core#win_execute(a:winid, cmd)
 	endif
 endfunc
 
@@ -236,7 +344,13 @@ endfunc
 " centerize
 "----------------------------------------------------------------------
 function! quickui#utils#center(winid)
-	let pos = popup_getpos(a:winid)
+	if g:quickui#core#has_nvim == 0
+		let pos = popup_getpos(a:winid)
+	else
+		let pos = {}
+		let pos.width = nvim_win_get_width(a:winid)
+		let pos.height = nvim_win_get_height(a:winid)
+	endif
 	let h = pos.height
 	let w = pos.width
 	let limit1 = (&lines - 2) * 82 / 100
@@ -248,10 +362,214 @@ function! quickui#utils#center(winid)
 		let opts.line = (limit2 - h) / 2
 	endif
 	let opts.col = (&columns - w) / 2
+	let opts.col = (opts.col < 1)? 1 : (opts.col)
 	let hr = quickui#core#screen_fit(opts.line, opts.col, w, h)
 	let opts.col = hr[1]
 	let opts.line = hr[0]
-	call popup_move(a:winid, opts)
+	if g:quickui#core#has_nvim == 0
+		call popup_move(a:winid, opts)
+	else
+		let no = {'col': opts.col - 1, 'row': opts.line - 1}
+		let no.relative = 'editor'
+		call nvim_win_set_config(a:winid, no)
+	endif
+endfunc
+
+
+"----------------------------------------------------------------------
+" show cursorline in textbox
+"----------------------------------------------------------------------
+function! quickui#utils#show_cursor(winid, row)
+	let height = winheight(0)
+	let winline = winline()
+	let curline = line('.')
+	let topline = curline - winline + 1
+	let topline = (topline < 1)? 1 : topline
+	let botline = topline + height - 1
+	let w:__quickui_line__ = get(w:, '__quickui_line__', -1)
+	if a:row >= topline && a:row <= botline
+		exec ":" . a:row
+		if w:__quickui_line__ != 1
+			if g:quickui#core#has_nvim == 0
+				call popup_setoptions(a:winid, {'cursorline': 1})
+			else
+				call quickui#core#win_execute(a:winid, 'setl cursorline')
+			endif
+		endif
+		let w:__quickui_line__ = 1
+	else
+		if w:__quickui_line__ != 0
+			if g:quickui#core#has_nvim == 0
+				call popup_setoptions(a:winid, {'cursorline': 0})
+			else
+				call quickui#core#win_execute(a:winid, 'setl nocursorline')
+			endif
+		endif
+		let w:__quickui_line__ = 0
+	endif
+endfunc
+
+
+"----------------------------------------------------------------------
+" update cursor line
+"----------------------------------------------------------------------
+function! quickui#utils#update_cursor(winid)
+	let bid = winbufnr(a:winid)
+	let row = getbufvar(bid, '__quickui_cursor__', -1)
+	let cmd = 'call quickui#utils#show_cursor('. a:winid .', '.row.')'
+	call quickui#core#win_execute(a:winid, cmd)
+endfunc
+
+
+"----------------------------------------------------------------------
+" get window line
+"----------------------------------------------------------------------
+function! quickui#utils#get_cursor(winid)
+	let g:quickui#utils#__cursor_index__ = -1
+	let cmd = 'let g:quickui#utils#__cursor_index__ = line(".")'
+	noautocmd call quickui#core#win_execute(a:winid, cmd)
+	return g:quickui#utils#__cursor_index__
+endfunc
+
+
+"----------------------------------------------------------------------
+" get topline in current window
+"----------------------------------------------------------------------
+function! quickui#utils#current_topline()
+	let height = winheight(0)
+	let winline = winline()
+	let curline = line('.')
+	let topline = curline - winline + 1
+	return topline
+endfunc
+
+
+"----------------------------------------------------------------------
+" get first cursorline
+"----------------------------------------------------------------------
+function! quickui#utils#get_topline(winid)
+	let g:quickui#utils#__cursor_topline__ = -1
+	let cmd = 'let g:quickui#utils#__cursor_topline__ = '
+	let cmd = cmd . 'quickui#utils#current_topline()'
+	call quickui#core#win_execute(a:winid, cmd)
+	return g:quickui#utils#__cursor_topline__
+endfunc
+
+
+"----------------------------------------------------------------------
+" make border
+"----------------------------------------------------------------------
+function! quickui#utils#make_border(width, height, border, title, button)
+	let pattern = quickui#core#border_get(a:border)
+	let image = []
+	let w = a:width
+	let h = a:height
+	let text = pattern[0] . repeat(pattern[1], w) . pattern[2]
+	let image += [text]
+	let index = 0
+	while index < h
+		let text = pattern[3] . repeat(' ', w) . pattern[5]
+		let image += [text]
+		let index += 1
+	endwhile
+	let text = pattern[6] . repeat(pattern[7], w) . pattern[8]
+	let image += [text]
+	let text = image[0]
+	let title = quickui#core#string_fit(a:title, w)
+	let text = quickui#core#string_compose(text, 1, title)
+	if a:button != 0
+		let text = quickui#core#string_compose(text, w + 1, 'X')
+	endif
+	let image[0] = text
+	return image
+endfunc
+
+
+"----------------------------------------------------------------------
+" search or jump
+"----------------------------------------------------------------------
+function! quickui#utils#search_or_jump(winid, cmd)
+	if a:cmd == '/' || a:cmd == '?'
+		let prompt = (a:cmd == '/')? '/' : '?'
+		" let prompt = (a:cmd == '/')? '(search): ' : '(search backwards): '
+		let t = quickui#core#input(prompt, '')
+		if t != '' && t != "\<c-c>"
+			try
+				silent call quickui#core#win_execute(a:winid, a:cmd . t)
+			catch /^Vim\%((\a\+)\)\=:E486:/
+				call quickui#utils#errmsg('E486: Pattern not find: '. t)
+			endtry
+			silent! call quickui#core#win_execute(a:winid, 'nohl')
+			call setwinvar(a:winid, '__quickui_search_cmd', a:cmd)
+			call setwinvar(a:winid, '__quickui_search_key', t)
+		endif
+	elseif a:cmd == ':'
+		let prompt = ':'
+		" let prompt = '(goto): '
+		let t = quickui#core#input(prompt, '')
+		if t != ''
+			call quickui#core#win_execute(a:winid, ':' . t)	
+		endif
+	endif
+endfunc
+
+
+"----------------------------------------------------------------------
+" search next
+"----------------------------------------------------------------------
+function! quickui#utils#search_next(winid, cmd)
+	let prev_cmd = getwinvar(a:winid, '__quickui_search_cmd', '')
+	let prev_key = getwinvar(a:winid, '__quickui_search_key', '')
+	if prev_key != ''
+		if a:cmd ==# 'n' || a:cmd == 'NEXT'
+			let cmd = (prev_cmd == '/')? '/' : '?'
+		else
+			let cmd = (prev_cmd == '/')? '?' : '/'
+		endif
+		try
+			silent call quickui#core#win_execute(a:winid, cmd . prev_key)
+		catch /^Vim\%((\a\+)\)\=:E486:/
+		endtry
+		noautocmd call quickui#core#win_execute(a:winid, 'nohl')
+	endif
+endfunc
+
+
+"----------------------------------------------------------------------
+" size can be in '24' or '24%'
+"----------------------------------------------------------------------
+function! quickui#utils#size_parse(text, is_height)
+	if type(a:text) == v:t_number
+		return a:text
+	elseif type(a:text) == v:t_string
+		let text = trim(a:text)
+		if text =~ '%$'
+			let text = strpart(text, 0, len(text) - 1)
+			let ratio = str2nr(text)
+			if a:is_height == 0
+				let num = (&columns) * ratio / 100
+				return (num < &columns)? num : &columns
+			else
+				let num = (&lines) * ratio / 100
+				return (num < &lines)? num : &lines
+			endif
+		else
+			return str2nr(text)
+		endif
+	endif
+endfunc
+
+
+
+"----------------------------------------------------------------------
+" get default tools width
+"----------------------------------------------------------------------
+function! quickui#utils#tools_width()
+	let width = get(g:, 'quickui_tools_width', '60%')
+	let size = quickui#utils#size_parse(width, 0)
+	let minimal = (60 < &columns)? 60 : &columns
+	let size = (size < minimal)? minimal : size
+	return (size > &columns)? &columns : size
 endfunc
 
 

@@ -10,6 +10,14 @@
 " vim: set noet fenc=utf-8 ff=unix sts=4 sw=4 ts=4 :
 
 "----------------------------------------------------------------------
+" stats
+"----------------------------------------------------------------------
+
+" last position
+let g:quickui#context#cursor = -1
+
+
+"----------------------------------------------------------------------
 " compile
 "----------------------------------------------------------------------
 function! quickui#context#compile(items, border)
@@ -82,10 +90,11 @@ function! quickui#context#compile(items, border)
 endfunc
 
 
+
 "----------------------------------------------------------------------
 " create menu object
 "----------------------------------------------------------------------
-function! quickui#context#create(textlist, opts)
+function! s:vim_create_context(textlist, opts)
 	let border = get(a:opts, 'border', g:quickui#style#border)
 	let hwnd = quickui#context#compile(a:textlist, border)
 	let winid = popup_create(hwnd.image, {'hidden':1, 'wrap':0})
@@ -126,6 +135,8 @@ function! quickui#context#create(textlist, opts)
 			let key = tolower(item.key_char)
 			if get(a:opts, 'reserve', 0) == 0
 				let hwnd.hotkey[key] = item.index
+			elseif get(g:, 'quickui_protect_hjkl', 0) != 0
+				let hwnd.hotkey[key] = item.index
 			else
 				if key != 'h' && key != 'j' && key != 'k' && key != 'l'
 					let hwnd.hotkey[key] = item.index
@@ -136,8 +147,8 @@ function! quickui#context#create(textlist, opts)
 	let local = quickui#core#popup_local(winid)
 	let local.hwnd = hwnd
 	if get(a:opts, 'manual', 0) == 0
-		let opts.callback = 'quickui#context#callback'
-		let opts.filter = 'quickui#context#filter'
+		let opts.callback = function('s:popup_exit')
+		let opts.filter = function('s:popup_filter')
 	endif
 	if has_key(a:opts, 'zindex')
 		let opts.zindex = a:opts.zindex
@@ -157,7 +168,7 @@ function! quickui#context#update(hwnd)
 	let size = len(a:hwnd.items)
 	let w = a:hwnd.width
 	let h = a:hwnd.height
-	call win_execute(winid, 'syn clear')
+	let cmdlist = ['syn clear']
 	for item in a:hwnd.items
 		let index = item.index
 		if item.enable == 0 && item.is_sep == 0
@@ -171,7 +182,7 @@ function! quickui#context#update(hwnd)
 				let ps = px + w - 4
 			endif
 			let cmd = quickui#core#high_region('QuickOff', py, px, py, ps, 1)
-			call win_execute(winid, cmd)
+			let cmdlist += [cmd]
 		elseif item.key_pos >= 0
 			if a:hwnd.border == 0
 				let px = item.key_pos + 1
@@ -182,7 +193,7 @@ function! quickui#context#update(hwnd)
 			endif
 			let ps = px + 1
 			let cmd = quickui#core#high_region('QuickKey', py, px, py, ps, 1)
-			call win_execute(winid, cmd)
+			let cmdlist += [cmd]
 		endif
 		if index == a:hwnd.index
 			if a:hwnd.border == 0
@@ -195,9 +206,10 @@ function! quickui#context#update(hwnd)
 				let ps = px + w - 2
 			endif
 			let cmd = quickui#core#high_region('QuickSel', py, px, py, ps, 1)
-			call win_execute(winid, cmd)
+			let cmdlist += [cmd]
 		endif
 	endfor
+	call quickui#core#win_execute(winid, cmdlist)
 	if a:hwnd.state != 0
 		redraw
 		if get(g:, 'quickui_show_tip', 0) != 0
@@ -211,7 +223,7 @@ function! quickui#context#update(hwnd)
 				endif
 			endif
 			echohl QuickHelp
-			echom help
+			echo help
 			echohl None
 		endif
 	endif
@@ -233,7 +245,7 @@ endfunc
 "----------------------------------------------------------------------
 " handle exit code
 "----------------------------------------------------------------------
-function! quickui#context#callback(winid, code)
+function! s:popup_exit(winid, code)
 	let local = quickui#core#popup_local(a:winid)
 	if !has_key(local, 'hwnd')
 		return 0
@@ -244,12 +256,18 @@ function! quickui#context#callback(winid, code)
 	let hwnd.code = code
 	call quickui#core#popup_clear(a:winid)
 	if get(g:, 'quickui_show_tip', 0) != 0
-		redraw
-		echo ''
+		if get(hwnd.opts, 'lazyredraw', 0) == 0
+			redraw
+			echo ''
+			redraw
+		endif
 	endif
+	let g:quickui#context#code = code
+	let g:quickui#context#current = hwnd
+	let g:quickui#context#cursor = hwnd.index
+	let redrawed = 0
 	if has_key(hwnd.opts, 'callback')
 		let F = function(hwnd.opts.callback)
-		let g:quickui#context#current = hwnd
 		call F(code)
 	endif
 	silent! call popup_hide(a:winid)
@@ -269,7 +287,7 @@ endfunc
 "----------------------------------------------------------------------
 " key processing
 "----------------------------------------------------------------------
-function! quickui#context#filter(winid, key)
+function! s:popup_filter(winid, key)
 	let local = quickui#core#popup_local(a:winid)
 	let hwnd = local.hwnd
 	let winid = hwnd.winid
@@ -303,9 +321,9 @@ function! quickui#context#filter(winid, key)
 			let hwnd.index = s:cursor_move(hwnd, hwnd.index, -1)
 		elseif key == 'DOWN'
 			let hwnd.index = s:cursor_move(hwnd, hwnd.index, 1)
-		elseif key == 'TOP' || key == 'PAGEUP'
+		elseif key == 'TOP'
 			let hwnd.index = s:cursor_move(hwnd, hwnd.index, 'TOP')
-		elseif key == 'BOTTOM' || key == 'PAGEDOWN'
+		elseif key == 'BOTTOM'
 			let hwnd.index = s:cursor_move(hwnd, hwnd.index, 'BOTTOM')
 		endif
 		if get(hwnd.opts, 'horizon', 0) != 0
@@ -313,6 +331,10 @@ function! quickui#context#filter(winid, key)
 				call popup_close(a:winid, -1000)
 			elseif key == 'RIGHT'
 				call popup_close(a:winid, -2000)
+			elseif key == 'PAGEUP'
+				call popup_close(a:winid, -1001)
+			elseif key == 'PAGEDOWN'
+				call popup_close(a:winid, -2001)
 			endif
 		endif
 		call quickui#context#update(hwnd)
@@ -345,32 +367,59 @@ endfunc
 function! s:on_click(hwnd)
 	let hwnd = a:hwnd
 	let winid = a:hwnd.winid
-	let pos = getmousepos()
-	if pos.winid != winid
-		call popup_close(winid, -2)
-		return 0
-	endif
-	let index = -1
-	if hwnd.border == 0
-		let index = pos.line - 1
-	else
-		if pos.column > 1 && pos.column < hwnd.width
-			if pos.line > 1 && pos.line < hwnd.height
-				let index = pos.line - 2
+	if g:quickui#core#has_nvim == 0
+		let pos = getmousepos()
+		if pos.winid != winid
+			call popup_close(winid, -2)
+			return 0
+		endif
+		let index = -1
+		if hwnd.border == 0
+			let index = pos.line - 1
+		else
+			if pos.column > 1 && pos.column < hwnd.width
+				if pos.line > 1 && pos.line < hwnd.height
+					let index = pos.line - 2
+				endif
 			endif
 		endif
-	endif
-	if index >= 0 && index < len(hwnd.items)
-		let item = hwnd.items[index]
-		if item.is_sep == 0 && item.enable != 0
-			let hwnd.index = index
-			call quickui#context#update(hwnd)
-			call popup_setoptions(winid, {})
-			redraw
-			call popup_close(winid, index)
+		if index >= 0 && index < len(hwnd.items)
+			let item = hwnd.items[index]
+			if item.is_sep == 0 && item.enable != 0
+				let hwnd.index = index
+				call quickui#context#update(hwnd)
+				call popup_setoptions(winid, {})
+				redraw
+				call popup_close(winid, index)
+			endif
 		endif
+		return 1
+	else
+		if v:mouse_winid != winid
+			return -2
+		endif
+		let index = -1
+		if hwnd.border == 0
+			let index = v:mouse_lnum - 1
+		else
+			if v:mouse_col > 1 && v:mouse_col < hwnd.width
+				if v:mouse_lnum > 1 && v:mouse_lnum < hwnd.height
+					let index = v:mouse_lnum - 2
+				endif
+			endif
+		endif
+		if index >= 0 && index < len(hwnd.items)
+			let item = hwnd.items[index]
+			if item.is_sep == 0 && item.enable != 0
+				let hwnd.index = index
+				call quickui#context#update(hwnd)
+				redraw
+				sleep 60m
+				return index
+			endif
+		endif
+		return -1
 	endif
-	return 1
 endfunc
 
 
@@ -426,7 +475,162 @@ function! s:cursor_move(menu, cursor, toward)
 			return selection[-1]
 		endif
 	endif
+	return -1
 endfunc
+
+
+"----------------------------------------------------------------------
+" open context menu in neovim and returns index
+"----------------------------------------------------------------------
+function! s:nvim_create_context(textlist, opts)
+	let border = get(a:opts, 'border', g:quickui#style#border)
+	let hwnd = quickui#context#compile(a:textlist, border)
+	let bid = quickui#core#neovim_buffer('context', hwnd.image)
+	let hwnd.bid = bid
+	let w = hwnd.width
+	let h = hwnd.height
+	let hwnd.index = get(a:opts, 'index', -1)
+	let hwnd.opts = deepcopy(a:opts)
+	let opts = {'width':w, 'height':h, 'focusable':1, 'style':'minimal'}
+	let opts.relative = 'editor'
+	if has_key(a:opts, 'line') && has_key(a:opts, 'col')
+		let opts.row = a:opts.line - 1
+		let opts.col = a:opts.col - 1
+	else
+		let pos = quickui#core#around_cursor(w, h)
+		let opts.row = pos[0] - 1
+		let opts.col = pos[1] - 1
+	endif
+	let winid = nvim_open_win(bid, 0, opts)
+	let hwnd.winid = winid
+	let keymap = quickui#utils#keymap()
+	let keymap['J'] = 'BOTTOM'
+	let keymap['K'] = 'TOP'
+	let hwnd.code = 0
+	let hwnd.state = 1
+	let hwnd.keymap = keymap
+	let hwnd.hotkey = {}
+	for item in hwnd.items
+		if item.enable != 0 && item.key_pos >= 0
+			let key = tolower(item.key_char)
+			if get(a:opts, 'reserve', 0) == 0
+				let hwnd.hotkey[key] = item.index
+			elseif get(g:, 'quickui_protect_hjkl', 0) != 0
+				let hwnd.hotkey[key] = item.index
+			else
+				if key != 'h' && key != 'j' && key != 'k' && key != 'l'
+					let hwnd.hotkey[key] = item.index
+				endif
+			endif
+		endif
+	endfor
+	let hwnd.opts.color = get(a:opts, 'color', 'QuickBG')
+    call nvim_win_set_option(winid, 'winhl', 'Normal:'. hwnd.opts.color)
+	let retval = -1
+	while 1
+		noautocmd call quickui#context#update(hwnd)
+		redraw
+		try
+			let code = getchar()
+		catch /^Vim:Interrupt$/
+			let code = "\<C-C>"
+		endtry
+		let ch = (type(code) == v:t_number)? nr2char(code) : code
+		if ch == "\<ESC>" || ch == "\<c-c>"
+			break
+		elseif ch == " " || ch == "\<cr>"
+			let index = hwnd.index
+			if index >= 0 && index < len(hwnd.items)
+				let item = hwnd.items[index]
+				if item.is_sep == 0 && item.enable != 0
+					let retval = index
+					break
+				endif
+			endif
+		elseif ch == "\<LeftMouse>"
+			let hr = s:on_click(hwnd)
+			if hr == -2 || hr >= 0
+				let retval = hr
+				break
+			endif
+		elseif has_key(hwnd.hotkey, ch)
+			let hr = hwnd.hotkey[ch]
+			if hr >= 0
+				let hwnd.index = hr
+				let retval = hr
+				break
+			endif
+		elseif has_key(hwnd.keymap, ch)
+			let key = hwnd.keymap[ch]
+			if key == 'ESC'
+				break
+			elseif key == 'UP'
+				let hwnd.index = s:cursor_move(hwnd, hwnd.index, -1)
+			elseif key == 'DOWN'
+				let hwnd.index = s:cursor_move(hwnd, hwnd.index, 1)
+			elseif key == 'TOP'
+				let hwnd.index = s:cursor_move(hwnd, hwnd.index, 'TOP')
+			elseif key == 'BOTTOM'
+				let hwnd.index = s:cursor_move(hwnd, hwnd.index, 'BOTTOM')
+			endif
+			if get(hwnd.opts, 'horizon', 0) != 0
+				if key == 'LEFT'
+					let retval = -1000
+					break
+				elseif key == 'RIGHT'
+					let retval = -2000
+					break
+				elseif key == 'PAGEUP'
+					let retval = -1001
+					break
+				elseif key == 'PAGEDOWN'
+					let retval = -2001
+					break
+				endif
+			endif
+		endif
+	endwhile
+	call nvim_win_close(winid, 0)
+	if get(a:opts, 'lazyredraw', 0) == 0
+		redraw
+	endif
+	if get(g:, 'quickui_show_tip', 0) != 0
+		if get(a:opts, 'lazyredraw', 0) == 0
+			echo ''
+			redraw
+		endif
+	endif
+	let g:quickui#context#code = retval
+	let g:quickui#context#current = hwnd
+	let g:quickui#context#cursor = hwnd.index
+	if has_key(hwnd.opts, 'callback')
+		let F = function(hwnd.opts.callback)
+		call F(retval)
+	endif
+	if retval >= 0 && retval < len(hwnd.items)
+		let item = hwnd.items[retval]
+		if item.is_sep == 0 && item.enable != 0
+			if item.cmd != ''
+				redraw
+				exec item.cmd
+			endif
+		endif
+	endif
+	return retval
+endfunc
+
+
+"----------------------------------------------------------------------
+" create menu object
+"----------------------------------------------------------------------
+function! quickui#context#open(textlist, opts)
+	if g:quickui#core#has_nvim == 0
+		return s:vim_create_context(a:textlist, a:opts)
+	else
+		return s:nvim_create_context(a:textlist, a:opts)
+	endif
+endfunc
+
 
 
 "----------------------------------------------------------------------
@@ -437,7 +641,7 @@ if 0
 	let lines = [
 				\ "&New File\tCtrl+n",
 				\ "&Open File\tCtrl+o", 
-				\ ["&Close", 'test echo'],
+				\ ["&Close", 'echo 1234', 'help 1'],
 				\ "--",
 				\ "&Save\tCtrl+s",
 				\ "Save &As",
@@ -459,7 +663,7 @@ if 0
 		echo "callback: " . a:code
 	endfunc
 	if 1
-		let menu = quickui#context#create(lines, opts)
+		let menu = quickui#context#open(lines, opts)
 		" echo menu
 	else
 		let item = quickui#utils#item_parse("你好吗f&aha\tAlt+x")	

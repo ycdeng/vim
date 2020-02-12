@@ -105,16 +105,17 @@ endif
 "- Vimmake
 "----------------------------------------------------------------------
 let g:vimmake_run_guess = ['go']
-let g:vimmake_ftrun = {}
-let g:vimmake_ftrun['make'] = 'make -f'
-let g:vimmake_ftrun['zsh'] = 'zsh'
-let g:vimmake_ftrun['erlang'] = 'escript'
-let g:vimmake_ftrun['csh'] = 'csh'
-let g:vimmake_ftrun['tcsh'] = 'tcsh'
-let g:vimmake_ftrun['fish'] = 'fish'
-let g:vimmake_ftrun['bash'] = 'bash'
-let g:vimmake_ftrun['ksh'] = 'ksh'
-let g:vimmake_ftrun['markdown'] = 'markpress -u'
+let g:asyncrun_encs = (g:asc_uname == 'windows')? 'gbk' : ''
+let g:asyncrun_ftrun = {}
+let g:asyncrun_ftrun['make'] = 'make -f'
+let g:asyncrun_ftrun['zsh'] = 'zsh'
+let g:asyncrun_ftrun['erlang'] = 'escript'
+let g:asyncrun_ftrun['csh'] = 'csh'
+let g:asyncrun_ftrun['tcsh'] = 'tcsh'
+let g:asyncrun_ftrun['fish'] = 'fish'
+let g:asyncrun_ftrun['bash'] = 'bash'
+let g:asyncrun_ftrun['ksh'] = 'ksh'
+let g:asyncrun_ftrun['markdown'] = 'markpress -u'
 let g:vimmake_ftmake = {}
 
 if has('win32') || has('win16') || has('win64') || has('win95')
@@ -132,6 +133,8 @@ else
 	nnoremap K :Man <cword><CR>
 	let g:ft_man_open_mode = 'vert'
 endif
+
+let g:cppman_open_mode = '<auto>'
 
 let g:vimmake_mode = {}
 
@@ -179,7 +182,7 @@ let OmniCpp_DefaultNamespaces = ["std", "_GLIBCXX_STD"]
 "----------------------------------------------------------------------
 "- bufferhint
 "----------------------------------------------------------------------
-if has('patch-8.2.1')
+if has('patch-8.2.1') || has('nvim-0.4')
 	nnoremap <silent>+ :call quickui#tools#list_buffer('FileSwitch tabe')<cr>
 else
 	nnoremap + :call bufferhint#Popup()<CR>
