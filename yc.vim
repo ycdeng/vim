@@ -51,11 +51,8 @@ cabbrev wq w
 call deoplete#custom#source('LanguageClient', 'rank', 100)
 call deoplete#custom#source('omni', 'rank', 200)
 call deoplete#custom#source('ale', 'rank', 200)
-" zeal
-nnoremap <leader>z :!zeal "<cword>"<CR><CR>
 " insert mode
 autocmd InsertEnter,InsertLeave * set cul!
-nmap <silent> <leader>vs :exec '!code % &'
 " makecheck orafce
 nmap <silent> <leader>co :AsyncRun -mode=2 -cwd=<root>/contrib/orafce -raw make check <cr>
 
@@ -71,3 +68,5 @@ let g:netrw_banner = 0
 " endif
 
 let g:Lf_PopupColorscheme = 'dark'
+hi LineNr       term=bold cterm=bold ctermfg=2 guifg=Grey guibg=Grey90
+

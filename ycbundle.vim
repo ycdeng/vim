@@ -131,6 +131,7 @@ if index(g:bundle_group, 'basic') >= 0
 
 	map <m-+> <Plug>(expand_region_expand)
 	map <m-_> <Plug>(expand_region_shrink)
+	let g:Lf_WindowPosition = 'bottom'
 end
 
 
