@@ -110,9 +110,9 @@ if index(g:bundle_group, 'basic') >= 0
 	noremap <m-n> :cclose<cr>:LeaderfBuffer<cr>
 	noremap <m-m> :cclose<cr>:LeaderfTag<cr>
 	noremap <m-f> :cclose<cr>:Leaderf line --regexMode --nowrap<cr>
-	noremap <leader>ff :<C-U><C-R>=printf("Leaderf! rg --stayOpen -e %s ", expand("<cword>"))<CR>
-	noremap <leader>fw :<C-U><C-R>=printf("Leaderf! rg --stayOpen -w -e %s ", expand("<cword>"))<CR>
-	noremap <leader>fsw :<C-U><C-R>=printf("Leaderf! rg --stayOpen -s -w -e %s ", expand("<cword>"))<CR>
+	noremap <leader>ff :<C-U><C-R>=printf("Leaderf! rg -e %s ", expand("<cword>"))<CR>
+	noremap <leader>fw :<C-U><C-R>=printf("Leaderf! rg -w -e %s ", expand("<cword>"))<CR>
+	noremap <leader>fsw :<C-U><C-R>=printf("Leaderf! rg -s -w -e %s ", expand("<cword>"))<CR>
 
 	let g:Lf_MruMaxFiles = 2048
 	let g:Lf_StlSeparator = { 'left': '', 'right': '', 'font': '' }
@@ -220,12 +220,7 @@ if index(g:bundle_group, 'opt') >= 0
 		let g:gutentags_modules += ['gtags_cscope']
 	endif
 	if len(g:gutentags_modules) > 0
-		if s:uname != 'windows'
-			Plug 'ludovicchabant/vim-gutentags'
-		else
-			Plug 'ludovicchabant/vim-gutentags'
-			" Plug 'skywind3000/vim-gutentags'
-		endif
+		Plug 'ludovicchabant/vim-gutentags', {'commit': 'bec1e92'}
 	endif
 endif
 

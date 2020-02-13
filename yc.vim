@@ -67,6 +67,7 @@ let g:netrw_banner = 0
 "   set shiftwidth=4
 " endif
 
-let g:Lf_PopupColorscheme = 'dark'
-hi LineNr       term=bold cterm=bold ctermfg=2 guifg=Grey guibg=Grey90
 
+let g:gutentags_define_advanced_commands = 1
+let $GTAGSLABEL = 'native-pygments'
+let $GTAGSCONF = '/usr/local/share/gtags/gtags.conf'
