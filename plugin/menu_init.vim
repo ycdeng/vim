@@ -40,26 +40,15 @@ call quickui#menu#install("&Edit", [
 			\ ['Copyright &Header', 'call feedkeys("\<esc> ec")', 'Insert copyright information at the beginning'],
 			\ ['&Trailing Space', 'call StripTrailingWhitespace()', ''],
 			\ ['Update &ModTime', 'call UpdateLastModified()', ''],
-			\ ['&Paste Mode Line', 'call PasteVimModeLine()', ''],
+			\ ['&Paste Mode Line', 'PasteVimModeLine', ''],
 			\ ['Format J&son', '%!python -m json.tool', ''],
 			\ ['--'],
 			\ ['&Align Table', 'Tabularize /|', ''],
 			\ ['Align &Cheatsheet', 'MyCheatSheetAlign', ''],
 			\ ])
 
-call quickui#menu#install("&Build", [
-			\ ["&Compile File\tF9", 'VimBuild gcc'],
-			\ ["E&xecute File\tF5", 'VimExecute Run'],
-			\ ['--', ''],
-			\ ['Project &Make', 'VimBuild make'],
-			\ ["Project &EMake\tF7", 'VimBuild auto'],
-			\ ['Project &Run', 'VimExecute auto'],
-			\ ['--', ''],
-			\ ['&Stop Building', 'VimStop'],
-			\ ])
-
 call quickui#menu#install('&Symbol', [
-			\ [ "&Grep Word\t(In Project)", 'call menu#FindInProject()', 'Grep keyword in current project' ],
+			\ [ "&Grep Word\t(In Project)", 'call MenuHelp_GrepCode()', 'Grep keyword in current project' ],
 			\ [ "--", ],
 			\ [ "Find &Definition\t(GNU Global)", 'call MenuHelp_Gscope("g")', 'GNU Global search g'],
 			\ [ "Find &Symbol\t(GNU Global)", 'call MenuHelp_Gscope("s")', 'GNU Gloal search s'],
@@ -67,10 +56,33 @@ call quickui#menu#install('&Symbol', [
 			\ [ "Find C&alling\t(GNU Global)", 'call MenuHelp_Gscope("c")', 'GNU Global search c'],
 			\ [ "Find &From Ctags\t(GNU Global)", 'call MenuHelp_Gscope("z")', 'GNU Global search c'],
 			\ [ "--", ],
-			\ [ "&Goto Definition\t(YCM)", 'YcmCompleter GoToDefinitionElseDeclaration'],
+			\ [ "Goto D&efinition\t(YCM)", 'YcmCompleter GoToDefinitionElseDeclaration'],
 			\ [ "Goto &References\t(YCM)", 'YcmCompleter GoToReferences'],
 			\ [ "Get D&oc\t(YCM)", 'YcmCompleter GetDoc'],
 			\ [ "Get &Type\t(YCM)", 'YcmCompleter GetTypeImprecise'],
+			\ ])
+
+call quickui#menu#install('&Move', [
+			\ ["Quickfix &First\t:cfirst", 'cfirst', 'quickfix cursor rewind'],
+			\ ["Quickfix L&ast\t:clast", 'clast', 'quickfix cursor to the end'],
+			\ ["Quickfix &Next\t:cnext", 'cnext', 'cursor next'],
+			\ ["Quickfix &Previous\t:cprev", 'cprev', 'quickfix cursor previous'],
+			\ ])
+
+call quickui#menu#install("&Build", [
+			\ ["File &Execute\tF5", 'AsyncTask file-run'],
+			\ ["File &Compile\tF9", 'AsyncTask file-build'],
+			\ ["File E&make\tF7", 'AsyncTask emake'],
+			\ ["File &Start\tF8", 'AsyncTask emake-exe'],
+			\ ['--', ''],
+			\ ["&Project Build\tShift+F9", 'AsyncTask project-build'],
+			\ ["Project &Run\tShift+F5", 'AsyncTask project-run'],
+			\ ["Project &Test\tShift+F6", 'AsyncTask project-test'],
+			\ ["Project &Init\tShift+F7", 'AsyncTask project-init'],
+			\ ['--', ''],
+			\ ['E&dit Task', 'AsyncTask -e'],
+			\ ['Edit &Global Task', 'AsyncTask -E'],
+			\ ['&Stop Building', 'AsyncStop'],
 			\ ])
 
 call quickui#menu#install("&Git", [
@@ -96,13 +108,6 @@ if has('win32') || has('win64') || has('win16') || has('win95')
 				\ ["File Lo&g\t(Tortoise)", 'call svnhelp#tf_log()', 'TortoiseGit / TortoiseSvn'],
 				\ ])
 endif
-
-call quickui#menu#install('&Move', [
-			\ ["Quickfix &First\t:cfirst", 'cfirst', 'quickfix cursor rewind'],
-			\ ["Quickfix L&ast\t:clast", 'clast', 'quickfix cursor to the end'],
-			\ ["Quickfix &Next\t:cnext", 'quickfix cursor next'],
-			\ ["Quickfix &Previous\t:cprev", 'quickfix cursor previous'],
-			\ ])
 
 call quickui#menu#install('&Tools', [
 			\ ['Compare &History', 'call svnhelp#compare_ask_file()', ''],
@@ -153,10 +158,34 @@ call quickui#menu#install('Help (&?)', [
 
 let g:quickui_show_tip = 1
 
+
+"----------------------------------------------------------------------
+" context menu
+"----------------------------------------------------------------------
+let g:context_menu_k = [
+			\ ["&Peek Definition\tAlt+;", 'call quickui#tools#preview_tag("")'],
+			\ ["S&earch in Project\t\\cx", 'exec "silent! GrepCode! " . expand("<cword>")'],
+			\ [ "--", ],
+			\ [ "Find &Definition\t\\cg", 'call MenuHelp_Fscope("g")', 'GNU Global search g'],
+			\ [ "Find &Symbol\t\\cs", 'call MenuHelp_Fscope("s")', 'GNU Gloal search s'],
+			\ [ "Find &Called by\t\\cd", 'call MenuHelp_Fscope("d")', 'GNU Global search d'],
+			\ [ "Find C&alling\t\\cc", 'call MenuHelp_Fscope("c")', 'GNU Global search c'],
+			\ [ "Find &From Ctags\t\\cz", 'call MenuHelp_Fscope("z")', 'GNU Global search c'],
+			\ [ "--", ],
+			\ [ "Goto D&efinition\t(YCM)", 'YcmCompleter GoToDefinitionElseDeclaration'],
+			\ [ "Goto &References\t(YCM)", 'YcmCompleter GoToReferences'],
+			\ [ "Get D&oc\t(YCM)", 'YcmCompleter GetDoc'],
+			\ [ "Get &Type\t(YCM)", 'YcmCompleter GetTypeImprecise'],
+			\ [ "--", ],
+			\ ['Dash &Help', 'call asclib#utils#dash_ft(&ft, expand("<cword>"))'],
+			\ ['Cpp&man', 'exec "Cppman " . expand("<cword>")', '', 'c,cpp'],
+			\ ]
+
+
 "----------------------------------------------------------------------
 " hotkey
 "----------------------------------------------------------------------
 nnoremap <silent><space><space> :call quickui#menu#open()<cr>
 
-
+nnoremap <silent>K :call quickui#tools#clever_context('k', g:context_menu_k, {})<cr>
 

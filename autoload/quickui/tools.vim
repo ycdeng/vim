@@ -150,12 +150,14 @@ function! quickui#tools#list_function()
 	let maxsize = (&columns) * 60 / 100
 	let maxheight = (&lines) * 60 / 100
 	let maxwidth = 0
+	let indents = get(g:, 'quickui_tags_indent', {})
 	for item in items
 		if ln >= item.line
 			let cursor = index
 		endif
 		let index += 1
-		let text = '' . item.mode . '' . "   \t" . item.text
+		let space = get(indents, item.mode, '')
+		let text = '' . item.mode . '' . "   \t" . space . item.text
 		let text = text . '  [:' . item.line . ']'
 		let maxwidth = (maxwidth < len(text))? len(text) : maxwidth
 		let text = substitute(text, '&', '&&', 'g')
@@ -387,4 +389,38 @@ function! quickui#tools#display_help(tag)
 endfunc
 
 
+
+"----------------------------------------------------------------------
+" save curses help
+"----------------------------------------------------------------------
+let s:previous_cursor = {}
+
+function! s:remember_cursor_context(code)
+	let hwnd = g:quickui#context#current
+	let name = hwnd.opts.keep_name
+	let s:previous_cursor[name] = g:quickui#context#cursor
+endfunc
+
+function! s:remember_cursor_listbox(code)
+	let hwnd = g:quickui#listbox#current
+	let name = hwnd.opts.keep_name
+	let s:previous_cursor[name] = g:quickui#listbox#cursor
+endfunc
+
+function! quickui#tools#clever_context(name, content, opts)
+	let opts = deepcopy(a:opts)
+	let opts.index = get(s:previous_cursor, a:name, -1)
+	let opts.keep_name = a:name
+	let opts.callback = function('s:remember_cursor_context')
+	let content = quickui#context#reduce_items(a:content)
+	call quickui#context#open(content, opts)
+endfunc
+
+function! quickui#tools#clever_listbox(name, content, opts)
+	let opts = deepcopy(a:opts)
+	let opts.index = get(s:previous_cursor, a:name, -1)
+	let opts.keep_name = a:name
+	let opts.callback = function('s:remember_cursor_listbox')
+	call quickui#listbox#open(a:content, opts)
+endfunc
 

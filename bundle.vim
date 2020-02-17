@@ -92,6 +92,7 @@ if index(g:bundle_group, 'basic') >= 0
 	Plug 'octol/vim-cpp-enhanced-highlight', { 'for': ['c', 'cpp'] }
 	Plug 'justinmk/vim-syntax-extra', { 'for': ['c', 'bison', 'flex', 'cpp'] }
 	Plug 'vim-python/python-syntax', { 'for': ['python'] }
+	" Plug 'pboettch/vim-cmake-syntax', { 'for': ['cmake'] }
 	Plug 'tpope/vim-eunuch'
 	Plug 'dag/vim-fish'
 	
@@ -116,8 +117,8 @@ if index(g:bundle_group, 'basic') >= 0
 		noremap <m-n> :cclose<cr>:CtrlPBuffer<cr>
 	endif
 
-	noremap <space>ht :Startify<cr>
-	noremap <space>hy :tabnew<cr>:Startify<cr> 
+	" noremap <space>ht :Startify<cr>
+	" noremap <space>hy :tabnew<cr>:Startify<cr> 
 
 	let g:cpp_class_scope_highlight = 1
 	let g:cpp_member_variable_highlight = 1
@@ -224,6 +225,7 @@ if index(g:bundle_group, 'opt') >= 0
 	Plug 'tpope/vim-speeddating'
 	Plug 'chiel92/vim-autoformat'
 	Plug 'voldikss/vim-translator'
+	Plug 'benmills/vimux'
 	" Plug 'itchyny/vim-cursorword'
 	let g:gutentags_modules = []
 	if executable('ctags')

@@ -3,7 +3,7 @@
 " context.vim - 
 "
 " Created by skywind on 2019/12/19
-" Last Modified: 2019/12/19 15:21:18
+" Last Modified: 2020/02/13 16:24
 "
 "======================================================================
 
@@ -15,6 +15,7 @@
 
 " last position
 let g:quickui#context#cursor = -1
+
 
 
 "----------------------------------------------------------------------
@@ -88,7 +89,6 @@ function! quickui#context#compile(items, border)
 	let menu.selection = selection
 	return menu
 endfunc
-
 
 
 "----------------------------------------------------------------------
@@ -276,7 +276,13 @@ function! s:popup_exit(winid, code)
 		if item.is_sep == 0 && item.enable != 0
 			if item.cmd != ''
 				redraw
-				exec item.cmd
+				try
+					exec item.cmd
+				catch /.*/
+					echohl Error
+					echom v:exception
+					echohl None
+				endtry
 			endif
 		endif
 	endif
@@ -612,7 +618,13 @@ function! s:nvim_create_context(textlist, opts)
 		if item.is_sep == 0 && item.enable != 0
 			if item.cmd != ''
 				redraw
-				exec item.cmd
+				try
+					exec item.cmd
+				catch /.*/
+					echohl Error
+					echom v:exception
+					echohl None
+				endtry
 			endif
 		endif
 	endif
@@ -621,16 +633,58 @@ endfunc
 
 
 "----------------------------------------------------------------------
+" reduce with file types
+"----------------------------------------------------------------------
+function! quickui#context#reduce_items(textlist)
+	let output = []
+	let state = 1
+	let index = 0
+	let limit = len(a:textlist)
+	for item in a:textlist
+		if len(item) > 0
+			let issep = ((item[0]) =~ '^-\+$')? 1 : 0
+			if issep != 0
+				if state == 0
+					if index + 1 < limit
+						let output += [item]
+						let state = 1
+					endif
+				endif
+			else
+				if type(item) == v:t_string
+					let output += [item]
+					let state = 0
+				elseif len(item) < 4
+					let output += [item]
+					let state = 0
+				else
+					for check in split(item[3], ',')
+						if &ft == check
+							let output += [item]
+							let state = 0
+							break
+						endif
+					endfor
+				endif
+			endif
+		endif
+		let index += 1
+	endfor
+	return output
+endfunc
+
+
+"----------------------------------------------------------------------
 " create menu object
 "----------------------------------------------------------------------
 function! quickui#context#open(textlist, opts)
+	let textlist = a:textlist
 	if g:quickui#core#has_nvim == 0
-		return s:vim_create_context(a:textlist, a:opts)
+		return s:vim_create_context(textlist, a:opts)
 	else
-		return s:nvim_create_context(a:textlist, a:opts)
+		return s:nvim_create_context(textlist, a:opts)
 	endif
 endfunc
-
 
 
 "----------------------------------------------------------------------
@@ -646,10 +700,11 @@ if 0
 				\ "&Save\tCtrl+s",
 				\ "Save &As",
 				\ "Save All",
-				\ "-",
+				\ "--",
 				\ "&User Menu\tF9",
 				\ "&Dos Shell",
 				\ "~&Time %{&undolevels? '+':'-'}",
+				\ ["S&plit", 'help 1', '', 'vim2'],
 				\ "--",
 				\ "E&xit\tAlt+x",
 				\ "&Help",
@@ -658,7 +713,9 @@ if 0
 	" let menu = quickui#context#menu_compile(lines, 1)
 	let opts = {'cursor': -1, 'line2':'cursor+1', 'col2': 'cursor', 'horizon':1}
 	" let opts.index = 2
+	let opts.savepos = 'f'
 	let opts.callback = 'MyCallback'
+	let opts.reduce = 1
 	function! MyCallback(code)
 		echo "callback: " . a:code
 	endfunc
