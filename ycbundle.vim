@@ -220,7 +220,7 @@ if index(g:bundle_group, 'opt') >= 0
 		let g:gutentags_modules += ['gtags_cscope']
 	endif
 	if len(g:gutentags_modules) > 0
-		Plug 'ludovicchabant/vim-gutentags', {'commit': 'bec1e92'}
+		Plug 'ludovicchabant/vim-gutentags'
 	endif
 endif
 
