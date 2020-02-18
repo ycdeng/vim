@@ -111,9 +111,17 @@ if index(g:bundle_group, 'basic') >= 0
 	noremap <m-m> :cclose<cr>:LeaderfTag<cr>
 	noremap <m-f> :cclose<cr>:Leaderf line --regexMode --nowrap<cr>
 	noremap <leader>ff :<C-U><C-R>=printf("Leaderf! rg -e %s ", expand("<cword>"))<CR>
-	noremap <leader>fw :<C-U><C-R>=printf("Leaderf! rg -w -e %s ", expand("<cword>"))<CR>
-	noremap <leader>fsw :<C-U><C-R>=printf("Leaderf! rg -s -w -e %s ", expand("<cword>"))<CR>
-
+	" -w, --word-regexp
+	noremap <leader>fr :cclose<cr>:Leaderf! rg --recall<cr>
+	noremap <m-r> :cclose<cr>:Leaderf cmdHistory --regexMode --nowrap<cr>
+	let g:Lf_GtagsAutoGenerate = 1
+	let g:Lf_Gtagslabel = 'native-pygments'
+	noremap <leader>gr :<C-U><C-R>=printf("Leaderf! gtags -r %s --auto-jump", expand("<cword>"))<CR><CR>
+	noremap <leader>gd :<C-U><C-R>=printf("Leaderf! gtags -d %s --auto-jump", expand("<cword>"))<CR><CR>
+	noremap <leader>gs :<C-U><C-R>=printf("Leaderf! gtags -s %s --auto-jump", expand("<cword>"))<CR><CR>
+	noremap <leader>go :<C-U><C-R>=printf("Leaderf! gtags --recall %s", "")<CR><CR>
+	noremap <leader>gn :<C-U><C-R>=printf("Leaderf gtags --next %s", "")<CR><CR>
+	noremap <leader>gp :<C-U><C-R>=printf("Leaderf gtags --previous %s", "")<CR><CR>
 	let g:Lf_MruMaxFiles = 2048
 	let g:Lf_StlSeparator = { 'left': '', 'right': '', 'font': '' }
 
@@ -215,9 +223,6 @@ if index(g:bundle_group, 'opt') >= 0
 	let g:gutentags_modules = []
 	if executable('ctags')
 		let g:gutentags_modules += ['ctags']
-	endif
-	if executable('gtags-cscope') && executable('gtags')
-		let g:gutentags_modules += ['gtags_cscope']
 	endif
 	if len(g:gutentags_modules) > 0
 		Plug 'ludovicchabant/vim-gutentags'
