@@ -89,7 +89,9 @@ endif
 if index(g:bundle_group, 'basic') >= 0
 	Plug 'tpope/vim-fugitive'
 	Plug 'airblade/vim-gitgutter'
-	Plug 'flazz/vim-colorschemes'
+	Plug 'tomasiser/vim-code-dark'
+	Plug 'puremourning/vimspector'
+	" Plug 'flazz/vim-colorschemes'
 	Plug 'xolox/vim-misc'
 	Plug 'terryma/vim-expand-region'
 	" Plug 'pprovost/vim-ps1', { 'for': 'ps1' }
@@ -201,7 +203,7 @@ if index(g:bundle_group, 'high') >= 0
 	nnoremap <silent> [e :ErrorAtCursor<CR>
 	nnoremap <silent> <leader>cM :RemoveErrorMarkers<cr>
 
-	nmap <m-e> <Plug>(choosewin)
+	" nmap <m-e> <Plug>(choosewin)
 	let g:ranger_map_keys = 0
 
 end
@@ -255,22 +257,14 @@ if index(g:bundle_group, 'deoplete') >= 0
 	" let g:deoplete#enable_smart_case = 1
 	" let g:deoplete#enable_refresh_always = 1
 
-	inoremap <expr> <TAB> pumvisible() ? deoplete#close_popup() : "\<Tab>"
-
-smap <expr><TAB> neosnippet#expandable_or_jumpable() ?
-\ "\<Plug>(neosnippet_expand_or_jump)" : "\<TAB>"
+	let g:neosnippet#snippets_directory='~/.vim/vim/snippets'
 
 	set shortmess+=c
 	set noshowmode
-
-	" if exists('g:python_host_prog')
-	" 	let g:deoplete#sources#jedi#python_path = g:python_host_prog
-	" endif
+	imap <m-e>     <Plug>(neosnippet_expand_or_jump)
+	smap <m-e>     <Plug>(neosnippet_expand_or_jump)
+	xmap <m-e>     <Plug>(neosnippet_expand_target)
 	let g:deoplete#sources#jedi#enable_cache = 1
-	imap <m-r>     <Plug>(neosnippet_expand_or_jump)
-	smap <m-r>     <Plug>(neosnippet_expand_or_jump)
-	xmap <m-r>     <Plug>(neosnippet_expand_target)
-
 endif
 
 " echodoc

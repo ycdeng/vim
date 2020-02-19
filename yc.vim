@@ -17,8 +17,9 @@ set list
 set listchars=tab:--#
 " disable bracket jump when complete
 set matchtime=0
-au FocusLost * silent! wa
+autocmd CursorHold,CursorHoldI * update
 " colors for listchars
+colorscheme codedark
 hi SpecialKey ctermfg=239 guifg=#999999
 
 
@@ -71,3 +72,5 @@ let g:netrw_banner = 0
 let g:gutentags_define_advanced_commands = 1
 let $GTAGSLABEL = 'native-pygments'
 let $GTAGSCONF = '/usr/local/share/gtags/gtags.conf'
+
+let @d = "\<C-w>f\<C-w>jjgf:windo diffthis\<CR>"
