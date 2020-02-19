@@ -88,20 +88,18 @@ endif
 "----------------------------------------------------------------------
 if index(g:bundle_group, 'basic') >= 0
 	Plug 'tpope/vim-fugitive'
+	
 	Plug 'airblade/vim-gitgutter'
+	nmap <Leader>hu <Plug>(GitGutterUndoHunk)
+
 	Plug 'tomasiser/vim-code-dark'
 	Plug 'puremourning/vimspector'
-	" Plug 'flazz/vim-colorschemes'
 	Plug 'xolox/vim-misc'
 	Plug 'terryma/vim-expand-region'
-	" Plug 'pprovost/vim-ps1', { 'for': 'ps1' }
-	" Plug 'tbastos/vim-lua', { 'for': 'lua' }
+
 	Plug 'octol/vim-cpp-enhanced-highlight', { 'for': ['c', 'cpp'] }
 	Plug 'justinmk/vim-syntax-extra', { 'for': ['c', 'bison', 'flex', 'cpp'] }
-	" Plug 'vim-python/python-syntax', { 'for': ['python'] }
-	" Plug 'tpope/vim-eunuch'
 	Plug 'tpope/vim-commentary'
-	" Plug 'dag/vim-fish'
 	
  	Plug 'Yggdroot/LeaderF', { 'do': './install.sh' }
 	let g:Lf_ShortcutF = '<c-p>'
