@@ -74,3 +74,6 @@ let $GTAGSLABEL = 'native-pygments'
 let $GTAGSCONF = '/usr/local/share/gtags/gtags.conf'
 
 let @d = "\<C-w>f\<C-w>jjgf:windo diffthis\<CR>"
+
+" easymotion 高亮
+hi Search ctermfg=Red

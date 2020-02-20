@@ -48,29 +48,20 @@ call plug#begin(get(g:, 'bundle_home', '~/.vim/bundles'))
 "----------------------------------------------------------------------
 if index(g:bundle_group, 'simple') >= 0
 	Plug 'easymotion/vim-easymotion'
+	map  / <Plug>(easymotion-sn)
+	omap / <Plug>(easymotion-tn)
+	map  n <Plug>(easymotion-next)
+	map  N <Plug>(easymotion-prev)
+	let g:EasyMotion_smartcase = 1
+
 	Plug 'Raimondi/delimitMate'
 	Plug 'justinmk/vim-dirvish'
 	Plug 'justinmk/vim-sneak'
 	Plug 'tpope/vim-unimpaired'
 	Plug 'tpope/vim-vinegar'
-	Plug 'godlygeek/tabular', { 'on': 'Tabularize' }
 	Plug 'bootleq/vim-cycle'
 	Plug 'tpope/vim-surround'
-	Plug 'plasticboy/vim-markdown'
 
-	nnoremap gb= :Tabularize /=<CR>
-	vnoremap gb= :Tabularize /=<CR>
-	nnoremap gb/ :Tabularize /\/\//l4c1<CR>
-	vnoremap gb/ :Tabularize /\/\//l4c1<CR>
-	nnoremap gb, :Tabularize /,/r0l1<CR>
-	vnoremap gb, :Tabularize /,/r0l1<CR>
-	nnoremap gbl :Tabularize /\|<cr>
-	vnoremap gbl :Tabularize /\|<cr>
-	nnoremap gbc :Tabularize /#/l4c1<cr>
-	nnoremap gb<bar> :Tabularize /\|<cr>
-	vnoremap gb<bar> :Tabularize /\|<cr>
-	nnoremap gbr :Tabularize /\|/r0<cr>
-	vnoremap gbr :Tabularize /\|/r0<cr>
 	map gz <Plug>Sneak_s
 	map gZ <Plug>Sneak_S
 
@@ -110,9 +101,9 @@ if index(g:bundle_group, 'basic') >= 0
 	noremap <m-n> :cclose<cr>:LeaderfBuffer<cr>
 	noremap <m-m> :cclose<cr>:LeaderfTag<cr>
 	noremap <m-f> :cclose<cr>:Leaderf line --regexMode --nowrap<cr>
-	noremap <leader>ff :<C-U><C-R>=printf("Leaderf! rg -e %s ", expand("<cword>"))<CR>
+	noremap <leader>rf :<C-U><C-R>=printf("Leaderf! rg -e %s ", expand("<cword>"))<CR>
 	" -w, --word-regexp
-	noremap <leader>fr :cclose<cr>:Leaderf! rg --recall<cr>
+	noremap <leader>rr :cclose<cr>:Leaderf! rg --recall<cr>
 	noremap <m-r> :cclose<cr>:Leaderf cmdHistory --regexMode --nowrap<cr>
 	let g:Lf_GtagsAutoGenerate = 1
 	let g:Lf_Gtagslabel = 'native-pygments'
@@ -183,11 +174,11 @@ endif
 " package group - high
 "----------------------------------------------------------------------
 if index(g:bundle_group, 'high') >= 0
-	Plug 'kshenoy/vim-signature'
-	Plug 'mhinz/vim-signify'
-	Plug 'mh21/errormarker.vim'
-	Plug 't9md/vim-choosewin'
-	Plug 'francoiscabrol/ranger.vim'
+	" Plug 'kshenoy/vim-signature'
+	" Plug 'mhinz/vim-signify'
+	" Plug 'mh21/errormarker.vim'
+	" Plug 't9md/vim-choosewin'
+	" Plug 'francoiscabrol/ranger.vim'
 	Plug 'kana/vim-textobj-user'
 	" Plug 'kana/vim-textobj-indent'
 	Plug 'kana/vim-textobj-syntax'
@@ -196,10 +187,10 @@ if index(g:bundle_group, 'high') >= 0
 	Plug 'bps/vim-textobj-python', {'for': 'python'}
 	Plug 'jceb/vim-textobj-uri'
 
-	let g:errormarker_disablemappings = 1
-	nnoremap <silent> <leader>cm :ErrorAtCursor<CR>
-	nnoremap <silent> [e :ErrorAtCursor<CR>
-	nnoremap <silent> <leader>cM :RemoveErrorMarkers<cr>
+	" let g:errormarker_disablemappings = 1
+	" nnoremap <silent> <leader>cm :ErrorAtCursor<CR>
+	" nnoremap <silent> [e :ErrorAtCursor<CR>
+	" nnoremap <silent> <leader>cM :RemoveErrorMarkers<cr>
 
 	" nmap <m-e> <Plug>(choosewin)
 	let g:ranger_map_keys = 0
@@ -211,13 +202,13 @@ end
 " package group - opt
 "----------------------------------------------------------------------
 if index(g:bundle_group, 'opt') >= 0
-	Plug 'junegunn/fzf'
-	Plug 'mhartington/oceanic-next'
-	Plug 'asins/vim-dict'
-	Plug 'jceb/vim-orgmode', { 'for': 'org' }
-	Plug 'soft-aesthetic/soft-era-vim'
-	Plug 'dyng/ctrlsf.vim'
-	Plug 'itchyny/calendar.vim', { 'on': 'Calendar' }
+	" Plug 'junegunn/fzf'
+	" Plug 'mhartington/oceanic-next'
+	" Plug 'asins/vim-dict'
+	" Plug 'jceb/vim-orgmode', { 'for': 'org' }
+	" Plug 'soft-aesthetic/soft-era-vim'
+	" Plug 'dyng/ctrlsf.vim'
+	" Plug 'itchyny/calendar.vim', { 'on': 'Calendar' }
 	Plug 'tpope/vim-speeddating'
 	" Plug 'itchyny/vim-cursorword'
 	let g:gutentags_modules = []
@@ -404,7 +395,7 @@ if index(g:bundle_group, 'lsp') >= 0
 	nnoremap <leader>lc :call LanguageClient#textDocument_completion()<CR>
 	nnoremap <leader>lh :call LanguageClient#textDocument_hover()<CR>
 	nnoremap <leader>ls :call LanguageClient_textDocument_documentSymbol()<CR>
-	nnoremap <leader>lm :call LanguageClient_contextMenu()<CR>
+	" nnoremap <leader>lm :call LanguageClient_contextMenu()<CR>
 
 endif
 
