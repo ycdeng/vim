@@ -70,6 +70,10 @@ noremap <silent><space>ha :GuiSignRemove
 noremap <space>p viw"0p
 noremap <space>y yiw
 
+" fast save
+noremap <C-S> :w<cr>
+inoremap <C-S> <ESC>:w<cr>
+
 
 "----------------------------------------------------------------------
 " space + e : vim control
@@ -117,8 +121,6 @@ if has('gui_running') || (has('nvim') && (has('win32') || has('win64')))
 	inoremap <silent><A-o> <ESC>:call Open_Browse(2)<cr>
 	noremap <S-cr> o<ESC>
 	noremap <c-cr> O<esc>
-	noremap <C-S> :w<cr>
-	inoremap <C-S> <ESC>:w<cr>
 	noremap <M-Left> :call Tab_MoveLeft()<cr>
 	noremap <M-Right> :call Tab_MoveRight()<cr>
 	inoremap <M-Left> <ESC>:call Tab_MoveLeft()<cr>
@@ -361,8 +363,8 @@ noremap <silent><c-f10> :call quickmenu#toggle(1)<cr>
 inoremap <silent><c-f10> <ESC>:call quickmenu#toggle(1)<cr>
 noremap <silent><c-f11> :call quickmenu#toggle(2)<cr>
 inoremap <silent><c-f11> <ESC>:call quickmenu#toggle(2)<cr>
-noremap <silent><c-f12> :call asclib#utils#script_menu()<cr>
-inoremap <silent><c-f12> <ESC>:call asclib#utils#script_menu()<cr>
+" noremap <silent><c-f12> :call asclib#utils#script_menu()<cr>
+" inoremap <silent><c-f12> <ESC>:call asclib#utils#script_menu()<cr>
 
 nnoremap <silent>g5 :PreviewTag<cr>
 nnoremap <silent>g6 :call vimmake#update_tags('!', 'cs', '.cscope')<cr>
@@ -386,5 +388,16 @@ vnoremap <silent><space>at :MyCheatSheetAlign<cr>
 noremap <m-i> :call quickui#tools#list_function()<cr>
 noremap <m-I> :call quickui#tools#list_function()<cr>
 noremap <m-y> :call quickui#tools#list_function()<cr>
+
+
+"----------------------------------------------------------------------
+" neovim system clipboard
+"----------------------------------------------------------------------
+if has('nvim') && (has('win32') || has('win64'))
+	nnoremap <s-insert> "*P
+	vnoremap <s-insert> "-d"*P
+	inoremap <s-insert> <c-r><c-o>*
+	vnoremap <c-insert> "*y
+endif
 
 

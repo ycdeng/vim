@@ -4,8 +4,8 @@
 "
 " Maintainer: skywind3000 (at) gmail.com, 2020
 "
-" Last Modified: 2020/02/17 04:28
-" Verision: 1.4.5
+" Last Modified: 2020/02/19 03:25
+" Verision: 1.5.6
 "
 " for more information, please visit:
 " https://github.com/skywind3000/asynctasks.vim
@@ -29,7 +29,7 @@ let s:scripthome = fnamemodify(s:scriptname, ':h:h')
 
 " system
 if !exists('g:asynctasks_system')
-	let g:asynctasks_system = (s:windows == 0)? 'unix' : 'win'
+	let g:asynctasks_system = (s:windows == 0)? 'linux' : 'win32'
 endif
 
 " task profile
@@ -57,6 +57,16 @@ if !exists('g:asynctasks_tasks')
 	let g:asynctasks_tasks = {}
 endif
 
+" task environment variables
+if !exists('g:asynctasks_environ')
+	let g:asynctasks_environ = {}
+endif
+
+" features
+if !exists('g:asynctasks_feature')
+	let g:asynctasks_feature = {}
+endif
+
 " terminal mode: tab/curwin/top/bottom/left/right/quickfix/external
 if !exists('g:asynctasks_term_pos')
 	let g:asynctasks_term_pos = 'quickfix'
@@ -72,7 +82,7 @@ if !exists('g:asynctasks_term_rows')
 	let g:asynctasks_term_rows = ''
 endif
 
-" set to non-zero to change focus when open a terminal in a split
+" set to zero to keep focus when open a terminal in a split
 if !exists('g:asynctasks_term_focus')
 	let g:asynctasks_term_focus = 1
 endif
@@ -87,6 +97,25 @@ if !exists('g:asynctasks_term_hidden')
 	let g:asynctasks_term_hidden = 0
 endif
 
+" strict to detect $(VIM_CWORD) to avoid empty string
+if !exists('g:asynctasks_strict')
+	let g:asynctasks_strict = 1
+endif
+
+
+"----------------------------------------------------------------------
+" tuning
+"----------------------------------------------------------------------
+
+" increase asyncrun speed
+if exists('g:asyncrun_timer') == 0
+	let g:asyncrun_timer = 100
+elseif g:asyncrun_timer < 100
+	let g:asyncrun_timer = 100
+endif
+
+" disable autocmd for each update
+let g:asyncrun_skip = 1
 
 
 "----------------------------------------------------------------------
@@ -106,6 +135,15 @@ function! s:errmsg(msg)
 	redraw | echo '' | redraw
 	echohl ErrorMsg
 	echom 'Error: ' . a:msg
+	echohl NONE
+	let s:index += 1
+endfunc
+
+" display in cmdline
+function! s:warning(msg)
+	redraw | echo '' | redraw
+	echohl WarningMsg
+	echom 'Warning: ' . a:msg
 	echohl NONE
 	let s:index += 1
 endfunc
@@ -266,6 +304,24 @@ function! s:abspath(path)
 endfunc
 
 
+" extract: [cmd, options]
+function! s:ExtractOpt(command)
+	let cmd = a:command
+	let opts = {}
+	while cmd =~# '^-\%(\w\+\)\%([= ]\|$\)'
+		let opt = matchstr(cmd, '^-\zs\w\+')
+		if cmd =~ '^-\w\+='
+			let val = matchstr(cmd, '^-\w\+=\zs\%(\\.\|\S\)*')
+		else
+			let val = (opt == 'cwd')? '' : 1
+		endif
+		let opts[opt] = substitute(val, '\\\(\s\)', '\1', 'g')
+		let cmd = substitute(cmd, '^-\w\+\%(=\%(\\.\|\S\)*\)\=\s*', '', '')
+	endwhile
+	return [cmd, opts]
+endfunc
+
+
 "----------------------------------------------------------------------
 " read ini in cache
 "----------------------------------------------------------------------
@@ -329,12 +385,39 @@ endfunc
 
 
 "----------------------------------------------------------------------
+" split 'text:colon/slash' into: [text, colon, slash]
+"----------------------------------------------------------------------
+function! s:trinity_split(text)
+	let text = a:text
+	let p1 = stridx(text, ':')
+	let p2 = stridx(text, '/')
+	if p1 < 0 && p2 < 0
+		return [text, '', '']
+	endif
+	let parts = split(text, '[:/]')
+	if p1 >= 0 && p2 >= 0
+		if p1 < p2
+			return [parts[0], parts[1], parts[2]]
+		else
+			return [parts[0], parts[2], parts[1]]
+		endif
+	elseif p1 >= 0 && p2 < 0
+		return [parts[0], parts[1], '']
+	elseif p1 < 0 && p2 >= 0
+		return [parts[0], '', parts[1]]
+	endif
+endfunc
+
+
+"----------------------------------------------------------------------
 " merge two tasks
 "----------------------------------------------------------------------
 function! s:config_merge(target, source, ininame, mode)
 	let special = []
 	for key in keys(a:source)
 		if stridx(key, ':') >= 0
+			let special += [key]
+		elseif stridx(key, '/') >= 0
 			let special += [key]
 		elseif key != '*'
 			let a:target[key] = a:source[key]
@@ -348,19 +431,26 @@ function! s:config_merge(target, source, ininame, mode)
 		endif
 	endfor
 	for key in special
-		let parts = s:partition(key, ':')
+		let parts = s:trinity_split(key)
+		let name = parts[0]
 		if parts[1] != ''
-			let profile = s:strip(parts[2])
-			if profile == g:asynctasks_profile
-				let name = s:strip(parts[0])
-				let a:target[name] = a:source[key]
-				if a:ininame != ''
-					let a:target[name].__name__ = a:ininame
-				endif
-				if a:mode != ''
-					let a:target[name].__mode__ = a:mode
-				endif
+			let profile = parts[1]
+			if profile != g:asynctasks_profile
+				continue
 			endif
+		endif
+		if parts[2] != ''
+			let feature = get(g:asynctasks_feature, parts[2], 0)
+			if feature == 0
+				continue
+			endif
+		endif
+		let a:target[name] = a:source[key]
+		if a:ininame != ''
+			let a:target[name].__name__ = a:ininame
+		endif
+		if a:mode != ''
+			let a:target[name].__mode__ = a:mode
 		endif
 	endfor
 	return a:target
@@ -578,23 +668,37 @@ endfunc
 function! s:command_select(config, ft)
 	let command = get(a:config, 'command', '')
 	for key in keys(a:config)
-		let pos = stridx(key, ':')
-		if pos < 0
+		let p1 = stridx(key, ':')
+		let p2 = stridx(key, '/')
+		if p1 < 0 && p2 < 0
 			continue
 		endif
-		let part = split(key, ':')
-		let head = substitute(part[0], '^\s*\(.\{-}\)\s*$', '\1', '')
+		let part = s:trinity_split(key)
+		let head = s:strip(part[0])
 		if head != 'command'
 			continue
 		endif
-		let text = substitute(part[1], '^\s*\(.\{-}\)\s*$', '\1', '')
-		let check = 0
-		for ft in split(text, ',')
-			let ft = substitute(ft, '^\s*\(.\{-}\)\s*$', '\1', '')
-			if ft == a:ft
-				let command = a:config[key]
+		let text = s:strip(part[1])
+		if text != ''
+			let check = 0
+			for ft in split(text, ',')
+				let ft = substitute(ft, '^\s*\(.\{-}\)\s*$', '\1', '')
+				if ft == a:ft
+					let check = 1
+					break
+				endif
+			endfor
+			if check == 0
+				continue
 			endif
-		endfor
+		endif
+		let text = s:strip(part[2])
+		if text != ''
+			if text != g:asynctasks_system
+				continue
+			endif
+		endif
+		return a:config[key]
 	endfor
 	return command
 endfunc
@@ -632,6 +736,38 @@ function! s:command_input(command)
 		if t == ''
 			return ''
 		endif
+		let command = s:replace(command, mark, t)
+	endwhile
+	return command
+endfunc
+
+
+"----------------------------------------------------------------------
+" internal environment replace
+"----------------------------------------------------------------------
+function! s:command_environ(command)
+	let command = a:command
+	let mark_open = '$(VIM:'
+	let mark_close = ')'
+	let size_open = strlen(mark_open)
+	let size_close = strlen(mark_close)
+	while 1
+		let p1 = stridx(command, mark_open)
+		if p1 < 0
+			break
+		endif
+		let p2 = stridx(command, mark_close, p1)
+		if p2 < 0
+			break
+		endif
+		let name = strpart(command, p1 + size_open, p2 - p1 - size_open)
+		let mark = mark_open . name . mark_close
+		let key = s:strip(name)
+		if has_key(g:asynctasks_environ, key) == 0
+			call s:warning('Internal Variable "' . mark . '" is undefined')
+			return ''
+		endif
+		let t = g:asynctasks_environ[key]
 		let command = s:replace(command, mark, t)
 	endwhile
 	return command
@@ -705,6 +841,12 @@ function! s:task_option(task)
 			let opts[key] = task[key]
 		endif
 	endfor
+	if has_key(task, 'program')
+		let opts.program = task.program
+	endif
+	if has_key(task, 'auto')
+		let opts.auto = task.auto
+	endif
 	let opts.safe = 1
 	let opts.reuse = g:asynctasks_term_reuse
 	if g:asynctasks_term_hidden != 0
@@ -746,30 +888,60 @@ function! s:command_check(command, cwd)
 				\ 'FILENOEXT', 'PATHNOEXT', 'RELDIR', 'RELNAME']
 	if &bt != ''
 		for name in disable
-			let macro = '$(VIM_' . name . ')'
-			if stridx(a:command, macro) >= 0
-				let t = 'task command contains invalid macro'
-				call s:errmsg(t . ' in current buffer')
-				return 1
-			elseif stridx(a:cwd, macro) >= 0
-				let t = 'task cwd contains invalid macro'
-				call s:errmsg(t . ' in current buffer')
-				return 2
-			endif
+			for mode in ['$(VIM_', '$(WSL_']
+				let macro = mode . name . ')'
+				if stridx(a:command, macro) >= 0
+					let t = 'task command contains invalid macro'
+					call s:warning(t . ' in current buffer')
+					return 1
+				elseif stridx(a:cwd, macro) >= 0
+					let t = 'task cwd contains invalid macro'
+					call s:warning(t . ' in current buffer')
+					return 2
+				endif
+			endfor
 		endfor
 	elseif expand('%:p') == ''
 		for name in disable
-			let macro = '$(VIM_' . name . ')'
-			if stridx(a:command, macro) >= 0
-				let t = 'macro ' . macro . ' is empty'
-				call s:errmsg(t . ' in current buffer')
-				return 3
-			elseif stridx(a:cwd, macro) >= 0
-				let t = 'macro ' . macro . ' is empty'
-				call s:errmsg(t . ' in current buffer')
-				return 4
+			for mode in ['$(VIM_', '$(WSL_']
+				let macro = mode . name . ')'
+				if stridx(a:command, macro) >= 0
+					let t = 'macro ' . macro . ' is empty'
+					call s:warning(t . ' in current buffer')
+					return 3
+				elseif stridx(a:cwd, macro) >= 0
+					let t = 'macro ' . macro . ' is empty'
+					call s:warning(t . ' in current buffer')
+					return 4
+				endif
+			endfor	
+		endfor
+	endif
+	if g:asynctasks_strict != 0
+		let name = '$(VIM_CWORD)'
+		if expand('<cword>') == ''
+			if stridx(a:command, name) >= 0
+				call s:warning('current word used in command is empty')
+				return 5
 			endif
-		endfor	
+			if stridx(a:cwd, name) >= 0
+				call s:warning('current word used in cwd is empty')
+				return 6
+			endif
+		endif
+		for name in ['$(VIM_CFILE)', '$(WSL_CFILE)']
+			if expand('<cfile>') == ''
+				if stridx(a:command, name) >= 0
+					let t = 'current filename used in command is empty'
+					call s:warning(t)
+					return 5
+				endif
+				if stridx(a:cwd, name) >= 0
+					call s:warning('current filename used in cwd is empty')
+					return 6
+				endif
+			endif
+		endfor
 	endif
 	return 0
 endfunc
@@ -778,7 +950,7 @@ endfunc
 "----------------------------------------------------------------------
 " run task
 "----------------------------------------------------------------------
-function! asynctasks#start(bang, taskname, path)
+function! asynctasks#start(bang, taskname, path, ...)
 	let path = (a:path == '')? expand('%:p') : a:path
 	let path = (path == '')? getcwd() : path
 	if asynctasks#collect_config(path, 1) != 0
@@ -824,12 +996,20 @@ function! asynctasks#start(bang, taskname, path)
 		redraw
 		return 0
 	endif
+	let command = s:command_environ(command)
+	if command == ''
+		return 0
+	endif
 	let opts = s:task_option(task)
 	let skip = g:asyncrun_skip
 	if opts.mode == 'bang' || opts.mode == 2
 		" let g:asyncrun_skip = or(g:asyncrun_skip, 2)
 	endif
-	call asyncrun#run(a:bang, opts, command)
+	if a:0 < 3 || (a:0 >= 3 && a:1 <= 0)
+		call asyncrun#run(a:bang, opts, command)
+	else
+		call asyncrun#run(a:bang, opts, command, a:1, a:2, a:3)
+	endif
 	let g:asyncrun_skip = skip
 	return 0
 endfunc
@@ -995,6 +1175,20 @@ let s:macros = {
 	\ 'VIM_COLUMNS': "How many columns in vim's screen",
 	\ 'VIM_LINES': "How many lines in vim's screen", 
 	\ 'VIM_SVRNAME': 'Value of v:servername for +clientserver usage',
+	\ 'WSL_FILEPATH': '(WSL) File name of current buffer with full path',
+	\ 'WSL_FILENAME': '(WSL) File name of current buffer without path',
+	\ 'WSL_FILEDIR': 
+		\ '(WSL) Full path of current buffer without the file name',
+	\ 'WSL_FILEEXT': '(WSL) File extension of current buffer',
+	\ 'WSL_FILENOEXT': 
+		\ '(WSL) File name of current buffer without path and extension',
+	\ 'WSL_PATHNOEXT':
+		\ '(WSL) Current file name with full path but without extension',
+	\ 'WSL_CWD': '(WSL) Current directory',
+	\ 'WSL_RELDIR': '(WSL) File path relativize to current directory',
+	\ 'WSL_RELNAME': '(WSL) File name relativize to current directory',
+	\ 'WSL_ROOT': '(WSL) Project root directory',
+	\ 'WSL_CFILE': '(WSL) Current filename under cursor',
 	\ }
 
 
@@ -1007,7 +1201,7 @@ function! s:expand_macros()
 	let macros['VIM_FILENAME'] = expand("%:t")
 	let macros['VIM_FILEDIR'] = expand("%:p:h")
 	let macros['VIM_FILENOEXT'] = expand("%:t:r")
-	let macros['VIM_PATHNOEXT'] = expand("%:r")
+	let macros['VIM_PATHNOEXT'] = expand("%:p:r")
 	let macros['VIM_FILEEXT'] = "." . expand("%:e")
 	let macros['VIM_FILETYPE'] = (&filetype)
 	let macros['VIM_CWD'] = getcwd()
@@ -1030,6 +1224,15 @@ function! s:expand_macros()
 	if expand("%:e") == ''
 		let macros['VIM_FILEEXT'] = ''
 	endif
+	if s:windows != 0
+		let wslnames = ['FILEPATH', 'FILENAME', 'FILEDIR', 'FILENOEXT']
+		let wslnames += ['PATHNOEXT', 'FILEEXT', 'FILETYPE', 'RELDIR']
+		let wslnames += ['RELNAME', 'CFILE', 'ROOT', 'HOME', 'CWD']
+		for name in wslnames
+			let src = macros['VIM_' . name]
+			let macros['WSL_' . name] = asyncrun#path_win2unix(src, '/mnt')
+		endfor
+	endif
 	return macros
 endfunc
 
@@ -1037,7 +1240,7 @@ endfunc
 "----------------------------------------------------------------------
 " macro list
 "----------------------------------------------------------------------
-function! s:task_macro()
+function! s:task_macro(wsl)
 	let macros = s:expand_macros()
 	let names = ['FILEPATH', 'FILENAME', 'FILEDIR', 'FILEEXT', 'FILETYPE']
 	let names += ['FILENOEXT', 'PATHNOEXT', 'CWD', 'RELDIR', 'RELNAME']
@@ -1054,12 +1257,15 @@ function! s:task_macro()
 		let disable = ['FILEPATH', 'FILENAME', 'FILEDIR', 'FILEEXT',
 					\ 'FILENOEXT', 'PATHNOEXT', 'RELDIR', 'RELNAME']
 		for nn in disable
-			let name = 'VIM_' . nn
-			let macros[name] = '<invalid>'
+			let macros['VIM_' . nn] = '<invalid>'
+			let macros['WSL_' . nn] = '<invalid>'
 		endfor
 	endif
 	for nn in names
-		let name = 'VIM_' . nn
+		let name = ((a:wsl == 0)? 'VIM_' : 'WSL_') . nn
+		if has_key(s:macros, name) == 0 || has_key(macros, name) == 0
+			continue
+		endif
 		let rows += [['$(' . name . ')', s:macros[name], macros[name]]]
 		" let rows += [['', macros[name]]]
 		let highmap[index . ',0'] = 'Keyword'
@@ -1074,13 +1280,14 @@ endfunc
 "----------------------------------------------------------------------
 " command AsyncTask
 "----------------------------------------------------------------------
-function! asynctasks#cmd(bang, ...)
-	let taskname = (a:0 >= 1)? (a:1) : ''
-	let path = (a:0 >= 2)? (a:2) : ''
-	if taskname == ''
+function! asynctasks#cmd(bang, args, ...)
+	let args = s:strip(a:args)
+	let path = ''
+	if args == ''
 		call s:errmsg('require task name, use :AsyncTask -h for help')
 		return -1
-	elseif taskname == '-h'
+	endif
+	if args == '-h'
 		echo 'usage:  :AsyncTask <operation>'
 		echo 'operations:'
 		echo '    :AsyncTask {taskname}      - run specific task'
@@ -1091,20 +1298,26 @@ function! asynctasks#cmd(bang, ...)
 		echo '    :AsyncTask -m              - display command macros'
 		echo '    :AsyncTask -p <profile>    - switch current profile'
 		return 0
-	elseif taskname ==# '-l'
+	elseif args ==# '-l'
 		call s:task_list('', 0)
 		return 0
-	elseif taskname ==# '-L'
+	elseif args ==# '-L'
 		call s:task_list('', 1)
 		return 0
-	elseif taskname ==# '-e' || taskname ==# '-E'
-		call s:task_edit(taskname, path)
+	elseif args ==# '-e' || args ==# '-E'
+		call s:task_edit(args, path)
 		return 0
-	elseif taskname == '-m'
-		call s:task_macro()
+	elseif args ==# '-m'
+		call s:task_macro(0)
 		return 0
-	elseif taskname == '-p'
-		let profile = (a:0 >= 2)? (a:2) : ''
+	elseif args ==# '-M'
+		call s:task_macro(1)
+		return 0
+	endif
+	let [args, opts] = s:ExtractOpt(args)
+	let args = s:strip(args)
+	if has_key(opts, 'p')
+		let profile = args
 		if profile != ''
 			let g:asynctasks_profile = profile
 		endif
@@ -1113,7 +1326,15 @@ function! asynctasks#cmd(bang, ...)
 		echohl None
 		return 0
 	endif
-	call asynctasks#start(a:bang, taskname, '')
+	if args == ''
+		call s:errmsg('require task name, use :AsyncTask -h for help')
+		return -1
+	endif
+	if (a:0 < 3) || (a:0 >= 3 && a:1 <= 0)
+		call asynctasks#start(a:bang, args, '')
+	else
+		call asynctasks#start(a:bang, args, '', a:1, a:2, a:3)
+	endif
 endfunc
 
 
@@ -1121,8 +1342,8 @@ endfunc
 " command
 "----------------------------------------------------------------------
 
-command! -bang -nargs=* AsyncTask
-			\ call asynctasks#cmd('<bang>', <f-args>)
+command! -bang -nargs=* -range=0 AsyncTask
+		\ call asynctasks#cmd('<bang>', <q-args>, <count>, <line1>, <line2>)
 
 
 "----------------------------------------------------------------------
@@ -1134,8 +1355,8 @@ command! -bang -nargs=0 AsyncTaskEdit
 command! -bang -nargs=0 AsyncTaskList 
 			\ call asynctasks#cmd('', ('<bang>' == '')? '-l' : '-L')
 
-command! -nargs=0 AsyncTaskMacro
-			\ call asynctasks#cmd('', '-m')
+command! -bang -nargs=0 AsyncTaskMacro
+			\ call asynctasks#cmd('', ('<bang>' == '')? '-m' : '-M')
 
 command! -nargs=? AsyncTaskProfile
 			\ call asynctasks#cmd('', '-p', <f-args>)
