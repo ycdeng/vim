@@ -84,6 +84,7 @@ if index(g:bundle_group, 'basic') >= 0
 	nmap <Leader>hu <Plug>(GitGutterUndoHunk)
 
 	Plug 'tomasiser/vim-code-dark'
+	Plug 'dunstontc/vim-vscode-theme'
 	Plug 'puremourning/vimspector'
 	Plug 'xolox/vim-misc'
 	Plug 'terryma/vim-expand-region'
@@ -100,7 +101,7 @@ if index(g:bundle_group, 'basic') >= 0
 	noremap <m-P> :cclose<cr>:LeaderfBufTag!<cr>
 	noremap <m-n> :cclose<cr>:LeaderfBuffer<cr>
 	noremap <m-m> :cclose<cr>:LeaderfTag<cr>
-	noremap <m-f> :cclose<cr>:Leaderf line --regexMode --nowrap<cr>
+	noremap <m-f> :<C-U><C-R>=printf("Leaderf! rg --current-buffer -e %s ", expand("<cword>"))<CR>
 	noremap <leader>rf :<C-U><C-R>=printf("Leaderf! rg -e %s ", expand("<cword>"))<CR>
 	" -w, --word-regexp
 	noremap <leader>rr :cclose<cr>:Leaderf! rg --recall<cr>
@@ -281,7 +282,7 @@ endif
 
 " lightline
 if index(g:bundle_group, 'lightline') >= 0
-	Plug 'itchyny/lightline.vim'
+	" Plug 'itchyny/lightline.vim'
 endif
 
 if index(g:bundle_group, 'nerdtree') >= 0

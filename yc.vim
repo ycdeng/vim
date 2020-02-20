@@ -49,6 +49,7 @@ nnoremap <silent> <F7> :AsyncRun -cwd=<root> -raw make install<cr>
 " nnoremap <silent> <F9> :AsyncRun gcc -Wall -O2 "$(VIM_FILEPATH)" -o "$(VIM_FILEDIR)/$(VIM_FILENOEXT)" <cr> q
 " nnoremap <C-]> g<C-]>
 cabbrev wq w
+cabbrev q bd
 call deoplete#custom#source('LanguageClient', 'rank', 100)
 call deoplete#custom#source('omni', 'rank', 200)
 call deoplete#custom#source('ale', 'rank', 200)
@@ -73,7 +74,14 @@ let g:gutentags_define_advanced_commands = 1
 let $GTAGSLABEL = 'native-pygments'
 let $GTAGSCONF = '/usr/local/share/gtags/gtags.conf'
 
-let @d = "\<C-w>f\<C-w>jjgf:windo diffthis\<CR>"
+let @d = "\<C-w>vgf\<C-w>hjjgf:windo diffthis\<CR>"
 
 " easymotion 高亮
-hi Search ctermfg=Red
+hi Search cterm=NONE ctermbg=green ctermfg=white
+
+" 高亮当前行
+hi CursorLine cterm=NONE ctermbg=blue ctermfg=white
+hi Folded cterm=NONE ctermbg=red ctermfg=white
+hi VertSplit cterm=NONE ctermfg=white ctermbg=8
+hi StatusLine ctermfg=white ctermbg=250 cterm=NONE
+hi StatusLineNC ctermfg=white ctermbg=238 cterm=NONE
