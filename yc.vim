@@ -80,6 +80,9 @@ let @d = "\<C-w>vgf\<C-w>hjjgf:windo diffthis\<CR>"
 hi Search cterm=NONE ctermbg=green ctermfg=white
 
 " 高亮当前行
+set cursorline
+
+" 高亮当前行
 hi CursorLine cterm=NONE ctermbg=blue ctermfg=white
 hi Folded cterm=NONE ctermbg=red ctermfg=white
 hi VertSplit cterm=NONE ctermfg=white ctermbg=8
