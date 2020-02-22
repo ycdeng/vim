@@ -54,7 +54,7 @@ call deoplete#custom#source('LanguageClient', 'rank', 100)
 call deoplete#custom#source('omni', 'rank', 200)
 call deoplete#custom#source('ale', 'rank', 200)
 " insert mode
-autocmd InsertEnter,InsertLeave * set cul!
+" autocmd InsertEnter,InsertLeave * set cul!
 " makecheck orafce
 nmap <silent> <leader>co :AsyncRun -mode=2 -cwd=<root>/contrib/orafce -raw make check <cr>
 
@@ -83,8 +83,14 @@ hi Search cterm=NONE ctermbg=green ctermfg=white
 set cursorline
 
 " 高亮当前行
-hi CursorLine cterm=NONE ctermbg=blue ctermfg=white
+" hi CursorLine cterm=NONE ctermbg=blue
+hi CursorLine cterm=NONE ctermbg=24
 hi Folded cterm=NONE ctermbg=red ctermfg=white
 hi VertSplit cterm=NONE ctermfg=white ctermbg=8
 hi StatusLine ctermfg=white ctermbg=250 cterm=NONE
 hi StatusLineNC ctermfg=white ctermbg=238 cterm=NONE
+
+autocmd InsertEnter * highlight CursorLine cterm=NONE ctermbg=28
+autocmd InsertLeave * highlight CursorLine cterm=NONE ctermbg=24
+
+
