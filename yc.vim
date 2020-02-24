@@ -53,22 +53,10 @@ cabbrev q bd
 call deoplete#custom#source('LanguageClient', 'rank', 100)
 call deoplete#custom#source('omni', 'rank', 200)
 call deoplete#custom#source('ale', 'rank', 200)
-" insert mode
-" autocmd InsertEnter,InsertLeave * set cul!
-" makecheck orafce
-nmap <silent> <leader>co :AsyncRun -mode=2 -cwd=<root>/contrib/orafce -raw make check <cr>
 
 set completeopt=menu,noinsert
 " turn off netrw banner
 let g:netrw_banner = 0
-" set termwinkey=<c-j>
-
-" if match(getcwd(), "/pgsql") >=0 ||  match(getcwd(), "/postgresql") >= 0 ||  match(getcwd(), "/atlasdb") >= 0
-"   set cinoptions=(0
-"   set tabstop=4
-"   set shiftwidth=4
-" endif
-
 
 let g:gutentags_define_advanced_commands = 1
 let $GTAGSLABEL = 'native-pygments'

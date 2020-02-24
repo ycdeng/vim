@@ -71,6 +71,34 @@ if index(g:bundle_group, 'simple') >= 0
 	vmap <silent> <c-a> <Plug>CycleNext
 	nmap <silent> <c-x> <Plug>CyclePrev
 	vmap <silent> <c-x> <Plug>CyclePrev
+
+	let g:python_host_prog = "/usr/bin/python2"
+	let g:python3_host_prog = "/usr/bin/python3"
+	if has('nvim')
+		Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+	else
+		Plug 'Shougo/deoplete.nvim'
+		Plug 'roxma/nvim-yarp'
+		Plug 'roxma/vim-hug-neovim-rpc'
+	endif
+	Plug 'Shougo/echodoc.vim'
+	Plug 'Shougo/neosnippet.vim'
+	Plug 'Shougo/neosnippet-snippets'
+	" Plug 'zchee/deoplete-clang'
+	" Plug 'zchee/deoplete-jedi'
+
+	let g:deoplete#enable_at_startup = 1
+	" let g:deoplete#enable_smart_case = 1
+	" let g:deoplete#enable_refresh_always = 1
+
+	let g:neosnippet#snippets_directory='~/.vim/vim/snippets'
+
+	set shortmess+=c
+	set noshowmode
+	imap <m-e>     <Plug>(neosnippet_expand_or_jump)
+	smap <m-e>     <Plug>(neosnippet_expand_or_jump)
+	xmap <m-e>     <Plug>(neosnippet_expand_target)
+	let g:deoplete#sources#jedi#enable_cache = 1
 endif
 
 
@@ -222,40 +250,6 @@ if index(g:bundle_group, 'opt') >= 0
 endif
 
 
-"----------------------------------------------------------------------
-" optional 
-"----------------------------------------------------------------------
-
-" deoplete
-if index(g:bundle_group, 'deoplete') >= 0
-	let g:python_host_prog = "/usr/bin/python2"
-	let g:python3_host_prog = "/usr/bin/python3"
-	if has('nvim')
-		Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-	else
-		Plug 'Shougo/deoplete.nvim'
-		Plug 'roxma/nvim-yarp'
-		Plug 'roxma/vim-hug-neovim-rpc'
-	endif
-	Plug 'Shougo/echodoc.vim'
-	Plug 'Shougo/neosnippet.vim'
-	Plug 'Shougo/neosnippet-snippets'
-	" Plug 'zchee/deoplete-clang'
-	" Plug 'zchee/deoplete-jedi'
-
-	let g:deoplete#enable_at_startup = 1
-	" let g:deoplete#enable_smart_case = 1
-	" let g:deoplete#enable_refresh_always = 1
-
-	let g:neosnippet#snippets_directory='~/.vim/vim/snippets'
-
-	set shortmess+=c
-	set noshowmode
-	imap <m-e>     <Plug>(neosnippet_expand_or_jump)
-	smap <m-e>     <Plug>(neosnippet_expand_or_jump)
-	xmap <m-e>     <Plug>(neosnippet_expand_target)
-	let g:deoplete#sources#jedi#enable_cache = 1
-endif
 
 " echodoc
 if index(g:bundle_group, 'echodoc') >= 0
