@@ -208,7 +208,7 @@ function! quickui#tools#python_help(word)
 	let title = 'PyDoc <'. a:word . '>'
 	let opts = {'title':title}
 	let opts.color = 'QuickBG'
-	let opts.bordercolor = 'QuickBG'
+	" let opts.bordercolor = 'QuickBG'
 	let opts.tabstop = 12
 	call quickui#textbox#command(cmd, opts)
 endfunc
@@ -287,7 +287,7 @@ function! quickui#tools#preview_tag(tagname)
 		call quickui#utils#errmsg('Error: empty tagname')
 		return 0
 	endif
-	let obj = quickui#core#object()
+	let obj = quickui#core#object(0)
 	let reuse = 0
 	if has_key(obj, 'ptag')
 		let ptag = obj.ptag

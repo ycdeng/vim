@@ -3,7 +3,7 @@
 " Maintainer: skywind3000 (at) gmail.com, 2016, 2017, 2018, 2019, 2020
 " Homepage: http://www.vim.org/scripts/script.php?script_id=5431
 "
-" Last Modified: 2020/02/18 21:11
+" Last Modified: 2020/02/21 17:06
 "
 " Run shell command in background and output to quickfix:
 "     :AsyncRun[!] [options] {cmd} ...
@@ -117,97 +117,83 @@
 "----------------------------------------------------------------------
 "- Global Settings & Variables
 "----------------------------------------------------------------------
-if !exists('g:asyncrun_exit')
-	let g:asyncrun_exit = ''
-endif
 
-if !exists('g:asyncrun_bell')
-	let g:asyncrun_bell = 0
-endif
+" script will be executed after finished.
+let g:asyncrun_exit = get(g:, 'asyncrun_exit', '')
 
-if !exists('g:asyncrun_stop')
-	let g:asyncrun_stop = ''
-endif
+" non-zero to ring a bell after finished.
+let g:asyncrun_bell = get(g:, 'asyncrun_bell', 0)
 
-if !exists('g:asyncrun_mode')
-	let g:asyncrun_mode = 0
-endif
+" stoponexit option of job_start
+let g:asyncrun_stop = get(g:, 'asyncrun_stop', '')
 
-if !exists('g:asyncrun_hook')
-	let g:asyncrun_hook = ''
-endif
+" specify how to run your command
+let g:asyncrun_mode = get(g:, 'asyncrun_mode', 0)
 
-if !exists('g:asyncrun_last')
-	let g:asyncrun_last = 0
-endif
+" command hook
+let g:asyncrun_hook = get(g:, 'asyncrun_hook', '')
 
-if !exists('g:asyncrun_timer')
-	let g:asyncrun_timer = 25
-endif
+" quickfix scroll mode
+let g:asyncrun_last = get(g:, 'asyncrun_last', 0)
 
-if !exists('g:asyncrun_code')
-	let g:asyncrun_code = ''
-endif
+" speed for each timer
+let g:asyncrun_timer = get(g:, 'asyncrun_timer', 25)
 
-if !exists('g:asyncrun_status')
-	let g:asyncrun_status = ''
-endif
+" previous exit code
+let g:asyncrun_code = get(g:, 'asyncrun_code', '')
 
-if !exists('g:asyncrun_encs')
-	let g:asyncrun_encs = ''
-endif
+" status: 'running', 'success' or 'failure'
+let g:asyncrun_status = get(g:, 'asyncrun_status', '')
 
-if !exists('g:asyncrun_trim')
-	let g:asyncrun_trim = 0
-endif
+" command encoding
+let g:asyncrun_encs = get(g:, 'asyncrun_encs', '')
 
-if !exists('g:asyncrun_text')
-	let g:asyncrun_text = ''
-endif
+" trim empty lines ?
+let g:asyncrun_trim = get(g:, 'asyncrun_trim', 0)
 
-if !exists('g:asyncrun_local')
-	let g:asyncrun_local = 1
-endif
+" user text
+let g:asyncrun_text = get(g:, 'asyncrun_text', '')
 
-if !exists('g:asyncrun_auto')
-	let g:asyncrun_auto = ''
-endif
+" enable local errorformat ?
+let g:asyncrun_local = get(g:, 'asyncrun_local', 1)
 
-if !exists('g:asyncrun_shell')
-	let g:asyncrun_shell = ''
-endif
+" name of autocmd in QuickFixCmdPre / QuickFixCmdPost
+let g:asyncrun_auto = get(g:, 'asyncrun_auto', '')
 
-if !exists('g:asyncrun_shellflag')
-	let g:asyncrun_shellflag = ''
-endif
+" specify shell rather than &shell
+let g:asyncrun_shell = get(g:, 'asyncrun_shell', '')
 
-if !exists('g:asyncrun_ftrun')
-	let g:asyncrun_ftrun = {}
-endif
+" specify shell cmd flag rather than &shellcmdflag
+let g:asyncrun_shellflag = get(g:, 'asyncrun_shellflag', '')
 
-if !exists('g:asyncrun_silent')
-	let g:asyncrun_silent = 1
-endif
+" external runners for '-mode=terminal'
+let g:asyncrun_runner = get(g:, 'asyncrun_runner', {})
 
-if !exists('g:asyncrun_skip')
-	let g:asyncrun_skip = 0
-endif
+" silent the autocmds ?
+let g:asyncrun_silent = get(g:, 'asyncrun_silent', 1)
 
-if !exists('g:asyncrun_info')
-	let g:asyncrun_info = ''
-endif
+" skip autocmds
+let g:asyncrun_skip = get(g:, 'asyncrun_skip', 0)
 
-if !exists('g:asyncrun_save')
-	let g:asyncrun_save = 0
-endif
+" last args 
+let g:asyncrun_info = get(g:, 'asyncrun_info', '')
 
+" 0: no save, 1: save current buffer, 2: save all modified buffers.
+let g:asyncrun_save = get(g:, 'asyncrun_save', 0)
+
+" enable stdin ?
 if !exists('g:asyncrun_stdin')
 	let g:asyncrun_stdin = has('win32') || has('win64') || has('win95')
 endif
 
-if !exists('g:asyncrun_script')
-	let g:asyncrun_script = ''
-endif
+" external script for '-mode=4'
+let g:asyncrun_script = get(g:, 'asyncrun_script', '')
+
+" strict to execute vim script
+let g:asyncrun_strict = get(g:, 'asyncrun_strict', 0)
+
+" file types for asyncrun#execute
+let g:asyncrun_ftrun = get(g:, 'asyncrun_ftrun', {})
 
 
 "----------------------------------------------------------------------
@@ -1261,6 +1247,7 @@ function! s:run(opts)
 	let l:command = a:opts.cmd
 	let l:retval = ''
 	let l:mode = g:asyncrun_mode
+	let l:runner = ''
 
 	if a:opts.mode != ''
 		let l:mode = a:opts.mode
@@ -1282,7 +1269,9 @@ function! s:run(opts)
 		let l:opts.raw = 1
 	elseif type(l:mode) == 0 && l:mode == 6
 		let pos = get(l:opts, 'pos', '')
-		if pos == 'bang' || pos == 'vim'
+		if has_key(g:asyncrun_runner, pos)
+			let l:runner = pos
+		elseif pos == 'bang' || pos == 'vim'
 			let l:mode = 2
 		elseif pos == 'extern' || pos == 'external'
 			let l:mode = 4
@@ -1358,7 +1347,7 @@ function! s:run(opts)
 		if g:asyncrun_hook != ''
 			exec 'call '. g:asyncrun_hook .'(l:opts)'
 		endif
-		return
+		return ''
 	elseif l:mode == 7
 		if s:asyncrun_windows != 0 && s:asyncrun_gui != 0
 			let l:mode = 4
@@ -1366,6 +1355,18 @@ function! s:run(opts)
 			let script = get(g:, 'asyncrun_script', '')
 			let l:mode = (script == '')? 2 : 4
 		endif
+	endif
+
+	let g:asyncrun_cmd = l:command
+	let t = s:StringStrip(l:command)
+
+	if strpart(t, 0, 1) == ':' && g:asyncrun_strict == 0
+		exec strpart(t, 1)
+		return ''
+	elseif l:runner != ''
+		let F = g:asyncrun_runner[l:runner]
+		call F(l:command)
+		return ''
 	endif
 
 	if l:mode == 0 && s:asyncrun_support != 0
@@ -1692,7 +1693,7 @@ endfunc
 " asyncrun - version
 "----------------------------------------------------------------------
 function! asyncrun#version()
-	return '2.4.6'
+	return '2.4.9'
 endfunc
 
 
