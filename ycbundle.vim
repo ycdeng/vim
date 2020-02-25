@@ -72,33 +72,56 @@ if index(g:bundle_group, 'simple') >= 0
 	nmap <silent> <c-x> <Plug>CyclePrev
 	vmap <silent> <c-x> <Plug>CyclePrev
 
-	let g:python_host_prog = "/usr/bin/python2"
-	let g:python3_host_prog = "/usr/bin/python3"
-	if has('nvim')
-		Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-	else
-		Plug 'Shougo/deoplete.nvim'
-		Plug 'roxma/nvim-yarp'
-		Plug 'roxma/vim-hug-neovim-rpc'
-	endif
-	Plug 'Shougo/echodoc.vim'
-	Plug 'Shougo/neosnippet.vim'
-	Plug 'Shougo/neosnippet-snippets'
-	" Plug 'zchee/deoplete-clang'
-	" Plug 'zchee/deoplete-jedi'
-
-	let g:deoplete#enable_at_startup = 1
-	" let g:deoplete#enable_smart_case = 1
-	" let g:deoplete#enable_refresh_always = 1
-
-	let g:neosnippet#snippets_directory='~/.vim/vim/snippets'
-
+	Plug 'neoclide/coc.nvim', {'branch': 'release'}
+	set hidden
+	set nobackup
+	set nowritebackup
+	set cmdheight=2
+	set updatetime=300
 	set shortmess+=c
-	set noshowmode
-	imap <m-e>     <Plug>(neosnippet_expand_or_jump)
-	smap <m-e>     <Plug>(neosnippet_expand_or_jump)
-	xmap <m-e>     <Plug>(neosnippet_expand_target)
-	let g:deoplete#sources#jedi#enable_cache = 1
+	set signcolumn=yes
+
+	inoremap <silent><expr> <TAB>
+		\ pumvisible() ? "\<C-n>" :
+		\ <SID>check_back_space() ? "\<TAB>" :
+		\ coc#refresh()
+	inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+
+	function! s:check_back_space() abort
+		let col = col('.') - 1
+		return !col || getline('.')[col - 1]  =~# '\s'
+	endfunction
+
+	inoremap <silent><expr> <c-space> coc#refresh()
+
+	if has('patch8.1.1068')
+		inoremap <expr> <cr> complete_info()["selected"] != "-1" ? "\<C-y>" : "\<C-g>u\<CR>"
+	else
+		imap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
+	endif
+
+	" Use `[g` and `]g` to navigate diagnostics
+	nmap <silent> [g <Plug>(coc-diagnostic-prev)
+	nmap <silent> ]g <Plug>(coc-diagnostic-next)
+
+	" GoTo code navigation.
+	nmap <silent> gd <Plug>(coc-definition)
+	nmap <silent> gy <Plug>(coc-type-definition)
+	nmap <silent> gi <Plug>(coc-implementation)
+	nmap <silent> gr <Plug>(coc-references)
+
+	" Use K to show documentation in preview window.
+	nnoremap <silent> K :call <SID>show_documentation()<CR>
+
+	function! s:show_documentation()
+	if (index(['vim','help'], &filetype) >= 0)
+		execute 'h '.expand('<cword>')
+	else
+		call CocAction('doHover')
+	endif
+	endfunction
+	" Highlight the symbol and its references when holding the cursor.
+	autocmd CursorHold * silent call CocActionAsync('highlight')
 endif
 
 
@@ -107,9 +130,6 @@ endif
 "----------------------------------------------------------------------
 if index(g:bundle_group, 'basic') >= 0
 	Plug 'tpope/vim-fugitive'
-	
-	Plug 'airblade/vim-gitgutter'
-	nmap <Leader>hu <Plug>(GitGutterUndoHunk)
 
 	Plug 'tomasiser/vim-code-dark'
 	Plug 'dunstontc/vim-vscode-theme'
@@ -148,7 +168,6 @@ if index(g:bundle_group, 'basic') >= 0
 	let g:cpp_class_scope_highlight = 1
 	let g:cpp_member_variable_highlight = 1
 	let g:cpp_class_decl_highlight = 1
-	" let g:cpp_experimental_simple_template_highlight = 1
 	let g:cpp_concepts_highlight = 1
 	let g:cpp_no_function_highlight = 1
 
@@ -181,13 +200,6 @@ if index(g:bundle_group, 'high') >= 0
 	Plug 'sgur/vim-textobj-parameter'
 	Plug 'bps/vim-textobj-python', {'for': 'python'}
 	Plug 'jceb/vim-textobj-uri'
-
-	" let g:errormarker_disablemappings = 1
-	" nnoremap <silent> <leader>cm :ErrorAtCursor<CR>
-	" nnoremap <silent> [e :ErrorAtCursor<CR>
-	" nnoremap <silent> <leader>cM :RemoveErrorMarkers<cr>
-
-	" nmap <m-e> <Plug>(choosewin)
 	let g:ranger_map_keys = 0
 
 end
@@ -230,76 +242,8 @@ if index(g:bundle_group, 'grammer') >= 0
 endif
 
 
-if index(g:bundle_group, 'ale') >= 0
-	Plug 'w0rp/ale'
-
-	let g:airline#extensions#ale#enabled = 1
-	let g:ale_linters = {
-				\ 'c': ['clangd'], 
-				\ 'cpp': ['clangd'], 
-				\ 'python': ['flake8', 'pylint'], 
-				\ 'lua': ['luac'], 
-				\ 'go': ['go build', 'gofmt'],
-				\ 'java': ['javac'],
-				\ 'javascript': ['eslint'], 
-				\ }
-
-	function! s:lintcfg(name)
-		let conf = s:path('tools/conf/')
-		let path1 = conf . a:name
-		let path2 = expand('~/.vim/linter/'. a:name)
-		return shellescape(filereadable(path2)? path2 : path1)
-	endfunc
-
-	let g:ale_python_flake8_options = '--conf='.s:lintcfg('flake8.conf')
-	let g:ale_python_pylint_options = '--rcfile='.s:lintcfg('pylint.conf')
-	let g:ale_python_pylint_options .= ' --disable=W'
-	let g:ale_c_gcc_options = '-Wall -O2 -std=c89'
-	let g:ale_cpp_gcc_options = '-Wall -O2 -std=c++14'
-	let g:ale_c_cppcheck_options = ''
-	let g:ale_cpp_cppcheck_options = ''
-	let g:ale_lua_luacheck_options = '-d'
-
-	" let g:ale_linters.text = ['textlint', 'write-good', 'languagetool']
-	" let g:ale_linters.lua += ['luacheck']
-	
-	" if executable('gcc') == 0 && executable('clang')
-	" 	let g:ale_linters.c += ['clang', 'clangd']
-	" 	let g:ale_linters.cpp += ['clang', 'clangd']
-	" endif
-endif
-
 if index(g:bundle_group, 'neomake') >= 0
 	Plug 'neomake/neomake'
-endif
-
-if index(g:bundle_group, 'lsp') >= 0
-	Plug 'autozimu/LanguageClient-neovim', { 'branch': 'next', 'do': 'bash install.sh' }
-	let g:LanguageClient_loadSettings = 1
-	let g:LanguageClient_diagnosticsEnable = 0
-	let g:LanguageClient_settingsPath = expand('~/.vim/languageclient.json')
-	let g:LanguageClient_selectionUI = 'quickfix'
-	let g:LanguageClient_diagnosticsList = v:null
-	let g:LanguageClient_hoverPreview = 'Never'
-	" let g:LanguageClient_loggingLevel = 'DEBUG'
-	if !exists('g:LanguageClient_serverCommands')
-		let g:LanguageClient_serverCommands = {}
-		let g:LanguageClient_serverCommands.c = ['clangd']
-		let g:LanguageClient_serverCommands.cpp = ['clangd']
-	endif
-
-	nnoremap <leader>ld :call LanguageClient#textDocument_definition()<CR>
-	nnoremap <leader>lr :call LanguageClient#textDocument_references()<CR>
-	nnoremap <leader>lf :call LanguageClient#textDocument_formatting()<CR>
-	nnoremap <leader>lt :call LanguageClient#textDocument_typeDefinition()<CR>
-	nnoremap <leader>la :call LanguageClient_workspace_applyEdit()<CR>
-	nnoremap <leader>lc :call LanguageClient#textDocument_completion()<CR>
-	nnoremap <leader>lh :call LanguageClient#textDocument_hover()<CR>
-	nnoremap <leader>ls :call LanguageClient_textDocument_documentSymbol()<CR>
-	nnoremap <leader>lx :call LanguageClient#textDocument_rename()<CR>
-
-	" nnoremap <leader>lm :call LanguageClient_contextMenu()<CR>
-
 endif
 
 "----------------------------------------------------------------------

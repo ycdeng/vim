@@ -50,9 +50,7 @@ nnoremap <silent> <F7> :AsyncRun -cwd=<root> -raw make install<cr>
 " nnoremap <C-]> g<C-]>
 cabbrev wq w
 cabbrev q bd
-call deoplete#custom#source('LanguageClient', 'rank', 100)
-call deoplete#custom#source('omni', 'rank', 200)
-call deoplete#custom#source('ale', 'rank', 200)
+
 
 set completeopt=menu,noinsert
 " turn off netrw banner
