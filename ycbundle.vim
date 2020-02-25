@@ -167,35 +167,7 @@ end
 " package group - inter
 "----------------------------------------------------------------------
 if index(g:bundle_group, 'inter') >= 0
-	Plug 'vim-scripts/L9'
-	" Plug 'ludovicchabant/vim-gutentags'
-	" Plug 'wsdjeg/FlyGrep.vim'
-	" Plug 'tpope/vim-abolish'
-	" Plug 'honza/vim-snippets'
-	" Plug 'MarcWeber/vim-addon-mw-utils'
-	Plug 'tomtom/tlib_vim'
-	" Plug 'garbas/vim-snipmate'
-	Plug 'vim-scripts/FuzzyFinder'
 	Plug 'rust-lang/rust.vim', { 'for': 'rust' }
-	" Plug 'xolox/vim-notes', { 'on': ['Note', 'SearchNotes', 'DeleteNotes', 'RecentNotes'] }
-	Plug 'skywind3000/vimoutliner', { 'for': 'votl' }
-	Plug 'mattn/webapi-vim'
-	" Plug 'mattn/gist-vim'
-	" Plug 'lambdalisue/vim-gista', { 'on': 'Gista' }
-	" Plug 'Yggdroot/indentLine'
-
-	if has('python') || has('python3')
-		" Plug 'SirVer/ultisnips'
-	endif
-
-	if !isdirectory(expand('~/.vim/notes'))
-		silent! call mkdir(expand('~/.vim/notes'), 'p')
-	endif
-
-	" noremap <silent><tab>- :FufMruFile<cr>
-	" noremap <silent><tab>= :FufFile<cr>
-	" noremap <silent><tab>[ :FufBuffer<cr>
-	" noremap <silent><tab>] :FufBufferTag<cr>
 endif
 
 
@@ -203,13 +175,7 @@ endif
 " package group - high
 "----------------------------------------------------------------------
 if index(g:bundle_group, 'high') >= 0
-	" Plug 'kshenoy/vim-signature'
-	" Plug 'mhinz/vim-signify'
-	" Plug 'mh21/errormarker.vim'
-	" Plug 't9md/vim-choosewin'
-	" Plug 'francoiscabrol/ranger.vim'
 	Plug 'kana/vim-textobj-user'
-	" Plug 'kana/vim-textobj-indent'
 	Plug 'kana/vim-textobj-syntax'
 	Plug 'kana/vim-textobj-function', { 'for':['c', 'cpp', 'vim', 'java'] }
 	Plug 'sgur/vim-textobj-parameter'
@@ -231,15 +197,7 @@ end
 " package group - opt
 "----------------------------------------------------------------------
 if index(g:bundle_group, 'opt') >= 0
-	" Plug 'junegunn/fzf'
-	" Plug 'mhartington/oceanic-next'
-	" Plug 'asins/vim-dict'
-	" Plug 'jceb/vim-orgmode', { 'for': 'org' }
-	" Plug 'soft-aesthetic/soft-era-vim'
-	" Plug 'dyng/ctrlsf.vim'
-	" Plug 'itchyny/calendar.vim', { 'on': 'Calendar' }
 	Plug 'tpope/vim-speeddating'
-	" Plug 'itchyny/vim-cursorword'
 	let g:gutentags_modules = []
 	if executable('ctags')
 		let g:gutentags_modules += ['ctags']
@@ -256,42 +214,6 @@ if index(g:bundle_group, 'echodoc') >= 0
 	Plug 'Shougo/echodoc.vim'
 let g:echodoc#enable_at_startup = 1
 let g:echodoc#type = 'signature'
-endif
-
-" airline
-if index(g:bundle_group, 'airline') >= 0
-	Plug 'vim-airline/vim-airline'
-	Plug 'vim-airline/vim-airline-themes'
-	let g:airline_left_sep = ''
-	let g:airline_left_alt_sep = ''
-	let g:airline_right_sep = ''
-	let g:airline_right_alt_sep = ''
-	let g:airline_powerline_fonts = 0
-	let g:airline_exclude_preview = 1
-	let g:airline_section_b = '%n'
-	" let g:airline_section_z = '%P %l/%L%{g:airline_symbols.maxlinenr} : %v'
-	" let g:airline_section_z = '%{AirlineLineNumber()}'
-	" let g:airline_theme='bubblegum'
-endif
-
-" lightline
-if index(g:bundle_group, 'lightline') >= 0
-	" Plug 'itchyny/lightline.vim'
-endif
-
-if index(g:bundle_group, 'nerdtree') >= 0
-	Plug 'scrooloose/nerdtree', {'on': ['NERDTree', 'NERDTreeFocus', 'NERDTreeToggle', 'NERDTreeCWD', 'NERDTreeFind'] }
-	Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
-	let g:NERDTreeMinimalUI = 1
-	let g:NERDTreeDirArrows = 1
-	let g:NERDTreeHijackNetrw = 0
-	" let g:NERDTreeFileExtensionHighlightFullName = 1
-	" let g:NERDTreeExactMatchHighlightFullName = 1
-	" let g:NERDTreePatternMatchHighlightFullName = 1
-	noremap <space>tn :NERDTree<cr>
-	noremap <space>to :NERDTreeFocus<cr>
-	noremap <space>tm :NERDTreeMirror<cr>
-	noremap <space>tt :NERDTreeToggle<cr>
 endif
 
 if index(g:bundle_group, 'grammer') >= 0
@@ -313,8 +235,8 @@ if index(g:bundle_group, 'ale') >= 0
 
 	let g:airline#extensions#ale#enabled = 1
 	let g:ale_linters = {
-				\ 'c': ['clang', 'clangd'], 
-				\ 'cpp': ['clang', 'clangd'], 
+				\ 'c': ['clangd'], 
+				\ 'cpp': ['clangd'], 
 				\ 'python': ['flake8', 'pylint'], 
 				\ 'lua': ['luac'], 
 				\ 'go': ['go build', 'gofmt'],
@@ -332,7 +254,7 @@ if index(g:bundle_group, 'ale') >= 0
 	let g:ale_python_flake8_options = '--conf='.s:lintcfg('flake8.conf')
 	let g:ale_python_pylint_options = '--rcfile='.s:lintcfg('pylint.conf')
 	let g:ale_python_pylint_options .= ' --disable=W'
-	let g:ale_c_gcc_options = '-Wall -O2 -std=c99'
+	let g:ale_c_gcc_options = '-Wall -O2 -std=c89'
 	let g:ale_cpp_gcc_options = '-Wall -O2 -std=c++14'
 	let g:ale_c_cppcheck_options = ''
 	let g:ale_cpp_cppcheck_options = ''
@@ -350,21 +272,6 @@ endif
 if index(g:bundle_group, 'neomake') >= 0
 	Plug 'neomake/neomake'
 endif
-
-
-" if index(g:bundle_group, 'neocomplete') >= 0
-" 	Plug 'Shougo/neocomplete.vim'
-" 	let g:neocomplete#enable_at_startup = 1
-" 	let g:neocomplete#sources#syntax#min_keyword_length = 2
-" 	inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
-" 	inoremap <expr><BS> neocomplete#smart_close_popup()."\<C-h>"
-" 	inoremap <expr><C-g><C-g> neocomplete#undo_completion()
-" 	inoremap <silent> <CR> <C-r>=<SID>my_cr_function()<CR>
-" 	function! s:my_cr_function()
-" 		return (pumvisible() ? "\<C-y>" : "" ) . "\<CR>"
-" 	endfunction
-" endif
-
 
 if index(g:bundle_group, 'lsp') >= 0
 	Plug 'autozimu/LanguageClient-neovim', { 'branch': 'next', 'do': 'bash install.sh' }
@@ -394,13 +301,6 @@ if index(g:bundle_group, 'lsp') >= 0
 	" nnoremap <leader>lm :call LanguageClient_contextMenu()<CR>
 
 endif
-
-if index(g:bundle_group, 'keysound') >= 0
-	Plug 'skywind3000/vim-keysound'
-	let g:keysound_theme = 'default'
-	let g:keysound_enable = 1
-endif
-
 
 "----------------------------------------------------------------------
 " packages end
