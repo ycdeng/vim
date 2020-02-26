@@ -44,14 +44,14 @@ endif
 
 " map CTRL_HJKL to move cursor in all mode
 " config terminal bind <backspace> to ASCII code 127
-noremap <C-h> <left>
-noremap <C-j> <down>
-noremap <C-k> <up>
-noremap <C-l> <right>
-inoremap <C-h> <left>
-inoremap <C-j> <down>
-inoremap <C-k> <up>
-inoremap <C-l> <right>
+" noremap <C-h> <left>
+" noremap <C-j> <down>
+" noremap <C-k> <up>
+" noremap <C-l> <right>
+" inoremap <C-h> <left>
+" inoremap <C-j> <down>
+" inoremap <C-k> <up>
+" inoremap <C-l> <right>
 
 
 " use hotkey for buffer
@@ -65,11 +65,8 @@ noremap <silent>\bb :ls<cr>:b
 noremap <silent>\nh :nohl<cr>
 
 " use hotkey for tab
-noremap <silent>\tc :tabnew<cr>
-noremap <silent>\tq :tabclose<cr>
-noremap <silent>\tn :tabnext<cr>
-noremap <silent>\tp :tabprev<cr>
-noremap <silent>\to :tabonly<cr>
+noremap <silent>\tt :tabnew<cr>
+noremap <silent>\tc :tabclose<cr>
 noremap <silent>\1 :tabn 1<cr>
 noremap <silent>\2 :tabn 2<cr>
 noremap <silent>\3 :tabn 3<cr>
@@ -156,18 +153,6 @@ set showmatch
 set display=lastline
 set listchars=tab:\|\ ,trail:.,extends:>,precedes:<
 set matchtime=3
-
-" leader definition
-noremap <silent>\w :w<cr>
-noremap <silent>\q :q<cr>
-noremap <silent>\l :close<cr>
-
-" window management
-noremap <tab>h <c-w>h
-noremap <tab>j <c-w>j
-noremap <tab>k <c-w>k
-noremap <tab>l <c-w>l
-noremap <tab>w <c-w>w
 
 " ctrl-enter to insert a empty line below, shift-enter to insert above
 noremap <tab>o o<ESC>

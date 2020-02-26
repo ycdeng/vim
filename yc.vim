@@ -38,7 +38,6 @@ let g:gutentags_file_list_command = 'rg --files'
 let g:gutentags_ctags_exclude = ['*.pm']
 
 " keymaps
-noremap <silent>\gst :vertical Gstatus<cr>
 map j gj
 map k gk
 nnoremap ; :

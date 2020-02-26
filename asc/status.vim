@@ -31,7 +31,7 @@ set statusline+=%R                        " readonly flag
 set statusline+=%M                        " modified [+] flag
 " set statusline+=%#Cursor#               " colour
 set statusline+=\ %F\                   " short file name
-set statusline+=%#CursorLine#     " colour
+" set statusline+=%#CursorLine#     " colour
 set statusline+=%=                          " right align
 set statusline+=\ %Y\                   " file type
 set statusline+=\ %3l:%-2c\         " line + column

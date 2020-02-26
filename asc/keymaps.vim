@@ -53,15 +53,15 @@ nnoremap <silent><c-w>M :ExpSwitch tabedit<cr>
 
 noremap <silent><space>hh :nohl<cr>
 noremap <silent><bs> :nohl<cr>:redraw!<cr>
-noremap <silent><tab>, :call Tab_MoveLeft()<cr>
-noremap <silent><tab>. :call Tab_MoveRight()<cr>
-noremap <silent><tab>6 :VinegarOpen leftabove vs<cr>
-noremap <silent><tab>7 :VinegarOpen vs<cr>
-noremap <silent><tab>8 :VinegarOpen belowright sp<cr>
-noremap <silent><tab>9 :VinegarOpen tabedit<cr>
-noremap <silent><tab>0 :exe "NERDTree ".fnameescape(expand("%:p:h"))<cr>
-noremap <silent><tab>y :exe "NERDTree ".fnameescape(vimmake#get_root("%"))<cr>
-noremap <silent><tab>g <c-w>p
+" noremap <silent><tab>, :call Tab_MoveLeft()<cr>
+" noremap <silent><tab>. :call Tab_MoveRight()<cr>
+" noremap <silent><tab>6 :VinegarOpen leftabove vs<cr>
+" noremap <silent><tab>7 :VinegarOpen vs<cr>
+" noremap <silent><tab>8 :VinegarOpen belowright sp<cr>
+" noremap <silent><tab>9 :VinegarOpen tabedit<cr>
+" noremap <silent><tab>0 :exe "NERDTree ".fnameescape(expand("%:p:h"))<cr>
+" noremap <silent><tab>y :exe "NERDTree ".fnameescape(vimmake#get_root("%"))<cr>
+" noremap <silent><tab>g <c-w>p
 
 noremap <silent><space>ha :GuiSignRemove
 			\ errormarker_error errormarker_warning<cr>
