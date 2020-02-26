@@ -144,17 +144,15 @@ if index(g:bundle_group, 'basic') >= 0
 	
  	Plug 'Yggdroot/LeaderF', { 'do': './install.sh' }
 	let g:Lf_ShortcutF = '<c-p>'
-	let g:Lf_ShortcutB = '<m-n>'
-	noremap <c-n> :cclose<cr>:Leaderf mru --regexMode<cr>
+	noremap <c-n> :cclose<cr>:Leaderf! mru --regexMode<cr>
 	noremap <m-p> :cclose<cr>:LeaderfFunction!<cr>
-	noremap <m-P> :cclose<cr>:LeaderfBufTag!<cr>
-	noremap <m-n> :cclose<cr>:LeaderfBuffer<cr>
-	noremap <m-m> :cclose<cr>:LeaderfTag<cr>
+	noremap <m-n> :cclose<cr>:Leaderf! buffer<cr>
 	noremap <m-f> :<C-U><C-R>=printf("Leaderf! rg --current-buffer -e %s ", expand("<cword>"))<CR>
+	noremap <m-r> :cclose<cr>:Leaderf! cmdHistory --regexMode --nowrap<cr>
+
 	noremap <leader>rf :<C-U><C-R>=printf("Leaderf! rg -e %s ", expand("<cword>"))<CR>
 	" -w, --word-regexp
 	noremap <leader>rr :cclose<cr>:Leaderf! rg --recall<cr>
-	noremap <m-r> :cclose<cr>:Leaderf cmdHistory --regexMode --nowrap<cr>
 	let g:Lf_GtagsAutoGenerate = 1
 	let g:Lf_Gtagslabel = 'native-pygments'
 	noremap <leader>gr :<C-U><C-R>=printf("Leaderf! gtags -r %s --auto-jump", expand("<cword>"))<CR><CR>
