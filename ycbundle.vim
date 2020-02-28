@@ -120,8 +120,6 @@ if index(g:bundle_group, 'simple') >= 0
 		call CocAction('doHover')
 	endif
 	endfunction
-	" Highlight the symbol and its references when holding the cursor.
-	autocmd CursorHold * silent call CocActionAsync('highlight')
 	hi CocErrorFloat ctermfg=157
 endif
 

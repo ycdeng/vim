@@ -74,6 +74,9 @@ hi Folded cterm=NONE ctermbg=red ctermfg=white
 hi VertSplit cterm=NONE ctermfg=white ctermbg=8
 hi StatusLine ctermfg=white ctermbg=250 cterm=NONE
 hi StatusLineNC ctermfg=white ctermbg=238 cterm=NONE
+hi TabLineFill ctermfg=LightGreen ctermbg=DarkGreen
+hi TabLine ctermfg=Blue ctermbg=Yellow
+hi TabLineSel ctermfg=Red ctermbg=Yellow
 
 autocmd InsertEnter * highlight CursorLine cterm=NONE ctermbg=28
 autocmd InsertLeave * highlight CursorLine cterm=NONE ctermbg=24
