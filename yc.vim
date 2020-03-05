@@ -59,7 +59,7 @@ let g:gutentags_define_advanced_commands = 1
 let $GTAGSLABEL = 'native-pygments'
 let $GTAGSCONF = '/usr/local/share/gtags/gtags.conf'
 
-let @d = "\<C-w>vgf\<C-w>h$jgf:windo diffthis\<CR>"
+let @d = "\<C-w>vgf\<C-w>hbjjgf:windo diffthis\<CR>"
 
 " easymotion 高亮
 hi Search cterm=NONE ctermbg=green ctermfg=white
