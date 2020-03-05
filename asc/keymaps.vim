@@ -74,6 +74,10 @@ noremap <space>y yiw
 noremap <C-S> :w<cr>
 inoremap <C-S> <ESC>:w<cr>
 
+if !has('gui_running')
+	nnoremap Q :confirm qall<cr>
+endif
+
 
 "----------------------------------------------------------------------
 " space + e : vim control
@@ -125,10 +129,6 @@ if has('gui_running') || (has('nvim') && (has('win32') || has('win64')))
 	noremap <M-Right> :call Tab_MoveRight()<cr>
 	inoremap <M-Left> <ESC>:call Tab_MoveLeft()<cr>
 	inoremap <M-Right> <ESC>:call Tab_MoveRight()<cr>
-	noremap <M-r> :VimExecute run<cr>
-	inoremap <M-r> <ESC>:VimExecute run<cr>
-	noremap <M-b> :VimBuild emake<cr>
-	inoremap <M-b> <ESC>:VimBuild emake<cr>
 	if has('gui_macvim')
 		noremap <m-\|> :call Toggle_Transparency(9)<cr>
 	else

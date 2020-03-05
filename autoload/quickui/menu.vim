@@ -118,6 +118,13 @@ endfunc
 "----------------------------------------------------------------------
 function! quickui#menu#install(section, content, ...)
 	let current = s:namespace[s:name].config
+	if a:0 > 2 && (a:3 != 0)
+		while 1
+			if quickui#menu#remove(a:section, 0) != 0
+				break
+			endif
+		endwhile
+	endif
 	if type(a:content) == v:t_list
 		for item in a:content
 			if type(item) == v:t_dict
@@ -145,6 +152,17 @@ function! quickui#menu#install(section, content, ...)
 	endif
 	if a:0 > 1 && has_key(current, a:section)
 		let current[a:section].ft = a:2
+	endif
+endfunc
+
+
+"----------------------------------------------------------------------
+" clear all entries in current namespace
+"----------------------------------------------------------------------
+function! quickui#menu#clear(section)
+	let current = s:namespace[s:name].config
+	if has_key(current, a:section)
+		call remove(current, a:section)
 	endif
 endfunc
 

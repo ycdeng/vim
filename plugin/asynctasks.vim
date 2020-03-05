@@ -4,8 +4,8 @@
 "
 " Maintainer: skywind3000 (at) gmail.com, 2020
 "
-" Last Modified: 2020/02/19 03:25
-" Verision: 1.5.6
+" Last Modified: 2020/03/03 14:31
+" Verision: 1.6.4
 "
 " for more information, please visit:
 " https://github.com/skywind3000/asynctasks.vim
@@ -33,74 +33,56 @@ if !exists('g:asynctasks_system')
 endif
 
 " task profile
-if !exists('g:asynctasks_profile')
-	let g:asynctasks_profile = 'debug'
-endif
+let g:asynctasks_profile = get(g:, 'asynctasks_profile', 'debug')
 
 " local config
-if !exists('g:asynctasks_config_name')
-	let g:asynctasks_config_name = '.tasks'
-endif
+let g:asynctasks_config_name = get(g:, 'asynctasks_config_name', '.tasks')
 
 " global config in every runtimepath
-if !exists('g:asynctasks_rtp_config')
-	let g:asynctasks_rtp_config = 'tasks.ini'
-endif
+let g:asynctasks_rtp_config = get(g:, 'asynctasks_rtp_config', 'tasks.ini')
 
-" global config
-if !exists('g:asynctasks_extra_config')
-	let g:asynctasks_extra_config = []
-endif
+" additional global configs
+let g:asynctasks_extra_config = get(g:, 'asynctasks_extra_config', [])
 
 " config by vimrc
-if !exists('g:asynctasks_tasks')
-	let g:asynctasks_tasks = {}
-endif
+let g:asynctasks_tasks = get(g:, 'asynctasks_tasks', {})
 
 " task environment variables
-if !exists('g:asynctasks_environ')
-	let g:asynctasks_environ = {}
-endif
+let g:asynctasks_environ = get(g:, 'asynctasks_environ', {})
 
 " features
-if !exists('g:asynctasks_feature')
-	let g:asynctasks_feature = {}
-endif
+let g:asynctasks_feature = get(g:, 'asynctasks_feature', {})
 
 " terminal mode: tab/curwin/top/bottom/left/right/quickfix/external
-if !exists('g:asynctasks_term_pos')
-	let g:asynctasks_term_pos = 'quickfix'
-endif
+let g:asynctasks_term_pos = get(g:, 'asynctasks_term_pos', 'quickfix')
 
 " width of vertical terminal split
-if !exists('g:asynctasks_term_cols')
-	let g:asynctasks_term_cols = ''
-endif
+let g:asynctasks_term_cols = get(g:, 'asynctasks_term_cols', '')
 
 " height of horizontal terminal split
-if !exists('g:asynctasks_term_rows')
-	let g:asynctasks_term_rows = ''
-endif
+let g:asynctasks_term_rows = get(g:, 'asynctasks_term_rows', '')
 
 " set to zero to keep focus when open a terminal in a split
-if !exists('g:asynctasks_term_focus')
-	let g:asynctasks_term_focus = 1
-endif
+let g:asynctasks_term_focus = get(g:, 'asynctasks_term_focus', 1)
 
 " make internal terminal tab reusable
-if !exists('g:asynctasks_term_reuse')
-	let g:asynctasks_term_reuse = 0
-endif
+let g:asynctasks_term_reuse = get(g:, 'asynctasks_term_reuse', 0)
 
 " whether set bufhidden to 'hide' in terminal window
-if !exists('g:asynctasks_term_hidden')
-	let g:asynctasks_term_hidden = 0
-endif
+let g:asynctasks_term_hidden = get(g:, 'asynctasks_term_hidden', 0)
+
+" set nolisted to terminal buffer ?
+let g:asynctasks_term_listed = get(g:, 'asynctasks_term_listed', 1)
 
 " strict to detect $(VIM_CWORD) to avoid empty string
-if !exists('g:asynctasks_strict')
-	let g:asynctasks_strict = 1
-endif
+let g:asynctasks_strict = get(g:, 'asynctasks_strict', 1)
+
+" notify when finished (output=quickfix), can be: '', 'echo', 'bell'
+let g:asynctasks_notify = get(g:, 'asynctasks_notify', '')
+
+" set to zero to create .tasks without template
+let g:asynctasks_template = get(g:, 'asynctasks_template', 1)
+
 
 
 "----------------------------------------------------------------------
@@ -379,6 +361,18 @@ function! s:requirement(what)
 			call s:errmsg(t . '"skywind3000/asyncrun.vim"')
 			return 0
 		endif
+		silent! exec "AsyncRun -mode=load"
+		if exists('*asyncrun#version') == 0
+			let t = 'asyncrun is not loaded correctly '
+			call s:errmsg(t . 'try to avoid lazy load on asyncrun')
+			return 0
+		endif
+		let target = '2.4.3'
+		if s:version_compare(asyncrun#version(), target) < 0
+			let t = 'asyncrun ' . target . ' or above is required, '
+			call s:errmsg(t . 'update from "skywind3000/asyncrun.vim"')
+			return 0
+		endif
 	endif
 	return 1
 endfunc
@@ -432,7 +426,9 @@ function! s:config_merge(target, source, ininame, mode)
 	endfor
 	for key in special
 		let parts = s:trinity_split(key)
-		let name = parts[0]
+		let name = s:strip(parts[0])
+		let parts[1] = s:strip(parts[1])
+		let parts[2] = s:strip(parts[2])
 		if parts[1] != ''
 			let profile = parts[1]
 			if profile != g:asynctasks_profile
@@ -474,13 +470,15 @@ function! s:collect_rtp_config() abort
 		endfor
 		let t = s:abspath(expand('~/.vim/' . rtp_name))
 		if filereadable(t)
-			let newname = []
-			for name in names
-				if name != t
-					let newname += [name]
-				endif
-			endfor
-			let names = newname + [t]
+			let names += [t]
+		endif
+		if $XDG_CONFIG_HOME != ''
+			let t = $XDG_CONFIG_HOME . '/' . rtp_name
+		else
+			let t = expand('~/.config/nvim') . '/' . rtp_name
+		endif
+		if filereadable(t)
+			let names += [t]
 		endif
 	endif
 	for name in g:asynctasks_extra_config
@@ -489,6 +487,22 @@ function! s:collect_rtp_config() abort
 			let names += [name]
 		endif
 	endfor
+	let newname = []
+	let checker = {}
+	call reverse(names)
+	for name in names
+		let key = name
+		if s:windows || has('win32unix')
+			let key = fnamemodify(key, ':p')
+			let key = tr(tolower(key), "\\", '/')
+		endif
+		if has_key(checker, key) == 0
+			let newname += [tr(name, "\\", '/')]
+			let checker[key] = 1
+		endif
+	endfor
+	call reverse(newname)
+	let names = newname
 	let s:private.rtp.ini = {}
 	let config = {}
 	let s:error = ''
@@ -825,7 +839,12 @@ function! s:task_option(task)
 			let opts.raw = 1
 		elseif output == 'vim'
 			let opts.mode = 'bang'
+		elseif output == 'hide' || output == 'hidden'
+			let opts.mode = 'hide'
 		endif
+	endif
+	if has_key(task, 'silent') && task.silent
+		let opts.silent = 1
 	endif
 	if has_key(task, 'errorformat')
 		let opts.errorformat = task.errorformat
@@ -851,6 +870,22 @@ function! s:task_option(task)
 	let opts.reuse = g:asynctasks_term_reuse
 	if g:asynctasks_term_hidden != 0
 		let opts.hidden = 1
+	endif
+	let listed = g:asynctasks_term_listed
+	if has_key(task, 'listed')
+		let listed = task.listed
+	endif
+	if listed == 0
+		let opts.listed = 0
+	endif
+	let notify = g:asynctasks_notify
+	if has_key(task, 'notify')
+		let notify = task.notify
+	endif
+	let notify = s:strip(notify)
+	if notify != ''
+		let notify = s:replace(notify, "'", "''")
+		let opts.post = "call asynctasks#finish('".notify."')"
 	endif
 	return opts
 endfunc
@@ -1126,24 +1161,40 @@ function! s:task_edit(mode, path)
 		if a:mode ==# '-e'
 			let name = asyncrun#get_root('%')
 			let name = name . '/' . g:asynctasks_config_name
-			let name = fnamemodify(expand(name), ':p')
+		elseif has('nvim')
+			if $XDG_CONFIG_HOME != ''
+				let name = $XDG_CONFIG_HOME . '/' . g:asynctasks_rtp_config
+			else
+				let name = '~/.config/nvim/' . g:asynctasks_rtp_config
+			endif
 		else
-			let name = expand('~/.vim/' . g:asynctasks_rtp_config)
+			let name = '~/.vim/' . g:asynctasks_rtp_config
 		endif
 	endif
+	let name = fnamemodify(expand(name), ':p')
 	call inputsave()
 	let r = input('(Edit task config): ', name)
 	call inputrestore()
 	if r == ''
 		return -1
 	endif
+	let name = r
 	let newfile = filereadable(name)? 0 : 1
+	let filedir = fnamemodify(name, ':p:h')
+	if isdirectory(filedir) == 0 && filedir != ''
+		silent! call mkdir(filedir, 'p')
+	endif
 	exec "split " . fnameescape(name)
 	setlocal ft=dosini
+	let template = s:template
+	if g:asynctasks_template == 0
+		let template = ['# vim: set fenc=utf-8 ft=dosini:', '']
+	endif
 	if newfile
 		exec "normal ggVGx"
-		call append(line('.') - 1, s:template)
+		call append(line('.') - 1, template)
 		setlocal nomodified
+		exec "normal gg"
 	endif
 endfunc
 
@@ -1281,6 +1332,9 @@ endfunc
 " command AsyncTask
 "----------------------------------------------------------------------
 function! asynctasks#cmd(bang, args, ...)
+	if s:requirement('asyncrun') == 0
+		return -1
+	endif
 	let args = s:strip(a:args)
 	let path = ''
 	if args == ''
@@ -1339,10 +1393,85 @@ endfunc
 
 
 "----------------------------------------------------------------------
+" called when task finished
+"----------------------------------------------------------------------
+function! asynctasks#finish(what)
+	if a:what == ''
+		return
+	elseif a:what == 'bell'
+		exec "norm! \<esc>"
+	elseif a:what == 'echo'
+		redraw
+		echohl ModeMsg
+		echon "Task finished: " . g:asyncrun_status
+		echohl None
+	elseif a:what =~ '^sound:'
+		if exists('*sound_playfile')
+			let previous = get(s:, 'sound_id', '')	
+			if previous
+				silent! call sound_stop(previous)
+			endif
+			let part = split(s:strip(strpart(a:what, 6)), ',')
+			if g:asyncrun_code == 0
+				let name = (len(part) > 0)? part[0] : ''
+			else
+				if len(part) > 1
+					let name = part[1]
+				else
+					let name = (len(part) > 0)? part[0] : ''
+				endif
+			endif
+			let name = s:strip(name)
+			if stridx(name, '~') >= 0
+				let name = expand(name)
+			endif
+			if name != '' && filereadable(name)
+				let s:sound_id = sound_playfile(name)
+			endif
+		else
+			call s:errmsg('unable to play sound, need +sound feature')
+		endif
+	endif
+endfunc
+
+
+"----------------------------------------------------------------------
+" complete
+"----------------------------------------------------------------------
+function! s:complete(ArgLead, CmdLine, CursorPos)
+	let candidate = []
+	if a:ArgLead =~ '^-'
+		let flags = ['-l', '-h', '-e', '-E', '-m', '-p']
+		for flag in flags
+			if stridx(flag, a:ArgLead) == 0
+				let candidate += [flag]
+			endif
+		endfor
+		return candidate
+	endif
+	if asynctasks#collect_config('', 1) != 0
+		return -1
+	endif
+	let tasks = s:private.tasks
+	let rows = []
+	let size = len(a:ArgLead)
+	for task in tasks.avail
+		if task =~ '^\.'
+			continue
+		endif
+		if stridx(task, a:ArgLead) == 0
+			let candidate += [task]
+		endif
+	endfor
+	return candidate
+endfunc
+
+
+"----------------------------------------------------------------------
 " command
 "----------------------------------------------------------------------
 
-command! -bang -nargs=* -range=0 AsyncTask
+command! -bang -nargs=* -range=0 -complete=customlist,s:complete AsyncTask
 		\ call asynctasks#cmd('<bang>', <q-args>, <count>, <line1>, <line2>)
 
 
@@ -1359,7 +1488,48 @@ command! -bang -nargs=0 AsyncTaskMacro
 			\ call asynctasks#cmd('', ('<bang>' == '')? '-m' : '-M')
 
 command! -nargs=? AsyncTaskProfile
-			\ call asynctasks#cmd('', '-p', <f-args>)
+			\ AsyncTask -p <args>
+
+
+"----------------------------------------------------------------------
+" list source
+"----------------------------------------------------------------------
+function! asynctasks#source(maxwidth)
+	let tasks = asynctasks#list('')
+	let rows = []
+	let maxsize = -1
+	let limit = a:maxwidth
+	let source = []
+	if len(tasks) == 0
+		return []
+	endif
+	for task in tasks
+		let name = task.name
+		if name =~ '^\.'
+			continue
+		endif
+		if len(name) > maxsize
+			let maxsize = len(name)
+		endif
+		let cmd = task.command
+		if len(cmd) > limit
+			let cmd = strpart(task.command, 0, limit) . ' ..'
+		endif
+		let scope = task.scope
+		if scope == 'global'
+			let scope = '<global>'
+		elseif scope == 'local'
+			let scope = '<local> '
+		else
+			let scope = '<script>'
+		endif
+		let rows += [[name, scope, cmd]]
+	endfor
+	for row in rows
+		let row[0] = row[0] . repeat(' ', maxsize - len(row[0]))
+	endfor
+	return rows
+endfunc
 
 
 "----------------------------------------------------------------------

@@ -1,3 +1,5 @@
+"======================================================================
+"
 " viminit.vim - Vim initialize script
 "
 " Maintainer: skywind3000 (at) gmail.com
@@ -5,9 +7,14 @@
 "
 " Tiny script which makes vim become neat and handy, supports vim.tiny
 "
+"======================================================================
+
 " vim: set et fenc=utf-8 ff=unix sts=8 sw=4 ts=4 :
 
-" initialize basic settings
+
+"----------------------------------------------------------------------
+" core initialize
+"----------------------------------------------------------------------
 set nocompatible
 
 set shiftwidth=4
@@ -32,16 +39,9 @@ if has('multi_byte')
 	set enc=utf-8
 endif
 
-if has('mouse')
-	"set mouse=c
-endif
 
 
-"set nobackup
-"set nowritebackup
-"set noswapfile
-
-
+"----------------------------------------------------------------------
 " map CTRL_HJKL to move cursor in all mode
 " config terminal bind <backspace> to ASCII code 127
 " noremap <C-h> <left>
@@ -54,7 +54,9 @@ endif
 " inoremap <C-l> <right>
 
 
-" use hotkey for buffer
+"----------------------------------------------------------------------
+" buffer keymap
+"----------------------------------------------------------------------
 noremap <silent>\bn :bn<cr>
 noremap <silent>\bp :bp<cr>
 noremap <silent>\bm :bm<cr>
@@ -81,7 +83,9 @@ noremap <silent><s-tab> :tabnext<CR>
 inoremap <silent><s-tab> <ESC>:tabnext<CR>
 
 
-" keymap to switch tab in both gui and terminal (need config)
+"----------------------------------------------------------------------
+" tab keymap in gvim
+"----------------------------------------------------------------------
 if has('gui_running')
 	noremap <silent><c-tab> :tabprev<CR>
 	inoremap <silent><c-tab> <ESC>:tabprev<CR>
@@ -107,7 +111,10 @@ if has('gui_running')
 	inoremap <silent><m-0> <ESC>:tabn 10<cr>
 endif
 
-" cmd+N to switch tab quickly in macvim
+
+"----------------------------------------------------------------------
+" tab keymap in macvim
+"----------------------------------------------------------------------
 if has("gui_macvim")
 	set macmeta
 	noremap <silent><c-tab> :tabprev<CR>
@@ -136,7 +143,10 @@ if has("gui_macvim")
 	inoremap <silent><d-o> <ESC>:browse tabnew<cr>
 endif
 
-" fast file/tab actions in gui
+
+"----------------------------------------------------------------------
+" gvim keymaps
+"----------------------------------------------------------------------
 if has('gui_running')
 	noremap <silent><m-t> :tabnew<cr>
 	inoremap <silent><m-t> <ESC>:tabnew<cr>
@@ -147,7 +157,9 @@ if has('gui_running')
 endif
 
 
+"----------------------------------------------------------------------
 " miscs
+"----------------------------------------------------------------------
 set scrolloff=2
 set showmatch
 set display=lastline
