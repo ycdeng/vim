@@ -42,10 +42,10 @@ map j gj
 map k gk
 nnoremap ; :
 nnoremap : <nop>
-noremap  <silent><F5> :call quickmenu#toggle(0)<cr>
-inoremap <silent><F5> <ESC>:call quickmenu#toggle(0)<cr>
-noremap <silent><F6> :call quickmenu#toggle(1)<cr>
-inoremap <silent><F6> <ESC>:call quickmenu#toggle(1)<cr>
+noremap  <silent><F1> :call quickmenu#toggle(0)<cr>
+inoremap <silent><F1> <ESC>:call quickmenu#toggle(0)<cr>
+noremap <silent><F2> :call quickmenu#toggle(1)<cr>
+inoremap <silent><F2> <ESC>:call quickmenu#toggle(1)<cr>
 cabbrev wq w
 cabbrev q bd
 
@@ -117,5 +117,5 @@ endfor
 endfunction
 
 " nmap <script> <silent> <F2> :call ToggleQuickFix()<CR>
-noremap <silent><F10> :call ToggleQuickFix()<cr>
-inoremap <silent><F10> :call ToggleQuickFix()<cr>
+noremap <silent><F3> :call ToggleQuickFix()<cr>
+inoremap <silent><F3> :call ToggleQuickFix()<cr>
