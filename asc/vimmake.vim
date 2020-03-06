@@ -197,38 +197,37 @@ command! -nargs=* -bang VimScope call s:Cmd_VimScope("<bang>", <f-args>)
 " Keymap Setup
 "----------------------------------------------------------------------
 function! vimmake#keymap()
-	noremap <silent><F5> :AsyncTask file-run<cr>
-	noremap <silent><F6> :AsyncTask make<cr>
-	noremap <silent><F7> :AsyncTask emake<cr>
-	noremap <silent><F8> :AsyncTask emake-exe<cr>
-	noremap <silent><F9> :AsyncTask file-build<cr>
-	noremap <silent><F10> :call asyncrun#quickfix_toggle(6)<cr>
-	noremap <silent><s-f5> :AsyncTask project-run<cr>
-	noremap <silent><s-f6> :AsyncTask project-test<cr>
-	noremap <silent><s-f7> :AsyncTask project-init<cr>
-	noremap <silent><s-f8> :AsyncTask project-install<cr>
-	noremap <silent><s-f9> :AsyncTask project-build<cr>
+	" noremap <silent><F5> :AsyncTask file-run<cr>
+	" noremap <silent><F6> :AsyncTask make<cr>
+	" noremap <silent><F7> :AsyncTask emake<cr>
+	" noremap <silent><F8> :AsyncTask emake-exe<cr>
+	" noremap <silent><F9> :AsyncTask file-build<cr>
+	" noremap <silent><s-f5> :AsyncTask project-run<cr>
+	" noremap <silent><s-f6> :AsyncTask project-test<cr>
+	" noremap <silent><s-f7> :AsyncTask project-init<cr>
+	" noremap <silent><s-f8> :AsyncTask project-install<cr>
+	" noremap <silent><s-f9> :AsyncTask project-build<cr>
 
-	inoremap <silent><F5> <ESC>:AsyncTask file-run<cr>
-	inoremap <silent><F6> <ESC>:AsyncTask make<cr>
-	inoremap <silent><F7> <ESC>:AsyncTask emake<cr>
-	inoremap <silent><F8> <ESC>:AsyncTask emake-exe<cr>
-	inoremap <silent><F9> <ESC>:AsyncTask file-build<cr>
-	inoremap <silent><F10> <ESC>:call asyncrun#quickfix_toggle(6)<cr>
-	inoremap <silent><s-f5> <ESC>:AsyncTask project-run<cr>
-	inoremap <silent><s-f6> <ESC>:AsyncTask project-test<cr>
-	inoremap <silent><s-f7> <ESC>:AsyncTask project-ini<cr>
-	inoremap <silent><s-f8> <ESC>:AsyncTask project-install<cr>
-	inoremap <silent><s-f9> <ESC>:AsyncTask project-build<cr>
+	" inoremap <silent><F5> <ESC>:AsyncTask file-run<cr>
+	" inoremap <silent><F6> <ESC>:AsyncTask make<cr>
+	" inoremap <silent><F7> <ESC>:AsyncTask emake<cr>
+	" inoremap <silent><F8> <ESC>:AsyncTask emake-exe<cr>
+	" inoremap <silent><F9> <ESC>:AsyncTask file-build<cr>
 
-	noremap <silent><f1> :AsyncTask task-f1<cr>
-	noremap <silent><f2> :AsyncTask task-f2<cr>
-	noremap <silent><f3> :AsyncTask task-f3<cr>
-	noremap <silent><f4> :AsyncTask task-f4<cr>
-	inoremap <silent><f1> <ESC>:AsyncTask task-shift-f1<cr>
-	inoremap <silent><f2> <ESC>:AsyncTask task-shift-f2<cr>
-	inoremap <silent><f3> <ESC>:AsyncTask task-shift-f3<cr>
-	inoremap <silent><f4> <ESC>:AsyncTask task-shift-f4<cr>
+	" inoremap <silent><s-f5> <ESC>:AsyncTask project-run<cr>
+	" inoremap <silent><s-f6> <ESC>:AsyncTask project-test<cr>
+	" inoremap <silent><s-f7> <ESC>:AsyncTask project-ini<cr>
+	" inoremap <silent><s-f8> <ESC>:AsyncTask project-install<cr>
+	" inoremap <silent><s-f9> <ESC>:AsyncTask project-build<cr>
+
+	" noremap <silent><f1> :AsyncTask task-f1<cr>
+	" noremap <silent><f2> :AsyncTask task-f2<cr>
+	" noremap <silent><f3> :AsyncTask task-f3<cr>
+	" noremap <silent><f4> :AsyncTask task-f4<cr>
+	" inoremap <silent><f1> <ESC>:AsyncTask task-shift-f1<cr>
+	" inoremap <silent><f2> <ESC>:AsyncTask task-shift-f2<cr>
+	" inoremap <silent><f3> <ESC>:AsyncTask task-shift-f3<cr>
+	" inoremap <silent><f4> <ESC>:AsyncTask task-shift-f4<cr>
 
 	" set keymap to GrepCode
 	noremap <silent><leader>cq :VimStop<cr>

@@ -41,12 +41,11 @@ let g:gutentags_ctags_exclude = ['*.pm']
 map j gj
 map k gk
 nnoremap ; :
-nnoremap <silent> <F5> :AsyncRun -raw -cwd=$(VIM_FILEDIR) "$(VIM_FILEDIR)/$(VIM_FILENOEXT)" <cr>
-nnoremap <silent> <F6> :AsyncRun -cwd=<root> -raw make check <cr>
-nnoremap <silent> <F7> :AsyncRun -cwd=<root> -raw make install<cr>
-" nnoremap <silent> <F8> :AsyncRun -cwd=<root> -raw make distclean && ./configure --enable-cassert --enable-debug CFLAGS="-ggdb -Og -g3 -fno-omit-frame-pointer" <cr>
-" nnoremap <silent> <F9> :AsyncRun gcc -Wall -O2 "$(VIM_FILEPATH)" -o "$(VIM_FILEDIR)/$(VIM_FILENOEXT)" <cr> q
-" nnoremap <C-]> g<C-]>
+nnoremap : <nop>
+noremap  <silent><F5> :call quickmenu#toggle(0)<cr>
+inoremap <silent><F5> <ESC>:call quickmenu#toggle(0)<cr>
+noremap <silent><F6> :call quickmenu#toggle(1)<cr>
+inoremap <silent><F6> <ESC>:call quickmenu#toggle(1)<cr>
 cabbrev wq w
 cabbrev q bd
 
@@ -83,3 +82,40 @@ autocmd InsertLeave * highlight CursorLine cterm=NONE ctermbg=24
 
 
 set clipboard=unnamedplus
+
+let g:asynctasks_rtp_config = get(g:, 'asynctasks_rtp_config', 'yc.ini')
+
+call quickui#menu#reset()
+
+call quickui#menu#install("&File", [
+			\ [ "&Open\t(:w)", 'call feedkeys(":tabe ")'],
+			\ [ "&Save\t(:w)", 'write'],
+			\ [ "--", ],
+			\ [ "LeaderF &File", 'Leaderf file', 'Open file with leaderf'],
+			\ [ "LeaderF &Mru", 'Leaderf mru --regexMode', 'Open recently accessed files'],
+			\ [ "LeaderF &Buffer", 'Leaderf buffer', 'List current buffers in leaderf'],
+			\ [ "--", ],
+			\ [ "J&unk File", 'JunkFile', ''],
+			\ ])
+
+" quick fix enchencemant
+
+nnoremap <silent><space><space> :call quickui#menu#open()<cr>
+let g:asynctasks_term_pos = 'quickfix'
+" noremap <silent><F10> :vertical botright copen 60<cr>
+" inoremap <silent><F10> <ESC>:vertical botright copen 60<cr>
+
+autocmd FileType qf wincmd L
+function! ToggleQuickFix()
+for winnr in range(1, winnr('$'))
+  if getwinvar(winnr, '&syntax') == 'qf'
+    cclose
+  else
+	cope
+  endif
+endfor
+endfunction
+
+" nmap <script> <silent> <F2> :call ToggleQuickFix()<CR>
+noremap <silent><F10> :call ToggleQuickFix()<cr>
+inoremap <silent><F10> :call ToggleQuickFix()<cr>

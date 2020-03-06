@@ -215,12 +215,11 @@ call quickmenu#current(0)
 call quickmenu#reset()
 
 call quickmenu#append('# Development', '')
-call quickmenu#append('Execute', 'VimExecute run', 'run %{expand("%")}')
-call quickmenu#append('GCC', 'VimBuild gcc', 'compile %{expand("%")}')
-call quickmenu#append('Make', 'VimBuild make', 'make current project')
-call quickmenu#append('Emake', 'VimBuild auto', 'emake build current project')
-call quickmenu#append('Run', 'VimExecute auto', 'emake run project')
-call quickmenu#append('Stop', 'VimStop', 'stop making or searching')
+call quickmenu#append('pg-test', 'AsyncTask pg-test', 'run %{expand("%")}')
+call quickmenu#append('pg-deploy', 'AsyncTask pg-deploy', 'run %{expand("%")}')
+call quickmenu#append('pg-configure', 'AsyncTask pg-configure', 'run %{expand("%")}')
+call quickmenu#append('pg-reconfigure', 'AsyncTask pg-reconfigure', 'run %{expand("%")}')
+
 
 call quickmenu#append('# Find', '')
 call quickmenu#append('Find word', 'call menu#FindInProject()', 'find (%{expand("<cword>")}) in current project')

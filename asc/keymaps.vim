@@ -89,15 +89,15 @@ noremap <silent><space>en :call Tools_SwitchNumber()<cr>
 "----------------------------------------------------------------------
 " Movement Enhancement
 "----------------------------------------------------------------------
-noremap <M-h> b
-noremap <M-l> w
-noremap <M-j> gj
-noremap <M-k> gk
-inoremap <M-h> <c-left>
-inoremap <M-l> <c-right>
-inoremap <M-j> <c-\><c-o>gj
-inoremap <M-k> <c-\><c-o>gk
-inoremap <M-y> <c-\><c-o>d$
+" noremap <M-h> b
+" noremap <M-l> w
+" noremap <M-j> gj
+" noremap <M-k> gk
+" inoremap <M-h> <c-left>
+" inoremap <M-l> <c-right>
+" inoremap <M-j> <c-\><c-o>gj
+" inoremap <M-k> <c-\><c-o>gk
+" inoremap <M-y> <c-\><c-o>d$
 " cnoremap <M-h> <c-left>
 " cnoremap <M-l> <c-right>
 " cnoremap <M-b> <c-left>
@@ -107,14 +107,14 @@ inoremap <M-y> <c-\><c-o>d$
 "----------------------------------------------------------------------
 " fast window switching: ALT+SHIFT+HJKL
 "----------------------------------------------------------------------
-noremap <m-H> <c-w>h
-noremap <m-L> <c-w>l
-noremap <m-J> <c-w>j
-noremap <m-K> <c-w>k
-inoremap <m-H> <esc><c-w>h
-inoremap <m-L> <esc><c-w>l
-inoremap <m-J> <esc><c-w>j
-inoremap <m-K> <esc><c-w>k
+" noremap <m-H> <c-w>h
+" noremap <m-L> <c-w>l
+" noremap <m-J> <c-w>j
+" noremap <m-K> <c-w>k
+" inoremap <m-H> <esc><c-w>h
+" inoremap <m-L> <esc><c-w>l
+" inoremap <m-J> <esc><c-w>j
+" inoremap <m-K> <esc><c-w>k
 
 
 "----------------------------------------------------------------------
@@ -143,8 +143,8 @@ if has('gui_running') || (has('nvim') && (has('win32') || has('win64')))
 	endif
 endif
 
-nnoremap <m-z> za
-nnoremap <m-Z> zA
+" nnoremap <m-z> za
+" nnoremap <m-Z> zA
 
 
 "----------------------------------------------------------------------
@@ -158,31 +158,31 @@ endif
 "----------------------------------------------------------------------
 " space + s : svn
 "----------------------------------------------------------------------
-noremap <space>sc :AsyncRun svn co -m "update from vim"<cr>
-noremap <space>su :AsyncRun svn up<cr>
-noremap <space>st :AsyncRun svn st<cr>
+" noremap <space>sc :AsyncRun svn co -m "update from vim"<cr>
+" noremap <space>su :AsyncRun svn up<cr>
+" noremap <space>st :AsyncRun svn st<cr>
 
 " editing commands
-noremap <space>aa ggVG
+" noremap <space>aa ggVG
 
 
 "----------------------------------------------------------------------
 " space + j : make
 "----------------------------------------------------------------------
-noremap <silent><space>jj  :AsyncRun -cwd=<root> make<cr>
-noremap <silent><space>jc  :AsyncRun -cwd=<root> make clean<cr>
-noremap <silent><space>jk  :AsyncRun -mode=4 -cwd=<root> make run<cr>
-noremap <silent><space>jl  :AsyncRun -mode=4 -cwd=<root> make test<cr>
-noremap <silent><space>j1  :AsyncRun -mode=4 -cwd=<root> make t1<cr>
-noremap <silent><space>j2  :AsyncRun -mode=4 -cwd=<root> make t2<cr>
-noremap <silent><space>j3  :AsyncRun -mode=4 -cwd=<root> make t3<cr>
-noremap <silent><space>j4  :AsyncRun -mode=4 -cwd=<root> make t4<cr>
-noremap <silent><space>j5  :AsyncRun -mode=4 -cwd=<root> make t5<cr>
-noremap <silent><space>k1  :AsyncRun -cwd=<root> make t1<cr>
-noremap <silent><space>k2  :AsyncRun -cwd=<root> make t2<cr>
-noremap <silent><space>k3  :AsyncRun -cwd=<root> make t3<cr>
-noremap <silent><space>k4  :AsyncRun -cwd=<root> make t4<cr>
-noremap <silent><space>k5  :AsyncRun -cwd=<root> make t5<cr>
+" noremap <silent><space>jj  :AsyncRun -cwd=<root> make<cr>
+" noremap <silent><space>jc  :AsyncRun -cwd=<root> make clean<cr>
+" noremap <silent><space>jk  :AsyncRun -mode=4 -cwd=<root> make run<cr>
+" noremap <silent><space>jl  :AsyncRun -mode=4 -cwd=<root> make test<cr>
+" noremap <silent><space>j1  :AsyncRun -mode=4 -cwd=<root> make t1<cr>
+" noremap <silent><space>j2  :AsyncRun -mode=4 -cwd=<root> make t2<cr>
+" noremap <silent><space>j3  :AsyncRun -mode=4 -cwd=<root> make t3<cr>
+" noremap <silent><space>j4  :AsyncRun -mode=4 -cwd=<root> make t4<cr>
+" noremap <silent><space>j5  :AsyncRun -mode=4 -cwd=<root> make t5<cr>
+" noremap <silent><space>k1  :AsyncRun -cwd=<root> make t1<cr>
+" noremap <silent><space>k2  :AsyncRun -cwd=<root> make t2<cr>
+" noremap <silent><space>k3  :AsyncRun -cwd=<root> make t3<cr>
+" noremap <silent><space>k4  :AsyncRun -cwd=<root> make t4<cr>
+" noremap <silent><space>k5  :AsyncRun -cwd=<root> make t5<cr>
 
 noremap <silent><space>jm :call Tools_SwitchMakeFile()<cr>
 
@@ -190,10 +190,6 @@ noremap <silent><space>jm :call Tools_SwitchMakeFile()<cr>
 "----------------------------------------------------------------------
 " space + t : toggle plugins
 "----------------------------------------------------------------------
-"noremap <silent><C-F10> :call Toggle_Taglist()<cr>
-"inoremap <silent><C-F10> <c-\><c-o>:call Toggle_Taglist()<cr>
-noremap <silent><S-F10> :call quickmenu#toggle(0)<cr>
-inoremap <silent><S-F10> <ESC>:call quickmenu#toggle(0)<cr>
 noremap <silent><M-;> :call quickui#tools#preview_tag('')<cr>
 noremap <silent><M-:> :PreviewClose<cr>
 noremap <silent><tab>; :PreviewGoto edit<cr>
@@ -247,17 +243,17 @@ inoremap <silent><M-d> <c-\><c-o>:call Tools_PreviousCursor(7)<cr>
 "----------------------------------------------------------------------
 " space + f : open tools
 "----------------------------------------------------------------------
-noremap <silent><space>fd :call Open_Dictionary("<C-R>=expand("<cword>")<cr>")<cr>
-noremap <silent><space>fm :!man -S 3:2:1 "<C-R>=expand("<cword>")"<CR>
-noremap <silent><space>fh :call Open_HeaderFile(1)<cr>
-noremap <silent><space>ff :call Open_Explore(-1)<cr>
-noremap <silent><space>ft :call Open_Explore(0)<cr>
-noremap <silent><space>fe :call Open_Explore(1)<cr>
-noremap <silent><space>fo :call Open_Explore(2)<cr>
-noremap <silent><space>fb :TagbarToggle<cr>
-noremap <silent><space>fp :call Tools_Pydoc("<C-R>=expand("<cword>")<cr>", 1)<cr>
-noremap <silent><space>fs :mksession! ~/.vim/session.txt<cr>
-noremap <silent><space>fl :so ~/.vim/session.txt<cr>
+" noremap <silent><space>fd :call Open_Dictionary("<C-R>=expand("<cword>")<cr>")<cr>
+" noremap <silent><space>fm :!man -S 3:2:1 "<C-R>=expand("<cword>")"<CR>
+" noremap <silent><space>fh :call Open_HeaderFile(1)<cr>
+" noremap <silent><space>ff :call Open_Explore(-1)<cr>
+" noremap <silent><space>ft :call Open_Explore(0)<cr>
+" noremap <silent><space>fe :call Open_Explore(1)<cr>
+" noremap <silent><space>fo :call Open_Explore(2)<cr>
+" noremap <silent><space>fb :TagbarToggle<cr>
+" noremap <silent><space>fp :call Tools_Pydoc("<C-R>=expand("<cword>")<cr>", 1)<cr>
+" noremap <silent><space>fs :mksession! ~/.vim/session.txt<cr>
+" noremap <silent><space>fl :so ~/.vim/session.txt<cr>
 
 set ssop-=options    " do not store global and local values in a session
 " set ssop-=folds      " do not store folds
@@ -271,24 +267,24 @@ endfor
 "----------------------------------------------------------------------
 " leader + b/c : buffer
 "----------------------------------------------------------------------
-noremap <silent><leader>bc :BufferClose<cr>
+" noremap <silent><leader>bc :BufferClose<cr>
 noremap <silent><leader>cw :call Change_DirectoryToFile()<cr>
 
 
 "----------------------------------------------------------------------
 " space + h : fast open files
 "----------------------------------------------------------------------
-noremap <space>hp :FileSwitch tabe ~/.vim/project.txt<cr>
-noremap <space>hl :FileSwitch tabe ~/.vim/cloud/Documents/agenda.otl<cr>
-noremap <space>hf <c-w>gf
-noremap <space>he :call Show_Explore()<cr>
-noremap <space>hb :FileSwitch tabe ~/.vim/bundle.vim<cr>
-noremap <space>hq :FileSwitch tabe ~/.vim/quicknote.txt<cr>
-noremap <space>hg :FileSwitch tabe ~/.vim/scratch.txt<cr>
-noremap <space>hd :FileSwitch tabe ~/Dropbox/Documents/notes.txt<cr>
-noremap <space>ho :FileSwitch tabe ~/.vim/cloud/Documents/cloudnote.txt<cr>
-noremap <space>hi :FileSwitch tabe ~/.vim/tasks.ini<cr>
-noremap <space>h; :call asclib#nextcloud_sync()<cr>
+" noremap <space>hp :FileSwitch tabe ~/.vim/project.txt<cr>
+" " noremap <space>hl :FileSwitch tabe ~/.vim/cloud/Documents/agenda.otl<cr>
+" " noremap <space>hf <c-w>gf
+" " noremap <space>he :call Show_Explore()<cr>
+" " noremap <space>hb :FileSwitch tabe ~/.vim/bundle.vim<cr>
+" " noremap <space>hq :FileSwitch tabe ~/.vim/quicknote.txt<cr>
+" " noremap <space>hg :FileSwitch tabe ~/.vim/scratch.txt<cr>
+" " noremap <space>hd :FileSwitch tabe ~/Dropbox/Documents/notes.txt<cr>
+" " noremap <space>ho :FileSwitch tabe ~/.vim/cloud/Documents/cloudnote.txt<cr>
+" " noremap <space>hi :FileSwitch tabe ~/.vim/tasks.ini<cr>
+" " noremap <space>h; :call asclib#nextcloud_sync()<cr>
 
 if (!has('nvim')) && (has('win32') || has('win64'))
 	noremap <space>hr :FileSwitch tabe ~/_vimrc<cr>
@@ -354,10 +350,7 @@ noremap <C-F10> :VimBuild gcc -pg<cr>
 "----------------------------------------------------------------------
 " vimmake faster
 "----------------------------------------------------------------------
-noremap <silent><F12> :call quickmenu#toggle(0)<cr>
-inoremap <silent><F12> <ESC>:call quickmenu#toggle(0)<cr>
-noremap <silent><F11> :call quickmenu#toggle(1)<cr>
-inoremap <silent><F11> <ESC>:call quickmenu#toggle(1)<cr>
+
 
 noremap <silent><c-f10> :call quickmenu#toggle(1)<cr>
 inoremap <silent><c-f10> <ESC>:call quickmenu#toggle(1)<cr>

@@ -152,8 +152,8 @@ map <leader><F3> :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") . '
 
 let g:solarized_termcolors=256
 
-nnoremap <leader><F1> :call Tools_ProfileStart('~/.vim/profile.log')<cr>
-nnoremap <leader><F2> :call Tools_ProfileStop()<cr>
+" nnoremap <leader><F1> :call Tools_ProfileStart('~/.vim/profile.log')<cr>
+" nnoremap <leader><F2> :call Tools_ProfileStop()<cr>
 
 
 "----------------------------------------------------------------------
