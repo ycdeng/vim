@@ -14,7 +14,7 @@ au CursorHold * checktime
 set statusline+=%{gutentags#statusline()}
 set diffopt+=vertical
 set list
-set listchars=tab:--#
+set listchars=tab:-->
 " disable bracket jump when complete
 set matchtime=0
 autocmd CursorHold,CursorHoldI * update
