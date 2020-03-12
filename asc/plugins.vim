@@ -258,8 +258,9 @@ let g:asynctasks_term_pos = (s:windows && s:gui)? 'external' : 'tab'
 " text
 "----------------------------------------------------------------------
 let g:vim_dict_config = { 
-			\ "text" : ['wordmax'],
-			\ "markdown" : ['wordmax'],
+			\ "text" : 'wordmax',
+			\ "markdown" : 'wordmax',
+			\ "html": 'html,javascript,css,css3',
 			\ }
 
 
@@ -269,6 +270,14 @@ let g:vim_dict_config = {
 let delimitMate_expand_cr = 1
 let delimitMate_expand_space = 1
 let delimitMate_offByDefault = 1
+
+
+"----------------------------------------------------------------------
+" terminal help
+"----------------------------------------------------------------------
+let g:terminal_close = 1
+let g:terminal_list = 0
+let g:terminal_fixheight =1
 
 
 "----------------------------------------------------------------------

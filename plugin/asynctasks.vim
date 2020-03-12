@@ -4,8 +4,8 @@
 "
 " Maintainer: skywind3000 (at) gmail.com, 2020
 "
-" Last Modified: 2020/03/03 14:31
-" Verision: 1.6.4
+" Last Modified: 2020/03/07 16:43
+" Verision: 1.6.5
 "
 " for more information, please visit:
 " https://github.com/skywind3000/asynctasks.vim
@@ -53,6 +53,9 @@ let g:asynctasks_environ = get(g:, 'asynctasks_environ', {})
 " features
 let g:asynctasks_feature = get(g:, 'asynctasks_feature', {})
 
+" confirm file name in :AsyncEdit ?
+let g:asynctasks_confirm = get(g:, 'asynctasks_confirm', 1)
+
 " terminal mode: tab/curwin/top/bottom/left/right/quickfix/external
 let g:asynctasks_term_pos = get(g:, 'asynctasks_term_pos', 'quickfix')
 
@@ -74,6 +77,9 @@ let g:asynctasks_term_hidden = get(g:, 'asynctasks_term_hidden', 0)
 " set nolisted to terminal buffer ?
 let g:asynctasks_term_listed = get(g:, 'asynctasks_term_listed', 1)
 
+" set to 1 to pass arguments in a safe way (intermediate script)
+let g:asynctasks_term_safe = get(g:, 'asynctasks_term_safe', 0)
+
 " strict to detect $(VIM_CWORD) to avoid empty string
 let g:asynctasks_strict = get(g:, 'asynctasks_strict', 1)
 
@@ -83,6 +89,20 @@ let g:asynctasks_notify = get(g:, 'asynctasks_notify', '')
 " set to zero to create .tasks without template
 let g:asynctasks_template = get(g:, 'asynctasks_template', 1)
 
+" set to 1 to remember last user input for each variable
+let g:asynctasks_remember = get(g:, 'asynctasks_remember', 0)
+
+" last user input, key is 'taskname:variable'
+let g:asynctasks_history = get(g:, 'asynctasks_history', {})
+
+" Add highlight colors if they don't exist.
+if !hlexists('AsyncRunSuccess')
+        highlight link AsyncRunSuccess ModeMsg
+endif
+
+if !hlexists('AsyncRunFailure')
+        highlight link AsyncRunFailure ErrorMsg
+endif
 
 
 "----------------------------------------------------------------------
@@ -721,7 +741,7 @@ endfunc
 "----------------------------------------------------------------------
 " ask user what to do
 "----------------------------------------------------------------------
-function! s:command_input(command)
+function! s:command_input(command, taskname, remember)
 	let command = a:command
 	let mark_open = '$(?'
 	let mark_close = ')'
@@ -738,15 +758,22 @@ function! s:command_input(command)
 		endif
 		let name = strpart(command, p1 + size_open, p2 - p1 - size_open)
 		let mark = mark_open . name . mark_close
+		let text = ''
+		let rkey = a:taskname . ':' . name
+		if a:remember
+			let text = get(g:asynctasks_history, rkey, '')
+			" echom 'remember: <' . text . '>'
+		endif
 		echohl Type
 		call inputsave()
 		try
-			let t = input('Input argument (' . name . '): ')
+			let t = input('Input argument (' . name . '): ', text)
 		catch /^Vim:Interrupt$/
 			let t = ""
 		endtry
 		call inputrestore()
 		echohl None
+		let g:asynctasks_history[rkey] = t
 		if t == ''
 			return ''
 		endif
@@ -839,8 +866,6 @@ function! s:task_option(task)
 			let opts.raw = 1
 		elseif output == 'vim'
 			let opts.mode = 'bang'
-		elseif output == 'hide' || output == 'hidden'
-			let opts.mode = 'hide'
 		endif
 	endif
 	if has_key(task, 'silent') && task.silent
@@ -866,7 +891,7 @@ function! s:task_option(task)
 	if has_key(task, 'auto')
 		let opts.auto = task.auto
 	endif
-	let opts.safe = 1
+	let opts.safe = g:asynctasks_term_safe
 	let opts.reuse = g:asynctasks_term_reuse
 	if g:asynctasks_term_hidden != 0
 		let opts.hidden = 1
@@ -877,6 +902,9 @@ function! s:task_option(task)
 	endif
 	if listed == 0
 		let opts.listed = 0
+	endif
+	if has_key(task, 'safe')
+		let opts.safe = task.safe
 	endif
 	let notify = g:asynctasks_notify
 	if has_key(task, 'notify')
@@ -1024,7 +1052,9 @@ function! asynctasks#start(bang, taskname, path, ...)
 	if s:command_check(command, get(task, 'cwd', '')) != 0
 		return -7
 	endif
-	let command = s:command_input(command)
+	let remember = g:asynctasks_remember
+	let remember = has_key(task, 'remember')? task.remember : remember
+	let command = s:command_input(command, a:taskname, remember)
 	if command == ''
 		redraw
 		echo ""
@@ -1036,6 +1066,7 @@ function! asynctasks#start(bang, taskname, path, ...)
 		return 0
 	endif
 	let opts = s:task_option(task)
+	let opts.name = a:taskname
 	let skip = g:asyncrun_skip
 	if opts.mode == 'bang' || opts.mode == 2
 		" let g:asyncrun_skip = or(g:asyncrun_skip, 2)
@@ -1172,13 +1203,15 @@ function! s:task_edit(mode, path)
 		endif
 	endif
 	let name = fnamemodify(expand(name), ':p')
-	call inputsave()
-	let r = input('(Edit task config): ', name)
-	call inputrestore()
-	if r == ''
-		return -1
+	if g:asynctasks_confirm
+		call inputsave()
+		let r = input('(Edit task config): ', name)
+		call inputrestore()
+		if r == ''
+			return -1
+		endif
+		let name = r
 	endif
-	let name = r
 	let newfile = filereadable(name)? 0 : 1
 	let filedir = fnamemodify(name, ':p:h')
 	if isdirectory(filedir) == 0 && filedir != ''
@@ -1402,8 +1435,12 @@ function! asynctasks#finish(what)
 		exec "norm! \<esc>"
 	elseif a:what == 'echo'
 		redraw
-		echohl ModeMsg
-		echon "Task finished: " . g:asyncrun_status
+		exec 'echohl '. ((g:asyncrun_code != 0)? "AsyncRunFailure" : "AsyncRunSuccess")
+		let t = 'Task finished: '
+		if g:asyncrun_name != ''
+			let t = 'Task [' . g:asyncrun_name . '] finished: '
+		endif
+		echo t . ((g:asyncrun_code != 0)? 'failure' : 'success')
 		echohl None
 	elseif a:what =~ '^sound:'
 		if exists('*sound_playfile')
@@ -1456,7 +1493,7 @@ function! s:complete(ArgLead, CmdLine, CursorPos)
 	let rows = []
 	let size = len(a:ArgLead)
 	for task in tasks.avail
-		if task =~ '^\.'
+		if task =~ '^\.' && (!(a:ArgLead =~ '^\.'))
 			continue
 		endif
 		if stridx(task, a:ArgLead) == 0
@@ -1543,5 +1580,4 @@ function! asynctasks#timing()
 	echo s:private.rtp.config
 	return tt
 endfunc
-
 

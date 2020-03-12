@@ -107,7 +107,7 @@ if index(g:bundle_group, 'basic') >= 0
 	Plug 'dag/vim-fish'
 	Plug 'skywind3000/vim-dict'
 	
-	if has('python') || has('python3')
+	if has('python3') || has('python')
 		Plug 'Yggdroot/LeaderF'
 		Plug 'tamago324/LeaderF-filer'
 		IncScript site/bundle/leaderf.vim
@@ -193,7 +193,6 @@ if index(g:bundle_group, 'high') >= 0
 
 	let g:errormarker_disablemappings = 1
 	nnoremap <silent> <leader>cm :ErrorAtCursor<CR>
-	nnoremap <silent> [e :ErrorAtCursor<CR>
 	nnoremap <silent> <leader>cM :RemoveErrorMarkers<cr>
 
 	nmap <m-e> <Plug>(choosewin)
@@ -269,6 +268,12 @@ if index(g:bundle_group, 'deoplete') >= 0
 	" Plug 'zchee/deoplete-clang'
 	Plug 'zchee/deoplete-jedi'
 	IncScript site/bundle/deoplete.vim
+endif
+
+" vimwiki
+if index(g:bundle_group, 'vimwiki') >= 0
+	Plug 'vimwiki/vimwiki'
+	IncScript site/bundle/vimwiki.vim
 endif
 
 " echodoc

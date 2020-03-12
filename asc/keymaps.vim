@@ -74,9 +74,14 @@ noremap <space>y yiw
 noremap <C-S> :w<cr>
 inoremap <C-S> <ESC>:w<cr>
 
-if !has('gui_running')
-	nnoremap Q :confirm qall<cr>
-endif
+noremap <silent><m-t> :tabnew<cr>
+inoremap <silent><m-t> <ESC>:tabnew<cr>
+noremap <silent><m-w> :tabclose<cr>
+inoremap <silent><m-w> <ESC>:tabclose<cr>
+noremap <silent><m-v> :close<cr>
+inoremap <silent><m-v> <esc>:close<cr>
+noremap <m-s> :w<cr>
+inoremap <m-s> <esc>:w<cr>
 
 
 "----------------------------------------------------------------------
@@ -133,13 +138,6 @@ if has('gui_running') || (has('nvim') && (has('win32') || has('win64')))
 		noremap <m-\|> :call Toggle_Transparency(9)<cr>
 	else
 		noremap <m-\|> :call Toggle_Transparency(15)<cr>
-	endif
-	if has('win32') || has('win64') || has('win16')
-		noremap <silent><m-f> :AsyncRun -mode=0 -cwd=<root> mingw32-make -f Makefile<cr>
-		noremap <silent><m-g> :AsyncRun -mode=4 -cwd=<root> mingw32-make -f Makefile test<cr>
-	else
-		noremap <silent><m-f> :AsyncRun -mode=0 -cwd=<root> make -f Makefile<cr>
-		noremap <silent><m-g> :AsyncRun -mode=4 -cwd=<root> make -f Makefile test<cr>
 	endif
 endif
 
@@ -358,6 +356,8 @@ noremap <silent><c-f11> :call quickmenu#toggle(2)<cr>
 inoremap <silent><c-f11> <ESC>:call quickmenu#toggle(2)<cr>
 " noremap <silent><c-f12> :call asclib#utils#script_menu()<cr>
 " inoremap <silent><c-f12> <ESC>:call asclib#utils#script_menu()<cr>
+noremap <silent><c-f9> :AsyncTaskEdit<cr>
+inoremap <silent><c-f9> <ESC>:AsyncTaskEdit<cr>
 
 nnoremap <silent>g5 :PreviewTag<cr>
 nnoremap <silent>g6 :call vimmake#update_tags('!', 'cs', '.cscope')<cr>
