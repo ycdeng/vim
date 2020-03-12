@@ -187,42 +187,10 @@ set display=lastline
 set listchars=tab:\|\ ,trail:.,extends:>,precedes:<
 set matchtime=3
 
-<<<<<<< HEAD
-" ctrl-enter to insert a empty line below, shift-enter to insert above
-noremap <tab>o o<ESC>
-noremap <tab>O O<ESC>
-=======
-" leader definition
-noremap <silent>Q :confirm qall<cr>
-
-" window management
-noremap <tab>h <c-w>h
-noremap <tab>j <c-w>j
-noremap <tab>k <c-w>k
-noremap <tab>l <c-w>l
-noremap <tab>w <c-w>w
-noremap <tab>c <c-w>c
-noremap <tab>+ <c-w>+
-noremap <tab>- <c-w>-
-noremap <tab>, <c-w>< 
-noremap <tab>. <c-w>>
-noremap <tab>= <c-w>=
-noremap <tab>s <c-w>s
-noremap <tab>v <c-w>v
-noremap <tab>o <c-w>o
-noremap <tab><tab> <c-w><c-w>
->>>>>>> upstream/master
-
 " tab enhancement
 noremap <silent><tab> <nop>
 noremap <silent><tab>f <c-i>
 noremap <silent><tab>b <c-o>
-
-" insert mode as emacs
-inoremap <c-a> <home>
-inoremap <c-e> <end>
-inoremap <c-d> <del>
-inoremap <c-_> <c-k>
 
 " faster command mode
 cnoremap <c-h> <left>
