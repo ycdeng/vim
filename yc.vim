@@ -141,3 +141,6 @@ augroup CursorLine
     au BufWinEnter * setlocal cursorline
     au WinLeave * setlocal nocursorline
 augroup END
+
+"  first clear the highlighting and then redraw the screen.
+nnoremap <C-l> :nohl<CR><C-L>

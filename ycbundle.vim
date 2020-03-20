@@ -50,8 +50,8 @@ if index(g:bundle_group, 'simple') >= 0
 	Plug 'easymotion/vim-easymotion'
 	map  / <Plug>(easymotion-sn)
 	omap / <Plug>(easymotion-tn)
-	map  n <Plug>(easymotion-next)
-	map  N <Plug>(easymotion-prev)
+	" map  n <Plug>(easymotion-next)
+	" map  N <Plug>(easymotion-prev)
 	let g:EasyMotion_smartcase = 1
 
 	Plug 'Raimondi/delimitMate'
