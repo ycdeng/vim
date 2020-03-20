@@ -58,16 +58,15 @@ let g:gutentags_define_advanced_commands = 1
 let $GTAGSLABEL = 'native-pygments'
 let $GTAGSCONF = '/usr/local/share/gtags/gtags.conf'
 
-let @d = "\<C-w>vgf\<C-w>hbjjgf:windo diffthis\<CR>"
-
+let @d = "\<C-w>vgf\<C-w>hbjjgf;windo diffthis\<CR>"
+let @o = "do]c"
 " easymotion 高亮
 hi Search cterm=NONE ctermbg=green ctermfg=white
 
 " 高亮当前行
 set cursorline
 
-" 高亮当前行
-" hi CursorLine cterm=NONE ctermbg=blue
+" hi CursorLine cterm=NONE ctermbg=bluej
 hi CursorLine cterm=NONE ctermbg=24
 hi Folded cterm=NONE ctermbg=red ctermfg=white
 hi VertSplit cterm=NONE ctermfg=white ctermbg=8
@@ -120,7 +119,7 @@ endfunction
 noremap <silent><F3> :call ToggleQuickFix()<cr>
 inoremap <silent><F3> :call ToggleQuickFix()<cr>
 
-" noremap <silent><space>fd :call Open_Dictionary("<C-R>=expand("<cword>")<cr>")<cr>
+noremap <silent><space>wd :windo bd<cr>
 " noremap <silent><space>fm :!man -S 3:2:1 "<C-R>=expand("<cword>")"<CR>
 noremap <silent><space>fh :CocCommand clangd.switchSourceHeader<cr>
 " noremap <silent><space>ff :call Open_Explore(-1)<cr>
