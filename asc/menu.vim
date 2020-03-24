@@ -215,10 +215,10 @@ call quickmenu#current(0)
 call quickmenu#reset()
 
 call quickmenu#append('# Development', '')
-call quickmenu#append('pg-test', 'AsyncTask pg-test', 'run %{expand("%")}')
-call quickmenu#append('pg-deploy', 'AsyncTask pg-deploy', 'run %{expand("%")}')
+call quickmenu#append('pg-regress', 'AsyncTask pg-regress', 'run %{expand("%")}')
+call quickmenu#append('orafce-regress', 'AsyncTask orafce-regress', 'run %{expand("%")}')
 call quickmenu#append('pg-configure', 'AsyncTask pg-configure', 'run %{expand("%")}')
-call quickmenu#append('pg-reconfigure', 'AsyncTask pg-reconfigure', 'run %{expand("%")}')
+call quickmenu#append('pg-deploy', 'AsyncTask pg-deploy', 'run %{expand("%")}')
 
 
 call quickmenu#append('# Find', '')
