@@ -16,14 +16,14 @@ endfunc
 " svn main
 "----------------------------------------------------------------------
 function! svnhelp#svn(command)
-	let hr = vimmake#python_system('svn '. a:command)
-	let s:shell_error = g:vimmake_shell_error
+	let hr = asclib#core#system('svn '. a:command)
+	let s:shell_error = g:asclib#core#shell_error
 	return hr
 endfunc
 
 function! svnhelp#git(command)
-	let hr = vimmake#python_system('git '. a:command)
-	let s:shell_error = g:vimmake_shell_error
+	let hr = asclib#core#system('git '. a:command)
+	let s:shell_error = g:asclib#core#shell_error
 	return hr
 endfunc
 
@@ -361,6 +361,32 @@ function! svnhelp#tp_diff() abort
 		call svnhelp#tsvn('/command:diff /path:'.shellescape(info.root))
 	else
 		call svnhelp#tgit('/command:diff /path:'.shellescape(info.root))
+	endif
+endfunc
+
+function! svnhelp#tp_push() abort
+	let info = svnhelp#tinfo()
+	if info.mode == 0
+		call svnhelp#errmsg('not in a git repository')
+		return 0
+	endif
+	if info.mode == 1
+		call svnhelp#errmsg('not in a git repository')
+	else
+		call svnhelp#tgit('/command:push /path:'.shellescape(info.root))
+	endif
+endfunc
+
+function! svnhelp#tp_sync() abort
+	let info = svnhelp#tinfo()
+	if info.mode == 0
+		call svnhelp#errmsg('not in a git repository')
+		return 0
+	endif
+	if info.mode == 1
+		call svnhelp#errmsg('not in a git repository')
+	else
+		call svnhelp#tgit('/command:sync /path:'.shellescape(info.root))
 	endif
 endfunc
 

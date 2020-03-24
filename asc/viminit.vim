@@ -3,7 +3,7 @@
 " viminit.vim - Vim initialize script
 "
 " Maintainer: skywind3000 (at) gmail.com
-" Last Modified: 2018/02/10 12:52
+" Last Modified: 2020/03/16 23:52
 "
 " Tiny script which makes vim become neat and handy, supports vim.tiny
 "
@@ -38,50 +38,6 @@ if has('multi_byte')
 	set fenc=utf-8
 	set enc=utf-8
 endif
-
-
-
-"----------------------------------------------------------------------
-" map CTRL_HJKL to move cursor in all mode
-" config terminal bind <backspace> to ASCII code 127
-" noremap <C-h> <left>
-" noremap <C-j> <down>
-" noremap <C-k> <up>
-" noremap <C-l> <right>
-" inoremap <C-h> <left>
-" inoremap <C-j> <down>
-" inoremap <C-k> <up>
-" inoremap <C-l> <right>
-
-
-"----------------------------------------------------------------------
-" buffer keymap
-"----------------------------------------------------------------------
-noremap <silent>\bn :bn<cr>
-noremap <silent>\bp :bp<cr>
-noremap <silent>\bm :bm<cr>
-noremap <silent>\bv :vs<cr>
-noremap <silent>\bd :bdelete<cr>
-noremap <silent>\bl :ls<cr>
-noremap <silent>\bb :ls<cr>:b
-noremap <silent>\nh :nohl<cr>
-
-" use hotkey for tab
-
-
-"----------------------------------------------------------------------
-" window keymaps
-"----------------------------------------------------------------------
-noremap <silent>\w1 :1wincmd w<cr>
-noremap <silent>\w2 :2wincmd w<cr>
-noremap <silent>\w3 :3wincmd w<cr>
-noremap <silent>\w4 :4wincmd w<cr>
-noremap <silent>\w5 :5wincmd w<cr>
-noremap <silent>\w6 :6wincmd w<cr>
-noremap <silent>\w7 :7wincmd w<cr>
-noremap <silent>\w8 :8wincmd w<cr>
-noremap <silent>\w9 :9wincmd w<cr>
-
 
 "----------------------------------------------------------------------
 " tab keymap

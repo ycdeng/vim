@@ -22,11 +22,13 @@ call quickui#menu#install("&File", [
 			\ [ "LeaderF &Buffer", 'Leaderf buffer', 'List current buffers in leaderf'],
 			\ [ "--", ],
 			\ [ "J&unk File", 'JunkFile', ''],
+			\ [ "Junk L&ist", 'JunkList', ''],
+			\ [ "--", ],
+			\ [ "&Terminal", 'OpenTerminal tab', 'Open internal terminal in a new tab'],
 			\ ])
 
 if has('win32') || has('win64') || has('win16')
 	call quickui#menu#install('&File', [
-				\ [ "--", ],
 				\ [ "Start &Cmd", 'silent !start /b cmd /C c:\drivers\clink\clink.cmd' ],
 				\ [ "Start &PowerShell", 'silent !start powershell.exe' ],
 				\ [ "Open &Explore", 'call Show_Explore()' ],
@@ -92,6 +94,9 @@ call quickui#menu#install("&Git", [
 			\ ['&View Diff', 'call svnhelp#svn_diff("%")'],
 			\ ['&Show Log', 'call svnhelp#svn_log("%")'],
 			\ ['File &Add', 'call svnhelp#svn_add("%")'],
+			\ ['-'],
+			\ ['&Fugitive Status', 'Gstatus'],
+			\ ['Fugitive &Push', 'Gpush'],
 			\ ])
 
 
@@ -102,6 +107,8 @@ if has('win32') || has('win64') || has('win16') || has('win95')
 				\ ["Project &Commit\t(Tortoise)", 'call svnhelp#tp_commit()', 'TortoiseGit / TortoiseSvn'],
 				\ ["Project L&og\t(Tortoise)", 'call svnhelp#tp_log()',  'TortoiseGit / TortoiseSvn'],
 				\ ["Project &Diff\t(Tortoise)", 'call svnhelp#tp_diff()', 'TortoiseGit / TortoiseSvn'],
+				\ ["Project &Push\t(Tortoise)", 'call svnhelp#tp_push()', 'TortoiseGit'],
+				\ ["Project S&ync\t(Tortoise)", 'call svnhelp#tp_sync()', 'TortoiseGit'],
 				\ ['--',''],
 				\ ["File &Add\t(Tortoise)", 'call svnhelp#tf_add()', 'TortoiseGit / TortoiseSvn'],
 				\ ["File &Blame\t(Tortoise)", 'call svnhelp#tf_blame()', 'TortoiseGit / TortoiseSvn'],
@@ -182,6 +189,7 @@ let g:context_menu_k = [
 			\ [ "--", ],
 			\ ['Dash &Help', 'call asclib#utils#dash_ft(&ft, expand("<cword>"))'],
 			\ ['Cpp&man', 'exec "Cppman " . expand("<cword>")', '', 'c,cpp'],
+			\ ['P&ython Doc', 'call quickui#tools#python_help("")', 'python'],
 			\ ]
 
 
@@ -195,5 +203,6 @@ nnoremap <silent>K :call quickui#tools#clever_context('k', g:context_menu_k, {})
 if has('gui_running') || has('nvim')
 	noremap <c-f10> :call MenuHelp_TaskList()<cr>
 endif
+
 
 

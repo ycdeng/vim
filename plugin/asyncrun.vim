@@ -3,7 +3,7 @@
 " Maintainer: skywind3000 (at) gmail.com, 2016, 2017, 2018, 2019, 2020
 " Homepage: http://www.vim.org/scripts/script.php?script_id=5431
 "
-" Last Modified: 2020/03/11 14:52
+" Last Modified: 2020/03/23 13:18
 "
 " Run shell command in background and output to quickfix:
 "     :AsyncRun[!] [options] {cmd} ...
@@ -897,7 +897,9 @@ function! s:ScriptWrite(command, pause)
 		let $VIM_COMMAND = a:command
 		let $VIM_PAUSE = (a:pause)? 'pause' : ''
 		let lines += ["call %VIM_COMMAND% \r"]
+		let lines += ["set VIM_EXITCODE=%ERRORLEVEL%\r"]
 		let lines += ["call %VIM_PAUSE% \r"]
+		let lines += ["exit %VIM_EXITCODE%\r"]
 	else
 		let shell = (g:asyncrun_shell != '')? g:asyncrun_shell : (&shell)
 		let lines = ['#! ' . shell]
@@ -985,17 +987,17 @@ endfunc
 
 " find project root
 function! s:find_root(path, markers, strict)
-    function! s:guess_root(filename, markers)
-        let fullname = asyncrun#fullname(a:filename)
-        if exists('b:asyncrun_root')
+	function! s:guess_root(filename, markers)
+		let fullname = asyncrun#fullname(a:filename)
+		if exists('b:asyncrun_root')
 			return b:asyncrun_root
-        endif
-        if fullname =~ '^fugitive:/'
-            if exists('b:git_dir')
-                return fnamemodify(b:git_dir, ':h')
-            endif
-            return '' " skip any fugitive buffers early
-        endif
+		endif
+		if fullname =~ '^fugitive:/'
+			if exists('b:git_dir')
+				return fnamemodify(b:git_dir, ':h')
+			endif
+			return '' " skip any fugitive buffers early
+		endif
 		let pivot = fullname
 		if !isdirectory(pivot)
 			let pivot = fnamemodify(pivot, ':h')
@@ -1004,7 +1006,11 @@ function! s:find_root(path, markers, strict)
 			let prev = pivot
 			for marker in a:markers
 				let newname = s:path_join(pivot, marker)
-				if filereadable(newname)
+				if newname =~ '[\*\?\[\]]'
+					if glob(newname) != ''
+						return pivot
+					endif
+				elseif filereadable(newname)
 					return pivot
 				elseif isdirectory(newname)
 					return pivot
@@ -1294,7 +1300,7 @@ function! s:start_in_terminal(opts)
 	keepalt noautocmd windo call s:save_restore_view(0)
 	keepalt noautocmd call win_gotoid(uid)
 	let origin = win_getid()
-	if avail < 0
+	if avail < 0 || get(a:opts, 'reuse', 1) == 0
 		let rows = get(a:opts, 'rows', '')
 		let cols = get(a:opts, 'cols', '')
 		if pos == 'top'
@@ -1827,7 +1833,7 @@ endfunc
 " asyncrun - version
 "----------------------------------------------------------------------
 function! asyncrun#version()
-	return '2.6.6'
+	return '2.6.9'
 endfunc
 
 

@@ -251,6 +251,8 @@ endif
 let s:config = (s:windows)? 'tasks.win32.ini' : 'tasks.linux.ini'
 let g:asynctasks_extra_config = [s:home . '/'. s:config]
 let g:asynctasks_term_pos = (s:windows && s:gui)? 'external' : 'tab'
+let g:asynctasks_template = 0
+let g:asynctasks_confirm = 0
 " let g:asynctasks_rtp_config = 'etc/tasks.ini'
 
 
@@ -258,8 +260,8 @@ let g:asynctasks_term_pos = (s:windows && s:gui)? 'external' : 'tab'
 " text
 "----------------------------------------------------------------------
 let g:vim_dict_config = { 
-			\ "text" : 'wordmax',
-			\ "markdown" : 'wordmax',
+			\ "text" : 'text',
+			\ "markdown" : 'text',
 			\ "html": 'html,javascript,css,css3',
 			\ }
 
@@ -316,5 +318,12 @@ endif
 
 let g:gutentags_plus_switch = 0
 
+
+
+"----------------------------------------------------------------------
+" styles
+"----------------------------------------------------------------------
+let g:jellybeans_use_term_italics = 0
+let g:jellybeans_use_gui_italics = 0
 
 

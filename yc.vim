@@ -120,6 +120,8 @@ noremap <silent><F3> :call ToggleQuickFix()<cr>
 inoremap <silent><F3> :call ToggleQuickFix()<cr>
 
 noremap <silent><space>wd :windo bd<cr>
+noremap <silent><space>wl :windo set nu!<cr>
+noremap <silent><space>ws :windo set wrap!<cr>
 " noremap <silent><space>fm :!man -S 3:2:1 "<C-R>=expand("<cword>")"<CR>
 noremap <silent><space>fh :CocCommand clangd.switchSourceHeader<cr>
 " noremap <silent><space>ff :call Open_Explore(-1)<cr>

@@ -4,8 +4,8 @@
 "
 " Maintainer: skywind3000 (at) gmail.com, 2020
 "
-" Last Modified: 2020/03/07 16:43
-" Verision: 1.6.5
+" Last Modified: 2020/03/22 16:44
+" Verision: 1.7.3
 "
 " for more information, please visit:
 " https://github.com/skywind3000/asynctasks.vim
@@ -94,6 +94,9 @@ let g:asynctasks_remember = get(g:, 'asynctasks_remember', 0)
 
 " last user input, key is 'taskname:variable'
 let g:asynctasks_history = get(g:, 'asynctasks_history', {})
+
+" control how to open a split window in AsyncTaskEdit
+let g:asynctasks_edit_split = get(g:, 'asynctasks_edit_split', '')
 
 " Add highlight colors if they don't exist.
 if !hlexists('AsyncRunSuccess')
@@ -221,10 +224,10 @@ endfunc
 
 " returns nearest parent directory contains one of the markers
 function! s:find_root(name, markers, strict)
-	let name = fnamemodify((a:name != '')? a:name : bufname(), ':p')
+	let name = fnamemodify((a:name != '')? a:name : bufname(0), ':p')
 	let finding = ''
 	" iterate all markers
-	for marker in split(a:markers, ',')
+	for marker in a:markers
 		if marker != ''
 			" search as a file
 			let x = findfile(marker, name . '/;')
@@ -271,6 +274,7 @@ function! s:search_parent(name, cwd)
 		let name = fnamemodify(name, ':p')
 		let output += [s:abspath(name)]
 	endfor
+	call reverse(output)
 	return output
 endfunc
 
@@ -321,6 +325,16 @@ function! s:ExtractOpt(command)
 		let cmd = substitute(cmd, '^-\w\+\%(=\%(\\.\|\S\)*\)\=\s*', '', '')
 	endwhile
 	return [cmd, opts]
+endfunc
+
+
+" change case for comparation
+function! s:pathcase(path)
+	if s:windows == 0
+		return (has('win32unix') == 0)? (a:path) : tolower(a:path)
+	else
+		return tolower(tr(a:path, '/', '\'))
+	endif
 endfunc
 
 
@@ -1059,11 +1073,11 @@ function! asynctasks#start(bang, taskname, path, ...)
 		redraw
 		echo ""
 		redraw
-		return 0
+		return -8
 	endif
 	let command = s:command_environ(command)
 	if command == ''
-		return 0
+		return -9
 	endif
 	let opts = s:task_option(task)
 	let opts.name = a:taskname
@@ -1071,6 +1085,7 @@ function! asynctasks#start(bang, taskname, path, ...)
 	if opts.mode == 'bang' || opts.mode == 2
 		" let g:asyncrun_skip = or(g:asyncrun_skip, 2)
 	endif
+	let command = s:replace(command, '$(VIM_PROFILE)', g:asynctasks_profile)
 	if a:0 < 3 || (a:0 >= 3 && a:1 <= 0)
 		call asyncrun#run(a:bang, opts, command)
 	else
@@ -1183,7 +1198,7 @@ let s:template = [
 "----------------------------------------------------------------------
 " edit task
 "----------------------------------------------------------------------
-function! s:task_edit(mode, path)
+function! s:task_edit(mode, path, template)
 	let name = a:path
 	if s:requirement('asyncrun') == 0
 		return -1
@@ -1217,18 +1232,71 @@ function! s:task_edit(mode, path)
 	if isdirectory(filedir) == 0 && filedir != ''
 		silent! call mkdir(filedir, 'p')
 	endif
-	exec "split " . fnameescape(name)
-	setlocal ft=dosini
+	for ii in range(winnr('$'))
+		let wid = ii + 1
+		let bid = winbufnr(wid)
+		if getbufvar(bid, '&buftype', '') == ''
+			let nn = s:abspath(bufname(bid))
+			let tt = s:abspath(name)
+			if (s:pathcase(nn) == s:pathcase(tt))
+				exec '' . wid . 'wincmd w'
+				return 0
+			endif
+		endif
+	endfor
 	let template = s:template
-	if g:asynctasks_template == 0
+	if type(g:asynctasks_template) == 0
+		if g:asynctasks_template == 0
+			let template = ['# vim: set fenc=utf-8 ft=dosini:', '']
+		endif
+	elseif type(g:asynctasks_template) == type({})
 		let template = ['# vim: set fenc=utf-8 ft=dosini:', '']
+		if a:template == ''
+			if get(g:, 'asynctasks_template_ask', 1) != 0
+				let choices = ['&0 empty']
+				let names = keys(g:asynctasks_template)
+				for key in names
+					if len(choices) < 10
+						let idx = len(choices)
+						let choices += ['&'.idx . ' ' . key]
+					endif
+				endfor
+				let options = join(choices, "\n")
+				if len(choices) > 1 && newfile
+					let t = 'Select a template (ESC to quit):'
+					let choice = confirm(t, options)
+					if choice == 0
+						return 0
+					elseif choice > 1
+						let key = names[choice - 2]
+						let template += g:asynctasks_template[key]
+					endif
+				endif
+			endif
+		elseif has_key(g:asynctasks_template, a:template)
+			let template += g:asynctasks_template[a:template]
+		endif
 	endif
+	let mods = s:strip(g:asynctasks_edit_split)
+	if mods == ''
+		exec "split " . fnameescape(name)
+	elseif mods == 'auto'
+		if winwidth(0) >= 160
+			exec "vert split ". fnameescape(name)
+		else
+			exec "split ". fnameescape(name)
+		endif
+	else
+		exec mods . " split " . fnameescape(name)
+	endif
+	setlocal ft=dosini
 	if newfile
 		exec "normal ggVGx"
 		call append(line('.') - 1, template)
 		setlocal nomodified
 		exec "normal gg"
 	endif
+	return 0
 endfunc
 
 
@@ -1259,6 +1327,7 @@ let s:macros = {
 	\ 'VIM_COLUMNS': "How many columns in vim's screen",
 	\ 'VIM_LINES': "How many lines in vim's screen", 
 	\ 'VIM_SVRNAME': 'Value of v:servername for +clientserver usage',
+	\ 'VIM_PROFILE': 'Current building profile (debug/release/...)',
 	\ 'WSL_FILEPATH': '(WSL) File name of current buffer with full path',
 	\ 'WSL_FILENAME': '(WSL) File name of current buffer without path',
 	\ 'WSL_FILEDIR': 
@@ -1303,6 +1372,7 @@ function! s:expand_macros()
     let macros['VIM_HOME'] = expand(split(&rtp, ',')[0])
 	let macros['VIM_PRONAME'] = fnamemodify(macros['VIM_ROOT'], ':t')
 	let macros['VIM_DIRNAME'] = fnamemodify(macros['VIM_CWD'], ':t')
+	let macros['VIM_PROFILE'] = g:asynctasks_profile
 	let macros['<cwd>'] = macros['VIM_CWD']
 	let macros['<root>'] = macros['VIM_ROOT']
 	if expand("%:e") == ''
@@ -1329,7 +1399,7 @@ function! s:task_macro(wsl)
 	let names = ['FILEPATH', 'FILENAME', 'FILEDIR', 'FILEEXT', 'FILETYPE']
 	let names += ['FILENOEXT', 'PATHNOEXT', 'CWD', 'RELDIR', 'RELNAME']
 	let names += ['CWORD', 'CFILE', 'CLINE', 'VERSION', 'SVRNAME', 'COLUMNS']
-	let names += ['LINES', 'GUI', 'ROOT', 'DIRNAME', 'PRONAME']
+	let names += ['LINES', 'GUI', 'ROOT', 'DIRNAME', 'PRONAME', 'PROFILE']
 	let rows = []
 	let rows += [['Macro', 'Detail', 'Value']]
 	let highmap = {}
@@ -1351,7 +1421,6 @@ function! s:task_macro(wsl)
 			continue
 		endif
 		let rows += [['$(' . name . ')', s:macros[name], macros[name]]]
-		" let rows += [['', macros[name]]]
 		let highmap[index . ',0'] = 'Keyword'
 		let highmap[index . ',1'] = 'Statement'
 		let highmap[index . ',2'] = 'Comment'
@@ -1391,9 +1460,6 @@ function! asynctasks#cmd(bang, args, ...)
 	elseif args ==# '-L'
 		call s:task_list('', 1)
 		return 0
-	elseif args ==# '-e' || args ==# '-E'
-		call s:task_edit(args, path)
-		return 0
 	elseif args ==# '-m'
 		call s:task_macro(0)
 		return 0
@@ -1403,6 +1469,11 @@ function! asynctasks#cmd(bang, args, ...)
 	endif
 	let [args, opts] = s:ExtractOpt(args)
 	let args = s:strip(args)
+	if has_key(opts, 'e') || has_key(opts, 'E')
+		let mode = has_key(opts, 'e')? '-e' : '-E'
+		call s:task_edit(mode, '', args)
+		return 0
+	endif
 	if has_key(opts, 'p')
 		let profile = args
 		if profile != ''
@@ -1491,13 +1562,33 @@ function! s:complete(ArgLead, CmdLine, CursorPos)
 	endif
 	let tasks = s:private.tasks
 	let rows = []
-	let size = len(a:ArgLead)
 	for task in tasks.avail
-		if task =~ '^\.' && (!(a:ArgLead =~ '^\.'))
-			continue
+		if task != ''
+			if task =~ '^\.' && (!(a:ArgLead =~ '^\.'))
+				continue
+			endif
+			if stridx(task, a:ArgLead) == 0
+				let candidate += [task]
+			endif
 		endif
-		if stridx(task, a:ArgLead) == 0
-			let candidate += [task]
+	endfor
+	return candidate
+endfunc
+
+
+"----------------------------------------------------------------------
+" complete for template
+"----------------------------------------------------------------------
+function! s:complete_edit(ArgLead, CmdLine, CursorPos)
+	if type(g:asynctasks_template) != type({})
+		return []
+	endif
+	let candidate = []
+	for key in keys(g:asynctasks_template)
+		if key != ''
+			if stridx(key, a:ArgLead) == 0
+				let candidate += [key]
+			endif
 		endif
 	endfor
 	return candidate
@@ -1515,8 +1606,9 @@ command! -bang -nargs=* -range=0 -complete=customlist,s:complete AsyncTask
 "----------------------------------------------------------------------
 " help commands
 "----------------------------------------------------------------------
-command! -bang -nargs=0 AsyncTaskEdit
-			\ call asynctasks#cmd('', ('<bang>' == '')? '-e' : '-E')
+command! -bang -nargs=? -complete=customlist,s:complete_edit AsyncTaskEdit 
+			\ call asynctasks#cmd('', 
+			\ (('<bang>' == '')? '-e' : '-E') . ' ' . <q-args>)
 
 command! -bang -nargs=0 AsyncTaskList 
 			\ call asynctasks#cmd('', ('<bang>' == '')? '-l' : '-L')
@@ -1580,4 +1672,6 @@ function! asynctasks#timing()
 	echo s:private.rtp.config
 	return tt
 endfunc
+
+
 

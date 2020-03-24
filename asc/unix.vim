@@ -11,7 +11,7 @@ set wildmenu
 set ignorecase
 set cpo-=<
 set lazyredraw
-set errorformat+=[%f:%l]\ ->\ %m,[%f:%l]:%m
+set errorformat=%.\ %#-->\ %f:%l:%c,%f(%l):%m,%f:%l:%c:%m,%f:%l:%m
 set vop=folds,cursor
 set fdm=indent
 set foldlevel=99
@@ -227,7 +227,8 @@ function! s:open_junk_list()
 	let junk_dir = get(g:, 'asc_junk', '~/.vim/junk')
 	" let junk_dir = expand(junk_dir) . strftime('/%Y/%m')
 	let junk_dir = tr(junk_dir, '\', '/')
-	exec "Leaderf file " . fnameescape(junk_dir)
+	echo junk_dir
+	exec "Leaderf file " . fnameescape(expand(junk_dir))
 endfunction
 
 

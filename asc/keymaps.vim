@@ -85,10 +85,17 @@ inoremap <m-s> <esc>:w<cr>
 
 
 "----------------------------------------------------------------------
-" space + e : vim control
+" tasks
 "----------------------------------------------------------------------
-noremap <silent><space>eh :call Tools_SwitchSigns()<cr>
-noremap <silent><space>en :call Tools_SwitchNumber()<cr>
+noremap <space>te :AsyncTaskEdit<cr>
+noremap <space>tg :AsyncTaskEdit!<cr>
+noremap <space>tfb :AsyncTask file-build<cr>
+noremap <space>tfr :AsyncTask file-run<cr>
+noremap <space>tfd :AsyncTask file-debug<cr>
+noremap <space>tpi :AsyncTask project-init<cr>
+noremap <space>tpb :AsyncTask project-build<cr>
+noremap <space>tpr :AsyncTask project-run<cr>
+noremap <space>tpd :AsyncTask project-debug<cr>
 
 
 "----------------------------------------------------------------------
@@ -120,6 +127,41 @@ noremap <silent><space>en :call Tools_SwitchNumber()<cr>
 " inoremap <m-L> <esc><c-w>l
 " inoremap <m-J> <esc><c-w>j
 " inoremap <m-K> <esc><c-w>k
+
+if has('terminal') && exists(':terminal') == 2 && has('patch-8.1.1')
+	set termwinkey=<c-_>
+	tnoremap <m-H> <c-_>h
+	tnoremap <m-L> <c-_>l
+	tnoremap <m-J> <c-_>j
+	tnoremap <m-K> <c-_>k
+	tnoremap <m-q> <c-\><c-n>
+	tnoremap <m-1> <c-_>1gt
+	tnoremap <m-2> <c-_>2gt
+	tnoremap <m-3> <c-_>3gt
+	tnoremap <m-4> <c-_>4gt
+	tnoremap <m-5> <c-_>5gt
+	tnoremap <m-6> <c-_>6gt
+	tnoremap <m-7> <c-_>7gt
+	tnoremap <m-8> <c-_>8gt
+	tnoremap <m-9> <c-_>9gt
+	tnoremap <m-0> <c-_>10gt
+elseif has('nvim')
+	tnoremap <m-H> <c-\><c-n><c-w>h
+	tnoremap <m-L> <c-\><c-n><c-w>l
+	tnoremap <m-J> <c-\><c-n><c-w>j
+	tnoremap <m-K> <c-\><c-n><c-w>k
+	tnoremap <m-q> <c-\><c-n>
+	tnoremap <m-1> <c-\><c-n>1gt
+	tnoremap <m-2> <c-\><c-n>2gt
+	tnoremap <m-3> <c-\><c-n>3gt
+	tnoremap <m-4> <c-\><c-n>4gt
+	tnoremap <m-5> <c-\><c-n>5gt
+	tnoremap <m-6> <c-\><c-n>6gt
+	tnoremap <m-7> <c-\><c-n>7gt
+	tnoremap <m-8> <c-\><c-n>8gt
+	tnoremap <m-9> <c-\><c-n>9gt
+	tnoremap <m-0> <c-\><c-n>10gt
+endif
 
 
 "----------------------------------------------------------------------
@@ -392,5 +434,6 @@ if has('nvim') && (has('win32') || has('win64'))
 	inoremap <s-insert> <c-r><c-o>*
 	vnoremap <c-insert> "*y
 endif
+
 
 

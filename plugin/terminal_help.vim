@@ -3,7 +3,7 @@
 " terminal_help.vim -
 "
 " Created by skywind on 2020/01/01
-" Last Modified: 2020/03/09 14:33
+" Last Modified: 2020/03/19 18:33
 "
 "======================================================================
 
@@ -133,11 +133,11 @@ function! TerminalOpen(...)
 					if has('nvim')
 						startinsert
 					else
-						exec "normal i"
+						exec "normal! i"
 					endif
 				endif
 			else
-				exec "normal ". wid . "\<c-w>w"
+				exec "normal! ". wid . "\<c-w>w"
 			endif
 			let succeed = 1
 		endif
@@ -151,12 +151,24 @@ function! TerminalOpen(...)
 		let shell = get(g:, 'terminal_shell', '')
 		let command = (shell != '')? shell : &shell
 		let close = get(g:, 'terminal_close', 0)
+		if has('nvim') && 0
+			for ii in range(winnr('$') + 8)
+				let info = nvim_win_get_config(0)
+				if has_key(info, 'anchor') == 0
+					break
+				endif
+				keepalt noautocmd exec "normal! \<c-w>w"
+			endfor
+			let uid = win_getid()
+		endif
 		let savedir = getcwd()
-		if g:terminal_cwd == 1
-			let workdir = (expand('%') == '')? getcwd() : expand('%:p:h')
-			silent execute cd . ' '. fnameescape(workdir)
-		elseif g:terminal_cwd == 2
-			silent execute cd . ' '. fnameescape(s:project_root())
+		if &bt == ''
+			if g:terminal_cwd == 1
+				let workdir = (expand('%') == '')? getcwd() : expand('%:p:h')
+				silent execute cd . ' '. fnameescape(workdir)
+			elseif g:terminal_cwd == 2
+				silent execute cd . ' '. fnameescape(s:project_root())
+			endif
 		endif
 		if has('nvim') == 0
 			exec pos . ' ' . height . 'split'
@@ -182,6 +194,13 @@ function! TerminalOpen(...)
 		setlocal bufhidden=hide
 		if get(g:, 'terminal_list', 1) == 0
 			setlocal nobuflisted
+		endif
+		if get(g:, 'terminal_auto_insert', 0) != 0
+			if has('nvim') == 0
+				autocmd WinEnter <buffer> exec "normal! i"
+			else
+				autocmd WinEnter <buffer> startinsert
+			endif
 		endif
 	endif
 	let x = win_getid()
@@ -215,7 +234,7 @@ function! TerminalClose()
 	call win_gotoid(sid)
 	if wid != winnr()
 		let uid = win_getid()
-		exec "normal ". wid . "\<c-w>w"
+		exec "normal! ". wid . "\<c-w>w"
 		close
 		call win_gotoid(uid)
 	else
@@ -341,7 +360,7 @@ function! TerminalSend(text)
 			endif
 			startinsert
 			stopinsert
-			exec 'normal G'
+			exec 'normal! G'
 		endif
 	endif
 	call win_gotoid(x)
@@ -407,12 +426,16 @@ if get(g:, 'terminal_default_mapping', 1)
 	noremap <m-L> <c-w>l
 	noremap <m-J> <c-w>j
 	noremap <m-K> <c-w>k
-	noremap <m-P> <c-w>p
+	if mapcheck('<m-P>', 'n') == ''
+		noremap <m-P> <c-w>p
+	endif
 	inoremap <m-H> <esc><c-w>h
 	inoremap <m-L> <esc><c-w>l
 	inoremap <m-J> <esc><c-w>j
 	inoremap <m-K> <esc><c-w>k
-	inoremap <m-P> <esc><c-w>p
+	if mapcheck('<m-P>', 'n') == ''
+		inoremap <m-P> <esc><c-w>p
+	endif
 
 	if has('terminal') && exists(':terminal') == 2 && has('patch-8.1.1')
 		set termwinkey=<c-_>
@@ -444,6 +467,7 @@ if get(g:, 'terminal_default_mapping', 1)
 		exec s:cmd . '<c-\><c-n>:call TerminalToggle()<cr>'
 	endif
 endif
+
 
 "----------------------------------------------------------------------
 " drop a file and ask user to select a window for dropping if there
@@ -510,5 +534,6 @@ endfunc
 
 let g:asyncrun_runner = get(g:, 'asyncrun_runner', {})
 let g:asyncrun_runner.thelp = function('s:runner_proc')
+
 
 

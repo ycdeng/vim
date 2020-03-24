@@ -62,6 +62,7 @@ if index(g:bundle_group, 'simple') >= 0
 	Plug 'Raimondi/delimitMate'
 	Plug 'justinmk/vim-dirvish'
 	Plug 'justinmk/vim-sneak'
+	Plug 'tpope/vim-fugitive'
 	Plug 'tpope/vim-unimpaired'
 	Plug 'godlygeek/tabular', { 'on': 'Tabularize' }
 	Plug 'bootleq/vim-cycle'
@@ -91,7 +92,6 @@ endif
 " package group - basic
 "----------------------------------------------------------------------
 if index(g:bundle_group, 'basic') >= 0
-	Plug 'tpope/vim-fugitive'
 	Plug 'tpope/vim-rhubarb'
 	Plug 'mhinz/vim-startify'
 	Plug 'flazz/vim-colorschemes'
@@ -100,9 +100,9 @@ if index(g:bundle_group, 'basic') >= 0
 	Plug 'pprovost/vim-ps1', { 'for': 'ps1' }
 	Plug 'tbastos/vim-lua', { 'for': 'lua' }
 	Plug 'octol/vim-cpp-enhanced-highlight', { 'for': ['c', 'cpp'] }
-	Plug 'justinmk/vim-syntax-extra', { 'for': ['c', 'bison', 'flex', 'cpp'] }
+	" Plug 'justinmk/vim-syntax-extra', { 'for': ['c', 'bison', 'flex', 'cpp'] }
 	Plug 'vim-python/python-syntax', { 'for': ['python'] }
-	" Plug 'pboettch/vim-cmake-syntax', { 'for': ['cmake'] }
+	Plug 'pboettch/vim-cmake-syntax', { 'for': ['cmake'] }
 	Plug 'tpope/vim-eunuch'
 	Plug 'dag/vim-fish'
 	Plug 'skywind3000/vim-dict'
@@ -124,12 +124,13 @@ if index(g:bundle_group, 'basic') >= 0
 	" noremap <space>ht :Startify<cr>
 	" noremap <space>hy :tabnew<cr>:Startify<cr> 
 
-	let g:cpp_class_scope_highlight = 1
+	" let g:cpp_class_scope_highlight = 1
 	let g:cpp_member_variable_highlight = 1
 	let g:cpp_class_decl_highlight = 1
 	" let g:cpp_experimental_simple_template_highlight = 1
 	let g:cpp_concepts_highlight = 1
 	let g:cpp_no_function_highlight = 1
+	let g:cpp_posix_standard = 1
 
 	let g:python_highlight_builtins = 1
 	let g:python_highlight_builtin_objs = 1
@@ -153,7 +154,7 @@ if index(g:bundle_group, 'inter') >= 0
 	Plug 'tomtom/tlib_vim'
 	Plug 'garbas/vim-snipmate'
 	" Plug 'vim-scripts/FuzzyFinder'
-	Plug 'rust-lang/rust.vim', { 'for': 'rust' }
+	" Plug 'rust-lang/rust.vim', { 'for': 'rust' }
 	Plug 'xolox/vim-notes', { 'on': ['Note', 'SearchNotes', 'DeleteNotes', 'RecentNotes'] }
 	Plug 'skywind3000/vimoutliner', { 'for': 'votl' }
 	Plug 'mattn/webapi-vim'
@@ -180,7 +181,7 @@ endif
 if index(g:bundle_group, 'high') >= 0
 	Plug 'kshenoy/vim-signature'
 	Plug 'mhinz/vim-signify'
-	Plug 'mh21/errormarker.vim'
+	" Plug 'mh21/errormarker.vim'
 	Plug 't9md/vim-choosewin'
 	Plug 'francoiscabrol/ranger.vim'
 	Plug 'kana/vim-textobj-user'
@@ -339,6 +340,11 @@ if index(g:bundle_group, 'vista') >= 0
 	Plug 'liuchengxu/vista.vim'
 endif
 
+if index(g:bundle_group, 'clap') >= 0
+	Plug 'liuchengxu/vim-clap'
+	IncScript site/bundle/clap.vim
+endif
+
 if index(g:bundle_group, 'neoformat') >= 0
 	Plug 'sbdchd/neoformat'
     let g:neoformat_python_autopep8 = {
@@ -391,6 +397,10 @@ if index(g:bundle_group, 'keysound') >= 0
 	Plug 'skywind3000/vim-keysound'
 	let g:keysound_theme = 'default'
 	let g:keysound_enable = 1
+endif
+
+if index(g:bundle_group, 'icons') >= 0
+	Plug 'istepura/vim-toolbar-icons-silk'
 endif
 
 
