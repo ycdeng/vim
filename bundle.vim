@@ -81,10 +81,8 @@ if index(g:bundle_group, 'simple') >= 0
 	vnoremap gb<bar> :Tabularize /\|<cr>
 	nnoremap gbr :Tabularize /\|/r0<cr>
 	vnoremap gbr :Tabularize /\|/r0<cr>
-	map gz <Plug>Sneak_s
-	map gZ <Plug>Sneak_S
 
-	IncScript site/bundle/cycle.vim
+	" IncScript site/bundle/cycle.vim
 endif
 
 

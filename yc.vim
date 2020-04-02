@@ -13,7 +13,7 @@ set autoread
 au CursorHold * checktime  
 set statusline+=%{gutentags#statusline()}
 set diffopt+=vertical
-set list
+" set list
 set listchars=tab:-->
 " disable bracket jump when complete
 set matchtime=0
@@ -58,7 +58,7 @@ let g:gutentags_define_advanced_commands = 1
 let $GTAGSLABEL = 'native-pygments'
 let $GTAGSCONF = '/usr/local/share/gtags/gtags.conf'
 
-let @d = "\<C-w>vgf\<C-w>hbjjgf;windo diffthis\<CR>"
+let @d = "f/\<C-w>vgf\<C-w>h\<down>gf;windo diffthis\<CR>"
 let @o = "do]c"
 " easymotion 高亮
 hi Search cterm=NONE ctermbg=green ctermfg=white
@@ -70,7 +70,7 @@ set cursorline
 hi CursorLine cterm=NONE ctermbg=24
 hi Folded cterm=NONE ctermbg=red ctermfg=white
 hi VertSplit cterm=NONE ctermfg=white ctermbg=8
-hi StatusLine ctermfg=white ctermbg=250 cterm=NONE
+hi StatusLine ctermfg=white ctermbg=red cterm=NONE
 hi StatusLineNC ctermfg=white ctermbg=238 cterm=NONE
 hi TabLineFill ctermfg=LightGreen ctermbg=DarkGreen
 hi TabLine ctermfg=Blue ctermbg=Yellow
@@ -133,15 +133,14 @@ noremap <silent><space>fh :CocCommand clangd.switchSourceHeader<cr>
 " noremap <silent><space>fs :mksession! ~/.vim/session.txt<cr>
 " noremap <silent><space>fl :so ~/.vim/session.txt<cr>
 
-
-" show cursor line only on active window
-augroup CursorLine
-    au!
-    au VimEnter * setlocal cursorline
-    au WinEnter * setlocal cursorline
-    au BufWinEnter * setlocal cursorline
-    au WinLeave * setlocal nocursorline
-augroup END
-
 "  first clear the highlighting and then redraw the screen.
 nnoremap <C-l> :nohl<CR><C-L>
+
+map s <Plug>Sneak_s
+map S <Plug>Sneak_S
+map f <Plug>Sneak_f
+map F <Plug>Sneak_F
+map t <Plug>Sneak_t
+map T <Plug>Sneak_T
+
+let g:sneak#s_next = 1

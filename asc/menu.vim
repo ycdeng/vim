@@ -215,11 +215,13 @@ call quickmenu#current(0)
 call quickmenu#reset()
 
 call quickmenu#append('# Development', '')
-call quickmenu#append('pg-regress', 'AsyncTask pg-regress', 'run %{expand("%")}')
-call quickmenu#append('orafce-regress', 'AsyncTask orafce-regress', 'run %{expand("%")}')
-call quickmenu#append('pg-configure', 'AsyncTask pg-configure', 'run %{expand("%")}')
-call quickmenu#append('pg-deploy', 'AsyncTask pg-deploy', 'run %{expand("%")}')
+call quickmenu#append('at-regress', 'AsyncTask at-regress', 'run %{expand("%")}')
+call quickmenu#append('at-orafce-regress', 'AsyncTask at-orafce-regress', 'run %{expand("%")}')
+call quickmenu#append('at-deploy', 'AsyncTask at-deploy', 'run %{expand("%")}')
+call quickmenu#append('at-configure', 'AsyncTask at-configure', 'run %{expand("%")}')
 
+call quickmenu#append('ex-regress', 'AsyncTask ex-regress', 'run %{expand("%")}')
+call quickmenu#append('ex-deploy', 'AsyncTask ex-deploy', 'run %{expand("%")}')
 
 call quickmenu#append('# Find', '')
 call quickmenu#append('Find word', 'call menu#FindInProject()', 'find (%{expand("<cword>")}) in current project')

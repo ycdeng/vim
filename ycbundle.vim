@@ -142,7 +142,7 @@ if index(g:bundle_group, 'basic') >= 0
 	
  	Plug 'Yggdroot/LeaderF', { 'do': './install.sh' }
 	let g:Lf_ShortcutF = '<c-p>'
-	noremap <c-n> :cclose<cr>:Leaderf! mru --regexMode<cr>
+	noremap <c-n> :cclose<cr>:Leaderf! mru --regexMode --cwd<cr>
 	noremap <m-p> :cclose<cr>:LeaderfFunction!<cr>
 	noremap <m-n> :cclose<cr>:Leaderf! buffer<cr>
 	noremap <m-f> :<C-U><C-R>=printf("Leaderf! rg --current-buffer -e %s ", expand("<cword>"))<CR>

@@ -364,15 +364,15 @@ vmap <space>gs y/<C-R>=escape(@", '\\/.*$^~[]')<CR>
 vmap <space>gr y:%s/<C-R>=escape(@", '\\/.*$^~[]')<CR>//gc<Left><Left><Left>
 
 
-"----------------------------------------------------------------------
-" linting
-"----------------------------------------------------------------------
-noremap <silent><space>lp :call asclib#lint_pylint('')<cr>
-noremap <silent><space>lf :call asclib#lint_flake8('')<cr>
-noremap <silent><space>ls :call asclib#lint_splint('')<cr>
-noremap <silent><space>lc :call asclib#lint_cppcheck('')<cr>
-noremap <silent><space>lg :call asclib#open_gprof('', '')<cr>
-noremap <silent><space>lt :call asclib#html_prettify()<cr>
+" "----------------------------------------------------------------------
+" " linting
+" "----------------------------------------------------------------------
+" noremap <silent><space>lp :call asclib#lint_pylint('')<cr>
+" noremap <silent><space>lf :call asclib#lint_flake8('')<cr>
+" noremap <silent><space>ls :call asclib#lint_splint('')<cr>
+" noremap <silent><space>lc :call asclib#lint_cppcheck('')<cr>
+" noremap <silent><space>lg :call asclib#open_gprof('', '')<cr>
+" noremap <silent><space>lt :call asclib#html_prettify()<cr>
 
 
 "----------------------------------------------------------------------
