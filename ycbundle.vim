@@ -61,6 +61,7 @@ if index(g:bundle_group, 'simple') >= 0
 	Plug 'tpope/vim-vinegar'
 	Plug 'bootleq/vim-cycle'
 	Plug 'tpope/vim-surround'
+	Plug 'fatih/vim-go'
 
 	map gz <Plug>Sneak_s
 	map gZ <Plug>Sneak_S
