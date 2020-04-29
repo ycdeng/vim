@@ -61,7 +61,27 @@ if index(g:bundle_group, 'simple') >= 0
 	Plug 'tpope/vim-vinegar'
 	Plug 'bootleq/vim-cycle'
 	Plug 'tpope/vim-surround'
-	Plug 'fatih/vim-go'
+	Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
+" ------------------- vim-go.vim configuration --------------------
+	" use golang language server
+	let g:go_def_mode='gopls'
+	let g:go_info_mode='gopls'
+	" Highlight more info
+	let g:go_highlight_build_constraints = 1
+	let g:go_highlight_extra_types = 1
+	let g:go_highlight_fields = 1
+	let g:go_highlight_functions = 1
+	let g:go_highlight_methods = 1
+	let g:go_highlight_operators = 1
+	let g:go_highlight_structs = 1
+	let g:go_highlight_types = 1
+	" highlight same variable in view
+	let g:go_auto_sameids = 1
+	" show type info in statusbar
+	" let g:go_auto_type_info = 1
+	" disable gd mapping of vim-go
+	let g:go_def_mapping_enabled = 0
+" -------------------- vim-go.vim configuration finished --------------------
 
 	map gz <Plug>Sneak_s
 	map gZ <Plug>Sneak_S
