@@ -144,3 +144,19 @@ map t <Plug>Sneak_t
 map T <Plug>Sneak_T
 
 let g:sneak#s_next = 1
+
+highlight CocErrorHighlight ctermfg=Red  guifg=#ff0000
+
+" 解决windows terminal的cursor问题
+if &term =~ '^xterm'
+" normal mode
+let &t_EI .= "\<Esc>[0 q"
+" insert mode
+let &t_SI .= "\<Esc>[6 q"
+endif
+
+" 关闭LeaderF字体
+let g:Lf_ShowDevIcons = 0
+
+hi CocFloating ctermbg=8
+

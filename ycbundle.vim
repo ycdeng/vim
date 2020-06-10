@@ -74,13 +74,16 @@ if index(g:bundle_group, 'simple') >= 0
 	let g:go_highlight_methods = 1
 	let g:go_highlight_operators = 1
 	let g:go_highlight_structs = 1
-	let g:go_highlight_types = 1
+	let g:go_highlight_types = 0
 	" highlight same variable in view
-	let g:go_auto_sameids = 1
+	let g:go_auto_sameids = 0
 	" show type info in statusbar
 	" let g:go_auto_type_info = 1
 	" disable gd mapping of vim-go
 	let g:go_def_mapping_enabled = 0
+	let g:go_rename_command = 'gopls'
+	set autowrite
+
 " -------------------- vim-go.vim configuration finished --------------------
 
 	map gz <Plug>Sneak_s
@@ -130,6 +133,7 @@ if index(g:bundle_group, 'simple') >= 0
 	nmap <silent> gy <Plug>(coc-type-definition)
 	nmap <silent> gi <Plug>(coc-implementation)
 	nmap <silent> gr <Plug>(coc-references)
+	nmap <leader> gn <Plug>(coc-action-rename)
 
 	" Use K to show documentation in preview window.
 	nnoremap <silent> K :call <SID>show_documentation()<CR>
@@ -172,7 +176,7 @@ if index(g:bundle_group, 'basic') >= 0
 	noremap <leader>rf :<C-U><C-R>=printf("Leaderf! rg -e %s ", expand("<cword>"))<CR>
 	" -w, --word-regexp
 	noremap <leader>rr :cclose<cr>:Leaderf! rg --recall<cr>
-	let g:Lf_GtagsAutoGenerate = 1
+	let g:Lf_GtagsAutoGenerate = 0
 	let g:Lf_Gtagslabel = 'native-pygments'
 	noremap <leader>gr :<C-U><C-R>=printf("Leaderf! gtags -r %s --auto-jump", expand("<cword>"))<CR><CR>
 	noremap <leader>gd :<C-U><C-R>=printf("Leaderf! gtags -d %s --auto-jump", expand("<cword>"))<CR><CR>
