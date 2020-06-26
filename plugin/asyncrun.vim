@@ -3,7 +3,7 @@
 " Maintainer: skywind3000 (at) gmail.com, 2016, 2017, 2018, 2019, 2020
 " Homepage: http://www.vim.org/scripts/script.php?script_id=5431
 "
-" Last Modified: 2020/03/26 10:20
+" Last Modified: 2020/04/09 11:13
 "
 " Run shell command in background and output to quickfix:
 "     :AsyncRun[!] [options] {cmd} ...
@@ -952,7 +952,12 @@ function! asyncrun#fullname(f)
 			let f = '%'
 		endtry
 	endif
-	let f = (f != '%')? f : expand('%')
+	if f == '%'
+		let f = expand('%')
+		if &bt == 'terminal'
+			let f = ''
+		endif
+	endif
 	let f = fnamemodify(f, ':p')
 	if s:asyncrun_windows
 		let f = substitute(f, "\\", '/', 'g')
@@ -1003,9 +1008,6 @@ endfunc
 function! s:find_root(path, markers, strict)
 	function! s:guess_root(filename, markers)
 		let fullname = asyncrun#fullname(a:filename)
-		if exists('b:asyncrun_root')
-			return b:asyncrun_root
-		endif
 		if fullname =~ '^fugitive:/'
 			if exists('b:git_dir')
 				return fnamemodify(b:git_dir, ':h')
@@ -1037,6 +1039,15 @@ function! s:find_root(path, markers, strict)
 		endwhile
         return ''
 	endfunc
+	if a:path == '%'
+		if exists('b:asyncrun_root') && b:asyncrun_root != ''
+			return b:asyncrun_root
+		elseif exists('t:asyncrun_root') && t:asyncrun_root != ''
+			return t:asyncrun_root
+		elseif exists('g:asyncrun_root') && g:asyncrun_root != ''
+			return g:asyncrun_root
+		endif
+	endif
 	let root = s:guess_root(a:path, a:markers)
 	if root != ''
 		return asyncrun#fullname(root)
@@ -1699,8 +1710,10 @@ function! asyncrun#run(bang, opts, args, ...)
     let l:macros['VIM_HOME'] = expand(split(&rtp, ',')[0])
 	let l:macros['VIM_PRONAME'] = fnamemodify(l:macros['VIM_ROOT'], ':t')
 	let l:macros['VIM_DIRNAME'] = fnamemodify(l:macros['VIM_CWD'], ':t')
+	let l:macros['VIM_PWD'] = l:macros['VIM_CWD']
 	let l:macros['<cwd>'] = l:macros['VIM_CWD']
 	let l:macros['<root>'] = l:macros['VIM_ROOT']
+	let l:macros['<pwd>'] = l:macros['VIM_PWD']
 	let l:retval = ''
 
 	" handle: empty extension
@@ -1847,7 +1860,7 @@ endfunc
 " asyncrun - version
 "----------------------------------------------------------------------
 function! asyncrun#version()
-	return '2.7.1'
+	return '2.7.5'
 endfunc
 
 

@@ -9,8 +9,6 @@
 
 " global settings
 let s:winopen = 0
-let g:status_var = ""
-set statusline=\ %<%F[%1*%M%*%n%R%H]\ %{''.g:status_var}%=\ %y\ %0(%{&fileformat}\ [%{(&fenc==\"\"?&enc:&fenc).(&bomb?\",BOM\":\"\")}]\ %v:%l/%L%)
 set splitright
 set smartcase
 set switchbuf=useopen,usetab,newtab
@@ -164,14 +162,26 @@ function! Open_HeaderFile(where)
 		echo 'switch failed, not a c/c++ source'
 		return
 	endif
+	if a:where < 0 || a:where == 0
+		if &modified
+			if &hidden == 0 && &bufhidden != 'hide'
+				echo 'file is modified'
+				return
+			endif
+		endif
+	endif
 	for l:next in l:altnames
 		let l:newname = l:main . '.' . l:next
 		if filereadable(l:newname)
-			if a:where == 0
+			if a:where < 0
+				exec 'e ' . fnameescape(l:newname)
+			elseif a:where == 0
 				call Tools_FileSwitch('e', l:newname)
 			elseif a:where == 1
 				call Tools_FileSwitch('vs', l:newname)
-			else
+			elseif a:where == 2
+				call Tools_FileSwitch('split', l:newname)
+			elseif a:where == 3
 				call Tools_FileSwitch('tabnew', l:newname)
 			endif
 			return
@@ -179,6 +189,10 @@ function! Open_HeaderFile(where)
 	endfor
 	echo 'switch failed, can not find another part of c/c++ source'
 endfunc
+
+command! -nargs=0 SwitchHeaderEdit call Open_HeaderFile(-1)
+command! -nargs=0 SwitchHeaderSplit call Open_HeaderFile(1)
+command! -nargs=0 SwitchHeaderTab call Open_HeaderFile(3)
 
 " Open Explore in new tab with current directory
 function! Open_Explore(where)
@@ -379,7 +393,6 @@ endfunc
 
 
 " quickfix
-let g:status_var = ""
 let g:asyncrun_status = ''
 augroup QuickfixStatus
 	" au! BufWinEnter quickfix setlocal 
@@ -911,6 +924,19 @@ command! -nargs=? -range MyCheatSheetAlign <line1>,<line2>call s:Tools_CheatShee
 
 
 "----------------------------------------------------------------------
+" add class name to function
+"----------------------------------------------------------------------
+function! s:Tools_ClassInsert(clsname)
+	let clsname = escape(a:clsname, '/\[*~^')
+	let text = 's/\~\=\w\+\s*(/' . clsname . '::&/'
+	silent! keepjumps exec text
+endfunc
+
+command! -nargs=1 -range ClassInsert <line1>,<line2>call s:Tools_ClassInsert(<q-args>)
+command! -nargs=0 -range BraceExpand <line1>,<line2>s/;\s*$/\r{\r}\r\r/
+
+
+"----------------------------------------------------------------------
 " Load url
 "----------------------------------------------------------------------
 function! s:ReadUrl(url)
@@ -972,5 +998,18 @@ function! s:OpenTerminal(pos)
 endfunc
 
 command! -nargs=1 OpenTerminal call s:OpenTerminal(<q-args>)
+
+
+"----------------------------------------------------------------------
+" break long lines to small lines of 76 characters.
+"----------------------------------------------------------------------
+function! s:LineBreaker(width)
+	let width = &textwidth
+	let &textwidth = str2nr(a:width)	
+	exec 'normal ggVGgq'
+	let &textwidth = width
+endfunc
+
+command! -nargs=1 LineBreaker call s:LineBreaker(<q-args>)
 
 

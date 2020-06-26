@@ -126,7 +126,12 @@ function! asclib#path#fullname(f)
 			let f = '%'
 		endtry
 	endif
-	let f = (f != '%')? f : expand('%')
+	if f == '%'
+		let f = expand('%')
+		if &bt == 'terminal'
+			let f = ''
+		endif
+	endif
 	let f = fnamemodify(f, ':p')
 	if has('win32') || has('win64') || has('win16') || has('win95')
 		let f = substitute(f, "\\", '/', 'g')
@@ -251,9 +256,6 @@ endfunc
 function! s:find_root(path, markers, strict)
 	function! s:guess_root(filename, markers)
 		let fullname = asclib#path#fullname(a:filename)
-		if exists('b:asclib_path_root')
-			return b:asclib_path_root
-		endif
 		if fullname =~ '^fugitive:/'
 			if exists('b:git_dir')
 				return fnamemodify(b:git_dir, ':h')
@@ -285,6 +287,15 @@ function! s:find_root(path, markers, strict)
 		endwhile
 		return ''
     endfunc
+	if a:path == '%'
+		if exists('b:asyncrun_root') && b:asyncrun_root != ''
+			return b:asyncrun_root
+		elseif exists('t:asyncrun_root') && t:asyncrun_root != ''
+			return t:asyncrun_root
+		elseif exists('g:asyncrun_root') && g:asyncrun_root != ''
+			return g:asyncrun_root
+		endif
+	endif
 	let root = s:guess_root(a:path, a:markers)
 	if root != ''
 		return asclib#path#abspath(root)
@@ -361,5 +372,38 @@ function! asclib#path#cachedir(cache_dir, root_dir, filename)
 	let l:file_path = asclib#path#normalize(l:file_path)
 	return l:file_path
 endfunc
+
+
+"----------------------------------------------------------------------
+" push current dir in stack and switch dir to path
+"----------------------------------------------------------------------
+function! asclib#path#push_dir(path)
+	if !exists('s:dir_stack')
+		let s:dir_stack = []
+	endif
+	let previous = getcwd()
+	let s:dir_stack += [previous]
+	call asclib#path#chdir(a:path)
+	return previous
+endfunc
+
+
+"----------------------------------------------------------------------
+" pop current dir in stack
+"----------------------------------------------------------------------
+function! asclib#path#pop_dir()
+	if !exists('s:dir_stack')
+		let s:dir_stack = []
+	endif
+	let size = len(s:dir_stack)
+	if size == 0
+		return ''
+	endif
+	let previous = s:dir_stack[size - 1]
+	call remove(s:dir_stack, size - 1)
+	call asclib#path#chdir(previous)
+	return previous
+endfunc
+
 
 

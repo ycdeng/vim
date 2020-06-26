@@ -62,6 +62,8 @@ if index(g:bundle_group, 'simple') >= 0
 	Plug 'bootleq/vim-cycle'
 	Plug 'tpope/vim-surround'
 	Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
+	Plug 'voldikss/vim-floaterm'
+
 " ------------------- vim-go.vim configuration --------------------
 	" use golang language server
 	let g:go_def_mode='gopls'
