@@ -71,8 +71,6 @@ noremap <space>p viw"0p
 noremap <space>y yiw
 
 " fast save
-noremap <C-S> :w<cr>
-inoremap <C-S> <ESC>:w<cr>
 
 noremap <silent><m-t> :tabnew<cr>
 inoremap <silent><m-t> <ESC>:tabnew<cr>
