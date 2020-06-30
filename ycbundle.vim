@@ -54,16 +54,15 @@ if index(g:bundle_group, 'simple') >= 0
 	" map  N <Plug>(easymotion-prev)
 	let g:EasyMotion_smartcase = 1
 
-	Plug 'Raimondi/delimitMate'
+	Plug 'jiangmiao/auto-pairs'
 	Plug 'justinmk/vim-dirvish'
 	Plug 'justinmk/vim-sneak'
+	Plug 'kristijanhusak/vim-dirvish-git'
 	Plug 'tpope/vim-unimpaired'
 	Plug 'tpope/vim-vinegar'
-	Plug 'bootleq/vim-cycle'
-	Plug 'tpope/vim-surround'
 	Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
 	Plug 'voldikss/vim-floaterm'
-
+	let g:floaterm_keymap_toggle = '<Leader>tt'
 " ------------------- vim-go.vim configuration --------------------
 	" use golang language server
 	let g:go_def_mode='gopls'
@@ -85,6 +84,12 @@ if index(g:bundle_group, 'simple') >= 0
 	let g:go_def_mapping_enabled = 0
 	let g:go_rename_command = 'gopls'
 	set autowrite
+	let g:go_list_type = "quickfix"
+	autocmd FileType go nmap <leader>b  <Plug>(go-build)
+	let g:go_fmt_command = "goimports"
+	let g:go_metalinter_enabled = ['vet', 'golint', 'errcheck']
+	let g:go_metalinter_autosave = 1
+	let g:go_metalinter_deadline = "5s"
 
 " -------------------- vim-go.vim configuration finished --------------------
 
@@ -159,9 +164,9 @@ if index(g:bundle_group, 'basic') >= 0
 
 	Plug 'tomasiser/vim-code-dark'
 	Plug 'dunstontc/vim-vscode-theme'
-	Plug 'puremourning/vimspector'
+	" Plug 'puremourning/vimspector'
 	Plug 'xolox/vim-misc'
-	Plug 'terryma/vim-expand-region'
+	" Plug 'terryma/vim-expand-region'
 
 	Plug 'octol/vim-cpp-enhanced-highlight', { 'for': ['c', 'cpp'] }
 	Plug 'justinmk/vim-syntax-extra', { 'for': ['c', 'bison', 'flex', 'cpp'] }
@@ -215,25 +220,9 @@ endif
 
 
 "----------------------------------------------------------------------
-" package group - high
-"----------------------------------------------------------------------
-if index(g:bundle_group, 'high') >= 0
-	Plug 'kana/vim-textobj-user'
-	Plug 'kana/vim-textobj-syntax'
-	Plug 'kana/vim-textobj-function', { 'for':['c', 'cpp', 'vim', 'java'] }
-	Plug 'sgur/vim-textobj-parameter'
-	Plug 'bps/vim-textobj-python', {'for': 'python'}
-	Plug 'jceb/vim-textobj-uri'
-	let g:ranger_map_keys = 0
-
-end
-
-
-"----------------------------------------------------------------------
 " package group - opt
 "----------------------------------------------------------------------
 if index(g:bundle_group, 'opt') >= 0
-	Plug 'tpope/vim-speeddating'
 	let g:gutentags_modules = []
 	if executable('ctags')
 		let g:gutentags_modules += ['ctags']
@@ -241,15 +230,6 @@ if index(g:bundle_group, 'opt') >= 0
 	if len(g:gutentags_modules) > 0
 		Plug 'ludovicchabant/vim-gutentags'
 	endif
-endif
-
-
-
-" echodoc
-if index(g:bundle_group, 'echodoc') >= 0
-	Plug 'Shougo/echodoc.vim'
-let g:echodoc#enable_at_startup = 1
-let g:echodoc#type = 'signature'
 endif
 
 if index(g:bundle_group, 'grammer') >= 0
