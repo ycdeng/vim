@@ -55,12 +55,14 @@ if index(g:bundle_group, 'simple') >= 0
 	let g:EasyMotion_smartcase = 1
 
 	Plug 'jiangmiao/auto-pairs'
+	let g:AutoPairsShortcutToggle = ''
+	let g:AutoPairsShortcutJump = '<M-c>'
 	Plug 'justinmk/vim-dirvish'
 	Plug 'justinmk/vim-sneak'
 	Plug 'kristijanhusak/vim-dirvish-git'
 	Plug 'tpope/vim-unimpaired'
 	Plug 'tpope/vim-vinegar'
-	Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
+	Plug 'fatih/vim-go', { 'do': ':GoInstallBinaries' }
 	Plug 'voldikss/vim-floaterm'
 	let g:floaterm_keymap_toggle = '<Leader>tt'
 " ------------------- vim-go.vim configuration --------------------
@@ -88,7 +90,7 @@ if index(g:bundle_group, 'simple') >= 0
 	autocmd FileType go nmap <leader>b  <Plug>(go-build)
 	let g:go_fmt_command = "goimports"
 	let g:go_metalinter_enabled = ['vet', 'golint', 'errcheck']
-	let g:go_metalinter_autosave = 1
+	let g:go_metalinter_autosave = 0
 	let g:go_metalinter_deadline = "5s"
 
 " -------------------- vim-go.vim configuration finished --------------------
@@ -174,6 +176,9 @@ if index(g:bundle_group, 'basic') >= 0
 	
  	Plug 'Yggdroot/LeaderF', { 'do': './install.sh' }
 	let g:Lf_ShortcutF = '<c-p>'
+	Plug 'Yggdroot/LeaderF'
+	Plug 'tamago324/LeaderF-filer'
+	IncScript site/bundle/leaderf.vim
 	noremap <c-n> :cclose<cr>:Leaderf! mru --regexMode --cwd<cr>
 	noremap <m-p> :cclose<cr>:LeaderfFunction!<cr>
 	noremap <m-n> :cclose<cr>:Leaderf! buffer<cr>

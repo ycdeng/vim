@@ -4,7 +4,7 @@
 "----------------------------------------------------------------------
 " Better setup for VIM 7.0 and later
 "----------------------------------------------------------------------
-filetype plugin indent on
+filetype plugin on
 set hlsearch
 set incsearch
 set wildmenu

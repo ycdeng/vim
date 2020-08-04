@@ -11,8 +11,8 @@
 "----------------------------------------------------------------------
 " keymap
 "----------------------------------------------------------------------
-let g:Lf_ShortcutF = '<c-p>'
 let g:Lf_ShortcutB = '<m-n>'
+let g:Lf_ShortcutF = '<c-p>'
 noremap <c-n> :cclose<cr>:Leaderf --nowrap mru --regexMode<cr>
 noremap <m-p> :cclose<cr>:Leaderf! --nowrap function<cr>
 noremap <m-P> :cclose<cr>:Leaderf! --nowrap buftag<cr>
@@ -42,10 +42,10 @@ let g:Lf_HideHelp = 1
 let g:Lf_NoChdir = 1
 
 let g:Lf_WildIgnore = {
-            \ 'dir': ['.svn','.git','.hg'],
+            \ 'dir': ['.svn','.git','.hg', 'vendor'],
             \ 'file': ['*.sw?','~$*','*.bak','*.exe','*.o','*.so','*.py[co]']
 			\ }
-
+let g:Lf_UseVersionControlTool = 0
 let g:Lf_MruFileExclude = ['*.so', '*.exe', '*.py[co]', '*.sw?', '~$*', '*.bak', '*.tmp', '*.dll']
 let g:Lf_MruMaxFiles = 2048
 let g:Lf_StlColorscheme = 'powerline'
